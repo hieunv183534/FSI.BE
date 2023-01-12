@@ -1,0 +1,45 @@
+{
+  "culture": "en",
+  "texts": {
+    "Menu:Home": "Home",
+    "Welcome": "Welcome",
+
+    "Menu:General": "General",
+    "Menu:GeneralCategory": "General Category",
+
+    "Menu:NOMStruct": "Struct",
+    "Menu:NOMTable": "List Table",
+    "Menu:NOMTableType": "List Table Type",
+    "Actions": "Actions",
+    "Close": "Close",
+    "Delete": "Delete",
+    "Edit": "Edit",
+    "New": "New",
+    "Code": "Code",
+    "Name": "Name",
+    "Scopes": "Scopes",
+    "HasEdit": "Allow edit",
+    "CreationTime": "Creation time",
+    "AreYouSure": "Are you sure?",
+    "AreYouSureToDelete": "Are you sure you want to delete this item?",
+    "General": "General",
+    "Detail": "Detail",
+
+    "Permission:General": "General",
+    "Permission:Category": "General Category",
+    "Permission:Category.Create": "Add new general category",
+    "Permission:Category.Edit": "Editing the general category",
+    "Permission:Category.Delete": "Deleting the general category",
+
+    "Permission:NOMStruct": "Struct",
+    "Permission:NOMTable": "Table",
+    "Permission:NOMTable.Create": "Add new table",
+    "Permission:NOMTable.Edit": "Editing the table",
+    "Permission:NOMTable.Delete": "Deleting the table",
+
+    "Permission:NOMTableType": "Table Type",
+    "Permission:NOMTableType.Create": "Add new table type",
+    "Permission:NOMTableType.Edit": "Editing the table type",
+    "Permission:NOMTableType.Delete": "Deleting the table type"
+  }
+}

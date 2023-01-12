@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>e6850f0f-156b-432f-b626-f4e80b181fab</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
+    <PackageReference Include="Serilog.Sinks.Async" Version="1.5.0" />
+    <PackageReference Include="Steeltoe.Discovery.ClientCore" Version="3.2.0" />
+    <PackageReference Include="Steeltoe.Discovery.Eureka" Version="3.2.0" />
+    <PackageReference Include="Volo.Abp.AspNetCore.Authentication.JwtBearer" Version="5.3.1" />
+    <PackageReference Include="Volo.Abp.AspNetCore.Serilog" Version="5.3.1" />
+    <PackageReference Include="Volo.Abp.Autofac" Version="5.3.1" />
+    <PackageReference Include="Volo.Abp.Swashbuckle" Version="5.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FSI.Application\FSI.Application.csproj" />
+    <ProjectReference Include="..\FSI.EFCore\FSI.EFCore.csproj" />
+    <ProjectReference Include="..\FSI.HttpApi\FSI.HttpApi.csproj" />
+  </ItemGroup>
+
+</Project>

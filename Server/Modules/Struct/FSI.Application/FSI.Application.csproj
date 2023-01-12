@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.FeatureManagement.Application" Version="5.3.1" />
+    <PackageReference Include="Volo.Abp.SettingManagement.Application" Version="5.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Base\Core\FSI.Common\FSI.Common.csproj" />
+    <ProjectReference Include="..\..\..\Base\Core\FSI.Lib\FSI.Lib.csproj" />
+    <ProjectReference Include="..\FSI.Application.Contracts\FSI.Application.Contracts.csproj" />
+    <ProjectReference Include="..\FSI.Domain\FSI.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

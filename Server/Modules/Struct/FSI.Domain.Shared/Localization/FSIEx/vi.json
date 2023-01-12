@@ -1,0 +1,40 @@
+﻿{
+  "culture": "vi",
+  "texts": {
+    "NOMStructEx:GeneralCategory.00001": "Đã tồn tại danh mục chung với mã: {code}",
+    "NOMStructEx:GeneralCategory.00002": "Đã tồn tại danh mục chung với tên: {name}",
+    "NOMStructEx:GeneralCategory.00003": "Đã tồn tại danh mục chi tiết với mã: {code}",
+    "NOMStructEx:GeneralCategory.00004": "Đã tồn tại danh mục chi tiết với tên: {name}",
+
+    "NOMStructEx:NOMTable.00001": "Đã tồn tại bảng với tên: {tableName}",
+    "NOMStructEx:NOMTable.00002": "Đã tồn tại bảng với tiêu đề: {tableCation}",
+    "NOMStructEx:NOMTable.00003": "Đã tồn tại cột với tên: {columnName}",
+    "NOMStructEx:NOMTable.00004": "Đã tồn tại cột với tiêu đề: {columnCaption}",
+    "NOMStructEx:NOMTable.00005": "Bảng không tồn tại",
+    "NOMStructEx:NOMTable.00006": "Bảng cần được kiểm tra lại",
+    "NOMStructEx:NOMTable.00007": "Bảng đang chuẩn hóa",
+    "NOMStructEx:NOMTable.00008": "Bảng chưa gửi chuẩn hóa",
+    "NOMStructEx:NOMTable.00009": "Bảng chưa được chuẩn hóa",
+
+    "NOMStructEx:NOMColumn.00003": "Đã tồn tại cột với tên: {columnName}",
+    "NOMStructEx:NOMColumn.00004": "Đã tồn tại cột với tiêu đề: {columnCaption}",
+
+
+    "NOMStructEx:NOMTableType.00001": "Đã tồn tại loại bảng với tên: {name}",
+
+    "NOMStructEx:StructView.00001": "Đã tồn tại view với tên: {structViewName}",
+    "NOMStructEx:StructView.00002": "Đã tồn tại view với tiêu đề: {structViewCaption}",
+
+    "NOMStructEx:StructScreen.00001": "Đã tồn tại screen với tên: {structScreenName}",
+    "NOMStructEx:StructScreen.00002": "Đã tồn tại screen với tiêu đề: {structScreenCaption}",
+
+    "NOMObjectEx:ObjectView.00001": "Đã tồn tại view với tên: {objectViewName}",
+    "NOMObjectEx:ObjectView.00002": "Đã tồn tại view với tiêu đề: {objectViewCaption}",
+
+    "NOMObjectEx:ObjectScreen.00001": "Đã tồn tại screen với tên: {objectScreenName}",
+    "NOMObjectEx:ObjectScreen.00002": "Đã tồn tại screen với tiêu đề: {objectScreenCaption}",
+
+    "NOMStructEx:StructDataType.00001": "Không tồn tại kiểu dữ liệu",
+    "NOMStructEx:StructDataType.00002": "Đã tồn tại kiểu dữ liệu với tên: {name}"
+  }
+}

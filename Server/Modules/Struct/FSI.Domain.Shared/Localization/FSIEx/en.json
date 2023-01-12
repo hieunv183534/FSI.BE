@@ -1,0 +1,44 @@
+﻿{
+  "culture": "en",
+  "texts": {
+    "NOMStructEx:GeneralCategory.00001": "There is already an category with the same code: {code}",
+    "NOMStructEx:GeneralCategory.00002": "There is already an category with the same name: {name}",
+    "NOMStructEx:GeneralCategory.00003": "There is already an category detail with the same code: {code}",
+    "NOMStructEx:GeneralCategory.00004": "There is already an category detail with the same name: {name}",
+
+    "NOMStructEx:NOMTable.00001": "There is already an table with the same name: {tableName}",
+    "NOMStructEx:NOMTable.00002": "There is already an table with the same caption: {tableCation}",
+    "NOMStructEx:NOMTable.00003": "There is already an column with the same name: {columnName}",
+    "NOMStructEx:NOMTable.00004": "There is already an column with the same caption: {columnCaption}",
+    "NOMStructEx:NOMTable.00005": "Struct table not exist",
+    "NOMStructEx:NOMTable.00006": "Table need to be rechecked",
+    "NOMStructEx:NOMTable.00007": "Table is migrating",
+    "NOMStructEx:NOMTable.00008": "Table has not been sent migration",
+    "NOMStructEx:NOMTable.00009": "Table has not been migration",
+
+
+    "NOMStructEx:NOMColumn.00003": "There is already an column with the same name: {columnName}",
+    "NOMStructEx:NOMColumn.00004": "There is already an column with the same caption: {columnCaption}",
+
+    "NOMStructEx:NOMTableType.00001": "There is already an table type with the same name: {name}",
+
+    "NOMStructEx:StructView.00001": "There is already an view with the same name: {structViewName}",
+    "NOMStructEx:StructView.00002": "There is already an view with the same caption: {structViewCaption}",
+
+    "NOMStructEx:StructScreen.00001": "There is already an screen with the same name: {structScreenName}",
+    "NOMStructEx:StructScreen.00002": "There is already an screen with the same caption: {structScreenCaption}",
+
+    "NOMObjectEx:ObjectView.00001": "There is already an view with the same name: {objectViewName}",
+    "NOMObjectEx:ObjectView.00002": "There is already an view with the same caption: {objectViewCaption}",
+
+    "NOMObjectEx:ObjectScreen.00001": "There is already an screen with the same name: {objectScreenName}",
+    "NOMObjectEx:ObjectScreen.00002": "There is already an screen with the same caption: {objectScreenCaption}",
+
+    "NOMStructEx:NOMTableSnapshot.00001": "There is already an table with the same name: {tableName}",
+
+    "NOMStructEx:StructDataType.00001": "Not exsit data type",
+    "NOMStructEx:StructDataType.00002": "There is already an data type with the same name: {name}"
+
+
+  }
+}
