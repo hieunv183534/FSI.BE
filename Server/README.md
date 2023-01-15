@@ -1,2 +1,0 @@
-# VNPTNET_NOM
-
