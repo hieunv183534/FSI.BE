@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Volo.Abp.AuditLogging;
 using Volo.Abp.AutoMapper;
-using Volo.Abp.BackgroundJobs;
 using Volo.Abp.Emailing;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Modularity;
@@ -13,7 +12,6 @@ namespace FSI
     [DependsOn(
        typeof(DomainSharedModule),
        typeof(AbpAuditLoggingDomainModule),
-       typeof(AbpBackgroundJobsDomainModule),
        typeof(AbpFeatureManagementDomainModule),
        typeof(AbpSettingManagementDomainModule),
        typeof(AbpEmailingModule),

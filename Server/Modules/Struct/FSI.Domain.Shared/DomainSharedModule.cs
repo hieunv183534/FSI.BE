@@ -1,6 +1,5 @@
 ﻿using FSI.Localization;
 using Volo.Abp.AuditLogging;
-using Volo.Abp.BackgroundJobs;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Localization;
 using Volo.Abp.Localization.ExceptionHandling;
@@ -13,7 +12,6 @@ namespace FSI;
 
 [DependsOn(
     typeof(AbpAuditLoggingDomainSharedModule),
-    typeof(AbpBackgroundJobsDomainSharedModule),
     typeof(AbpFeatureManagementDomainSharedModule),
     typeof(AbpSettingManagementDomainSharedModule)
     )]
