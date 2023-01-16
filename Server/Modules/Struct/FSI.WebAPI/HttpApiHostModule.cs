@@ -39,10 +39,10 @@ namespace FSI
             ConfigureLocalization();
             ConfigureVirtualFileSystem(context);
             ConfigureCors(context, configuration);
-            ConfigureEureka(context, configuration); // haitc 06/07/2022
+            //ConfigureEureka(context, configuration); 
             ConfigureSwaggerServices(context, configuration);
 
-            context.Services.AddSingleton<IHttpExceptionStatusCodeFinder, NOMStructHttpExceptionStatusCodeFinder>();
+            context.Services.AddSingleton<IHttpExceptionStatusCodeFinder, HttpExceptionStatusCodeFinder>();
             //ConfigureHangfire(context, configuration);
             //Configure<AbpRabbitMqOptions>(options =>
             //{
@@ -123,18 +123,18 @@ namespace FSI
 
         private void ConfigureAuthentication(ServiceConfigurationContext context, IConfiguration configuration)
         {
-            context.Services.AddAuthentication()
-                .AddJwtBearer(options =>
-                {
-                    options.Authority = configuration["AuthServer:Authority"];
-                    options.RequireHttpsMetadata = Convert.ToBoolean(configuration["AuthServer:RequireHttpsMetadata"]);
-                    options.Audience = "NOM";
-                    options.BackchannelHttpHandler = new HttpClientHandler
-                    {
-                        ServerCertificateCustomValidationCallback =
-                            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-                    };
-                });
+            //context.Services.AddAuthentication()
+            //    .AddJwtBearer(options =>
+            //    {
+            //        options.Authority = configuration["AuthServer:Authority"];
+            //        options.RequireHttpsMetadata = Convert.ToBoolean(configuration["AuthServer:RequireHttpsMetadata"]);
+            //        options.Audience = "NOM";
+            //        options.BackchannelHttpHandler = new HttpClientHandler
+            //        {
+            //            ServerCertificateCustomValidationCallback =
+            //                HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            //        };
+            //    });
         }
 
         private static void ConfigureSwaggerServices(ServiceConfigurationContext context, IConfiguration configuration)

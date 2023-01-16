@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  #database section
+
+  #fsidb: mysql
+  fsidb:
+    container_name: fsidb
+    environment:
+      MYSQL_ROOT_PASSWORD: "Passw0rd!"
+    restart: always
+    volumes:
+      - fsi_mysql_data:/var/lib/mysql
+    ports:
+      - "3308:3306"

@@ -12,11 +12,11 @@ using Volo.Abp.Validation;
 
 namespace FSI
 {
-    public class NOMStructHttpExceptionStatusCodeFinder : IHttpExceptionStatusCodeFinder, ITransientDependency
+    public class HttpExceptionStatusCodeFinder : IHttpExceptionStatusCodeFinder, ITransientDependency
     {
         protected AbpExceptionHttpStatusCodeOptions Options { get; }
 
-        public NOMStructHttpExceptionStatusCodeFinder(
+        public HttpExceptionStatusCodeFinder(
             IOptions<AbpExceptionHttpStatusCodeOptions> options)
         {
             Options = options.Value;

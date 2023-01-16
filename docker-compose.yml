@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  #database section
+  fsidb:
+    image: mysql:8.0.29
+
+#network section
+networks:
+  default:
+    name: fsi_microservices
+    driver: bridge
+
+#volumes section
+volumes:
+  fsi_mysql_data:
+    name: fsi_mysql_data

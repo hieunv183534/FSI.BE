@@ -15,10 +15,8 @@ public class DbContextFactory : IDesignTimeDbContextFactory<DbContext>
 
         var configuration = BuildConfiguration();
 
-        //var oracleVersion = configuration.GetSection("OracleSettings").GetSection("OracleVersion").Value;
-        var builder = new DbContextOptionsBuilder<DbContext>()
-            .UseOracle(configuration.GetConnectionString("DefaultConnection"));//, b => b.UseOracleSQLCompatibility("19"));
-            //.UseSqlServer(configuration.GetConnectionString("Default"));
+        var serverVersion = new MySqlServerVersion(new Version(8, 0, 29));
+        var builder = new DbContextOptionsBuilder<DbContext>().UseMySql(configuration.GetConnectionString("DefaultConnection"), serverVersion);
 
         return new DbContext(builder.Options);
     }

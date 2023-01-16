@@ -14,6 +14,6 @@ public class DbMigratorModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
-        Configure<AbpBackgroundJobOptions>(options => options.IsJobExecutionEnabled = false);
+        //Configure<AbpBackgroundJobOptions>(options => options.IsJobExecutionEnabled = false);
     }
 }
