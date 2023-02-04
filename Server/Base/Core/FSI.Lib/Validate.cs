@@ -1,10 +1,10 @@
-﻿using Common;
+﻿using VNPTNET.NOM.Common;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using Common;
+using VNPTNET.NOM.Common.Enums;
 
-namespace Lib
+namespace VNPTNET.NOM.Lib
 {
     public class Validate
     {

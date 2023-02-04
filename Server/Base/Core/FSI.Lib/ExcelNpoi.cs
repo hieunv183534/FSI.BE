@@ -14,9 +14,10 @@ using System.Reflection;
 using System.Reflection.Metadata;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
-using Common;
+using VNPTNET.NOM.Common;
+using VNPTNET.NOM.Common.Enums;
 
-namespace Lib
+namespace VNPTNET.NOM.Lib
 {
     public static class ExcelNpoi
     {
