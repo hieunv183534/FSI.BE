@@ -13,6 +13,7 @@ using Volo.Abp.VirtualFileSystem;
 using Volo.Abp.AspNetCore.ExceptionHandling;
 using Newtonsoft.Json.Linq;
 using Volo.Abp.Json.SystemTextJson;
+using FSI.EntityFrameworkCore;
 
 namespace FSI
 {

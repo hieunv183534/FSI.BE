@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.EntityFrameworkCore;
+using Volo.Abp.EntityFrameworkCore.MySQL;
 using Volo.Abp.EntityFrameworkCore.Oracle;
 using Volo.Abp.Modularity;
 
@@ -7,7 +8,7 @@ namespace FSI.EntityFrameworkCore;
 
 [DependsOn(
     typeof(FSIDomainModule),
-    typeof(AbpEntityFrameworkCoreOracleModule)
+    typeof(AbpEntityFrameworkCoreMySQLModule)
     )]
 public class FSIEFCoreModule : AbpModule
 {
@@ -27,10 +28,10 @@ public class FSIEFCoreModule : AbpModule
 
         Configure<AbpDbContextOptions>(options =>
         {
-                /* The main point to change your DBMS.
-                 * See also NOMMigrationsDbContextFactory for EF Core tooling. */
+            /* The main point to change your DBMS.
+             * See also NOMMigrationsDbContextFactory for EF Core tooling. */
             //options.UseSqlServer();
-            options.UseOracle();// b => b.UseOracleSQLCompatibility("19")
+            options.UseMySQL();
         });
     }
 }
