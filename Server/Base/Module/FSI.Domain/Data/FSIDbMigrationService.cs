@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 
-namespace VNPTNET.NOM.System.Data;
+namespace FSI.Data;
 
 public class FSIDbMigrationService : ITransientDependency
 {

@@ -4,7 +4,7 @@ using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.EntityFrameworkCore;
 
-namespace VNPTNET.NOM.System.EntityFrameworkCore;
+namespace FSI.EntityFrameworkCore;
 
 [ConnectionStringName("DefaultConnection")]
 public class FSIDbContext :

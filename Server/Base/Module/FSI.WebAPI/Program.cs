@@ -1,6 +1,6 @@
 ﻿using Serilog;
 using Serilog.Events;
-using VNPTNET.NOM.System;
+using FSI;
 
 Log.Logger = new LoggerConfiguration()
 #if DEBUG

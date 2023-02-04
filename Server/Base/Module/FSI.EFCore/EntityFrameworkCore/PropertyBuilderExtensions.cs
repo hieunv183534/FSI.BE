@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 
-namespace VNPTNET.NOM.System.EntityFrameworkCore
+namespace FSI.EntityFrameworkCore
 {
     public static class PropertyBuilderExtensions
     {

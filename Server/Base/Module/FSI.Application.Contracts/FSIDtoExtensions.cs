@@ -1,7 +1,7 @@
 ﻿using Volo.Abp.ObjectExtending;
 using Volo.Abp.Threading;
 
-namespace VNPTNET.NOM.System
+namespace FSI
 {
     public static class FSIDtoExtensions
     {

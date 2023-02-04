@@ -1,11 +1,11 @@
 ﻿using Localization.Resources.AbpUi;
 using Microsoft.Extensions.DependencyInjection;
-using VNPTNET.NOM.System.Localization;
+using FSI.Localization;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
 
-namespace VNPTNET.NOM.System
+namespace FSI
 {
     [DependsOn(
        typeof(FSIApplicationContractsModule),

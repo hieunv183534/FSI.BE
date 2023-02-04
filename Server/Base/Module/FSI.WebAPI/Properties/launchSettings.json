@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "VNPTNET.NOM.Data.WebAPI": {
+    "FSI.WebAPI": {
       "commandName": "Project",
       "launchUrl": "swagger",
       "environmentVariables": {

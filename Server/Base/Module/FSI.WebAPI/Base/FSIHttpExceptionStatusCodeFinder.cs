@@ -10,7 +10,7 @@ using Volo.Abp.ExceptionHandling;
 using Volo.Abp.Validation;
 
 
-namespace VNPTNET.NOM.System
+namespace FSI
 {
     public class FSIHttpExceptionStatusCodeFinder : IHttpExceptionStatusCodeFinder, ITransientDependency
     {

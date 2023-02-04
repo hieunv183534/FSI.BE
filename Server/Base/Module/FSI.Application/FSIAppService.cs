@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using VNPTNET.NOM.System.Localization;
+using FSI.Localization;
 using Volo.Abp.Application.Services;
 
-namespace VNPTNET.NOM.Struct
+namespace FSI
 {
     public abstract class FSIAppService : ApplicationService
     {

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace VNPTNET.NOM.System.Data;
+namespace FSI.Data;
 
 public interface IFSIDbSchemaMigrator
 {

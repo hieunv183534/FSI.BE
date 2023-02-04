@@ -6,7 +6,7 @@ using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Guids;
 
-namespace VNPTNET.NOM.System.Data
+namespace FSI.Data
 {
     public class GeneralCategoryDataSeederContributor : IDataSeedContributor, ITransientDependency
     {

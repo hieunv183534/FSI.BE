@@ -2,7 +2,7 @@
 using Volo.Abp.ObjectExtending;
 using Volo.Abp.Threading;
 
-namespace VNPTNET.NOM.System.EntityFrameworkCore;
+namespace FSI.EntityFrameworkCore;
 
 public static class FSIEFCoreEntityExtensionMappings
 {

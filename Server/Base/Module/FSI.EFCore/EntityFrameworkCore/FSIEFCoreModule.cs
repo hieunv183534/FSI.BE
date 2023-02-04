@@ -3,7 +3,7 @@ using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.Oracle;
 using Volo.Abp.Modularity;
 
-namespace VNPTNET.NOM.System.EntityFrameworkCore;
+namespace FSI.EntityFrameworkCore;
 
 [DependsOn(
     typeof(FSIDomainModule),

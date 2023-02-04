@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
-using VNPTNET.NOM.System.Data;
+using FSI.Data;
 using Volo.Abp.DependencyInjection;
 
-namespace VNPTNET.NOM.System.Data;
+namespace FSI.Data;
 
 /* This is used if database provider does't define
  * INOMDbSchemaMigrator implementation.

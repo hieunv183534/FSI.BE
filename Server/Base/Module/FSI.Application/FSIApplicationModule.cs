@@ -1,7 +1,7 @@
 ﻿using Volo.Abp.AutoMapper;
 using Volo.Abp.Modularity;
 
-namespace VNPTNET.NOM.System
+namespace FSI
 {
     [DependsOn(
     typeof(FSIDomainModule),

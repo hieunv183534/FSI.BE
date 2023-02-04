@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.Modularity;
 
-namespace VNPTNET.NOM.System;
+namespace FSI;
 
 [DependsOn(
     typeof(FSIDomainModule)

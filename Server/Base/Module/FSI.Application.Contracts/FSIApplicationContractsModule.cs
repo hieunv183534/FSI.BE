@@ -1,7 +1,7 @@
 ﻿using Volo.Abp.Modularity;
 using Volo.Abp.ObjectExtending;
 
-namespace VNPTNET.NOM.System
+namespace FSI
 {
     [DependsOn(
     typeof(FSIDomainSharedModule),

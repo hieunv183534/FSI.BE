@@ -1,11 +1,11 @@
-﻿using VNPTNET.NOM.System.Localization;
+﻿using FSI.Localization;
 using Volo.Abp.Localization;
 using Volo.Abp.Localization.ExceptionHandling;
 using Volo.Abp.Modularity;
 using Volo.Abp.Validation.Localization;
 using Volo.Abp.VirtualFileSystem;
 
-namespace VNPTNET.NOM.System;
+namespace FSI;
 
 public class FSIDomainSharedModule : AbpModule
 {

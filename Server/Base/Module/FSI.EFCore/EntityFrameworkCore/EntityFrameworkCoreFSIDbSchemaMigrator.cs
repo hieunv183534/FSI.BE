@@ -2,10 +2,10 @@
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using VNPTNET.NOM.System.Data;
+using FSI.Data;
 using Volo.Abp.DependencyInjection;
 
-namespace VNPTNET.NOM.System.EntityFrameworkCore;
+namespace FSI.EntityFrameworkCore;
 
 public class EntityFrameworkCoreFSIDbSchemaMigrator
     : IFSIDbSchemaMigrator, ITransientDependency

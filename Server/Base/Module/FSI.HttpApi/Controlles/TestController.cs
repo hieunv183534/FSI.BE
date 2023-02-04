@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using VNPTNET.NOM.System.Localization;
+using FSI.Localization;
 using Volo.Abp.AspNetCore.Mvc;
 
-namespace VNPTNET.NOM.System.Controlles
+namespace FSI.Controlles
 {
-    public abstract class NOMSystemController : AbpControllerBase
+    public abstract class TestController : AbpControllerBase
     {
-        protected NOMSystemController()
+        protected TestController()
         {
             LocalizationResource = typeof(FSIResource);
         }

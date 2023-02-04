@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.OpenApi.Models;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Authentication.JwtBearer;
@@ -19,15 +10,11 @@ using Volo.Abp.Modularity;
 using Volo.Abp.Swashbuckle;
 using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.VirtualFileSystem;
-using System.Collections.Specialized;
-using Newtonsoft.Json;
-using Steeltoe.Discovery.Client;
 using Volo.Abp.AspNetCore.ExceptionHandling;
 using Newtonsoft.Json.Linq;
-using Volo.Abp.Json;
 using Volo.Abp.Json.SystemTextJson;
 
-namespace VNPTNET.NOM.System
+namespace FSI
 {
     [DependsOn(
        typeof(FSIHttpApiModule),

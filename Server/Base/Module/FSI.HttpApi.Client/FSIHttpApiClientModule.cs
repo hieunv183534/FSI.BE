@@ -2,7 +2,7 @@
 using Volo.Abp.Modularity;
 using Volo.Abp.VirtualFileSystem;
 
-namespace VNPTNET.NOM.System
+namespace FSI
 {
     [DependsOn(
         typeof(FSIApplicationContractsModule)

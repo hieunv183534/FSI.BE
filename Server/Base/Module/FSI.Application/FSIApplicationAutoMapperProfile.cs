@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 
-namespace VNPTNET.NOM.Struct
+namespace FSI
 {
     public class FSIApplicationAutoMapperProfile : Profile
     {
