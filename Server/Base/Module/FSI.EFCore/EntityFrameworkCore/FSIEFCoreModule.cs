@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.MySQL;
-using Volo.Abp.EntityFrameworkCore.Oracle;
 using Volo.Abp.Modularity;
 
 namespace FSI.EntityFrameworkCore;

@@ -10,8 +10,6 @@ public static class FSIEFCoreEntityExtensionMappings
 
     public static void Configure()
     {
-        //NOMDataGlobalFeatureConfigurator.Configure();
-        //NOMDataModuleExtensionConfigurator.Configure();
 
         OneTimeRunner.Run(() =>
         {

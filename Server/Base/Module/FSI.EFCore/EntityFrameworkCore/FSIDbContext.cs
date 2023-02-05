@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FSI.Domain.Test;
+using Microsoft.EntityFrameworkCore;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Entities;
@@ -29,6 +30,7 @@ public class FSIDbContext :
 
     #endregion
 
+    public DbSet<Test> Tests { get; set; }
 
     public FSIDbContext(DbContextOptions<FSIDbContext> options)
         : base(options)
@@ -45,6 +47,13 @@ public class FSIDbContext :
 
 
         /* Configure your own tables/entities inside here */
-
+        builder.Entity<Test>(entity =>
+        {
+            entity.HasKey(x => x.Id).HasName("SYS_C123");
+            entity.ToTable("FSI_TEST");
+            entity.Property(x => x.Code).HasColumnName("CODE");
+            entity.Property(x => x.Name).HasColumnName("NAME");
+            entity.Property(x => x.Description).HasColumnName("DESCRIPTION");
+        });
     }
 }

@@ -5,7 +5,8 @@ namespace FSI
 {
     [DependsOn(
     typeof(FSIDomainModule),
-    typeof(FSIApplicationContractsModule)
+    typeof(FSIApplicationContractsModule),
+    typeof(AbpAutoMapperModule)
     )]
     public class FSIApplicationModule : AbpModule
     {
