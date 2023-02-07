@@ -14,7 +14,7 @@ public class FSIDbContextFactory : IDesignTimeDbContextFactory<FSIDbContext>
         FSIEFCoreEntityExtensionMappings.Configure();
 
         var configuration = BuildConfiguration();
-        var serverVersion = new MySqlServerVersion(new Version(8, 0, 28));
+        var serverVersion = new MySqlServerVersion(new Version(8, 0, 29));
         var builder = new DbContextOptionsBuilder<FSIDbContext>().UseMySql(configuration.GetConnectionString("DefaultConnection"), serverVersion);
 
         return new FSIDbContext(builder.Options);
