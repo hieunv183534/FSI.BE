@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace FSI.EFCore.Migrations
 {
-    public partial class test : Migration
+    public partial class add_test : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

@@ -12,8 +12,8 @@ using Volo.Abp.EntityFrameworkCore;
 namespace FSI.EFCore.Migrations
 {
     [DbContext(typeof(FSIDbContext))]
-    [Migration("20230205085003_test")]
-    partial class test
+    [Migration("20230207014308_add_test")]
+    partial class add_test
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

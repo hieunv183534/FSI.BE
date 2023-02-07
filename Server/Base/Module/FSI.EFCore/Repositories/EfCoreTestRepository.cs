@@ -10,9 +10,9 @@ using Volo.Abp.EntityFrameworkCore;
 
 namespace FSI.EFCore.Repositories
 {
-    public class TestEFCoreRepository : EfCoreRepository<FSIDbContext, Test, Guid>, ITestRepository
+    public class EfCoreTestRepository : EfCoreRepository<FSIDbContext, Test, Guid>, ITestRepository
     {
-        public TestEFCoreRepository(IDbContextProvider<FSIDbContext> dbContextProvider) : base(dbContextProvider)
+        public EfCoreTestRepository(IDbContextProvider<FSIDbContext> dbContextProvider) : base(dbContextProvider)
         {
         }
     }
