@@ -22,7 +22,7 @@ namespace FSI.Application.Auth
             if(loginDto.Username == "admin" && loginDto.Password == "admin")
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var tokenKey = Encoding.ASCII.GetBytes("superkey");
+                var tokenKey = Encoding.ASCII.GetBytes("this-is-my-super-key");
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(new Claim[]

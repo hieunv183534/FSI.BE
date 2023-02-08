@@ -14,6 +14,9 @@ using Volo.Abp.AspNetCore.ExceptionHandling;
 using Newtonsoft.Json.Linq;
 using Volo.Abp.Json.SystemTextJson;
 using FSI.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace FSI
 {
@@ -36,6 +39,26 @@ namespace FSI
             ConfigureConventionalControllers();
             ConfigureLocalization();
             ConfigureVirtualFileSystem(context);
+
+
+            context.Services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("this-is-my-super-key")),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+
+
             ConfigureCors(context, configuration);
             ConfigureSwaggerServices(context, configuration);
             context.Services.AddSingleton<IHttpExceptionStatusCodeFinder, FSIHttpExceptionStatusCodeFinder>();
@@ -154,6 +177,9 @@ namespace FSI
             app.UseRouting();
             app.UseCors();
 
+            app.UseAuthentication();
+
+            app.UseAuthorization();
             app.UseUnitOfWork();
 
             app.UseSwagger();

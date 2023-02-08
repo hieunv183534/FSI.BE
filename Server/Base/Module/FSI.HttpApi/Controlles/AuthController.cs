@@ -1,5 +1,6 @@
 ﻿using FSI.Application.Contracts.Auth.DTO;
 using FSI.Application.Contracts.Auth.IService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using Volo.Abp.AspNetCore.Mvc;
 
 namespace FSI.HttpApi.Controlles
 {
+    [Authorize]
     [Route("api/auth")]
     [ApiController]
     public class AuthController : AbpController
@@ -21,6 +23,7 @@ namespace FSI.HttpApi.Controlles
             _authAppService = authAppService;
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginDto account)
         {

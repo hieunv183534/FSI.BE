@@ -1,6 +1,7 @@
 ﻿using FSI.Application.Contracts.Test.DTO;
 using FSI.Application.Contracts.Test.IService;
 using FSI.Domain.Test;
+using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ using Volo.Abp.ObjectMapping;
 
 namespace FSI.Application.Test
 {
+    [Authorize]
     public class TestAppService : ApplicationService, ITestAppService
     {
         private readonly ITestRepository _testRepository;
