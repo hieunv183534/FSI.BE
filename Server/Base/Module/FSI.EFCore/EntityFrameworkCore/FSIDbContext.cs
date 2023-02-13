@@ -1,4 +1,7 @@
-﻿using FSI.Domain.Test;
+﻿using FSI.Domain.Chat;
+using FSI.Domain.File;
+using FSI.Domain.Test;
+using FSI.Domain.User;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
@@ -31,6 +34,13 @@ public class FSIDbContext :
     #endregion
 
     public DbSet<Test> Tests { get; set; }
+    public DbSet<UserRoot> UserRoots { get; set; }
+    public DbSet<Founder> Founders { get; set; }
+    public DbSet<FileInfomation> Files { get; set; }
+    public DbSet<Message> Messages { get; set; }
+    public DbSet<Conversation> Conversations { get; set; }
+    public DbSet<UserConversation> UserConversations { get; set; }
+
 
     public FSIDbContext(DbContextOptions<FSIDbContext> options)
         : base(options)

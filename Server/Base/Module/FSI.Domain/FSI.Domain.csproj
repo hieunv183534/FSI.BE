@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Core\FSI.Common\FSI.Common.csproj" />
     <ProjectReference Include="..\FSI.Domain.Shared\FSI.Domain.Shared.csproj" />
   </ItemGroup>
 

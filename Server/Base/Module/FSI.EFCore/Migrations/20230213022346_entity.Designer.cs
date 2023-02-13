@@ -3,6 +3,7 @@ using System;
 using FSI.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -11,9 +12,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace FSI.EFCore.Migrations
 {
     [DbContext(typeof(FSIDbContext))]
-    partial class FSIDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230213022346_entity")]
+    partial class entity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -159,10 +161,6 @@ namespace FSI.EFCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ConversationId");
-
-                    b.HasIndex("SenderId");
-
                     b.ToTable("Messages");
                 });
 
@@ -241,10 +239,6 @@ namespace FSI.EFCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ConversationId");
-
-                    b.HasIndex("UserId");
-
                     b.ToTable("UserConversations");
                 });
 
@@ -304,8 +298,6 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AuthorId");
 
                     b.ToTable("Files");
                 });
@@ -495,55 +487,6 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("longtext");
 
                     b.HasDiscriminator().HasValue("Founder");
-                });
-
-            modelBuilder.Entity("FSI.Domain.Chat.Message", b =>
-                {
-                    b.HasOne("FSI.Domain.Chat.Conversation", "Conversation")
-                        .WithMany()
-                        .HasForeignKey("ConversationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FSI.Domain.User.UserRoot", "Sender")
-                        .WithMany()
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Conversation");
-
-                    b.Navigation("Sender");
-                });
-
-            modelBuilder.Entity("FSI.Domain.Chat.UserConversation", b =>
-                {
-                    b.HasOne("FSI.Domain.Chat.Conversation", "Conversation")
-                        .WithMany()
-                        .HasForeignKey("ConversationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FSI.Domain.User.UserRoot", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Conversation");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("FSI.Domain.File.FileInfomation", b =>
-                {
-                    b.HasOne("FSI.Domain.User.UserRoot", "Author")
-                        .WithMany()
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Author");
                 });
 #pragma warning restore 612, 618
         }
