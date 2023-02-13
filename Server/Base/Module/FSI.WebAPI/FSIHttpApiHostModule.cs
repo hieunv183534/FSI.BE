@@ -17,6 +17,7 @@ using FSI.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using FSI.WebAPI.Hubs;
 
 namespace FSI
 {
@@ -40,23 +41,22 @@ namespace FSI
             ConfigureLocalization();
             ConfigureVirtualFileSystem(context);
 
-
-            context.Services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("this-is-my-super-key")),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-            });
+            //context.Services.AddAuthentication(x =>
+            //{
+            //    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            //    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            //}).AddJwtBearer(x =>
+            //{
+            //    x.RequireHttpsMetadata = false;
+            //    x.SaveToken = true;
+            //    x.TokenValidationParameters = new TokenValidationParameters
+            //    {
+            //        ValidateIssuerSigningKey = true,
+            //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("this-is-my-super-key")),
+            //        ValidateIssuer = false,
+            //        ValidateAudience = false
+            //    };
+            //});
 
 
             ConfigureCors(context, configuration);
@@ -177,9 +177,9 @@ namespace FSI
             app.UseRouting();
             app.UseCors();
 
-            app.UseAuthentication();
+            //app.UseAuthentication();
 
-            app.UseAuthorization();
+            //app.UseAuthorization();
             app.UseUnitOfWork();
 
             app.UseSwagger();
@@ -187,7 +187,6 @@ namespace FSI
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "FSI API");
             });
-
             app.UseAuditing();
             app.UseAbpSerilogEnrichers();
             app.UseConfiguredEndpoints();

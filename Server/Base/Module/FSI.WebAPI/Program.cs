@@ -1,6 +1,7 @@
 ﻿using Serilog;
 using Serilog.Events;
 using FSI;
+using FSI.WebAPI.Hubs;
 
 Log.Logger = new LoggerConfiguration()
 #if DEBUG
@@ -19,13 +20,15 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
-    Log.Information("Starting VNPTNET.NOM.System.HttpApi.WebAPI");
+    Log.Information("Starting FSI.WebAPI");
     var builder = WebApplication.CreateBuilder(args);
     builder.Host.AddAppSettingsSecretsJson()
         .UseAutofac()
         .UseSerilog();
+    builder.Services.AddSignalR();
     await builder.AddApplicationAsync<FSIHttpApiHostModule>();
     var app = builder.Build();
+    app.MapHub<ChatHub>("/chat");
     await app.InitializeApplicationAsync();
     await app.RunAsync();
     return 0;

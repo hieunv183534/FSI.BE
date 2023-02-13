@@ -1,4 +1,6 @@
-﻿using Volo.Abp.AutoMapper;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Volo.Abp;
+using Volo.Abp.AutoMapper;
 using Volo.Abp.Modularity;
 
 namespace FSI
@@ -17,5 +19,6 @@ namespace FSI
                 options.AddMaps<FSIApplicationModule>();
             });
         }
+
     }
 }
