@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <button id="btnJoin"> Kết nối1 </button>
+    <script>
+        var connection;
+        document.getElementById("btnJoin").addEventListener('click', async () => {
+            try {
+                connection = new signalR.HubConnectionBuilder()
+                    .withUrl("http://localhost:7777/test", {
+                        skipNegotiation: true,
+                        transport: signalR.HttpTransportType.WebSockets
+                    })
+                    .configureLogging(signalR.LogLevel.Information)
+                    .build();
+
+                connection.on("OnCreatedTest", (rs) => {
+                    console.log(rs);
+                });
+
+                await connection.start();
+                await connection.invoke("AddTest", {
+                    name: "hieunv",
+                    code: "123",
+                    description: "helo"
+                });
+
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    </script>
+</body>
+
+</html>

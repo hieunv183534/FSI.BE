@@ -17,7 +17,7 @@ using FSI.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using FSI.WebAPI.Hubs;
+using FSI.Application.Hubs;
 
 namespace FSI
 {
@@ -41,23 +41,23 @@ namespace FSI
             ConfigureLocalization();
             ConfigureVirtualFileSystem(context);
 
-            //context.Services.AddAuthentication(x =>
-            //{
-            //    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            //    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            //}).AddJwtBearer(x =>
-            //{
-            //    x.RequireHttpsMetadata = false;
-            //    x.SaveToken = true;
-            //    x.TokenValidationParameters = new TokenValidationParameters
-            //    {
-            //        ValidateIssuerSigningKey = true,
-            //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("this-is-my-super-key")),
-            //        ValidateIssuer = false,
-            //        ValidateAudience = false
-            //    };
-            //});
-
+            context.Services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("this-is-my-super-key")),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+            context.Services.AddSignalR();
 
             ConfigureCors(context, configuration);
             ConfigureSwaggerServices(context, configuration);
@@ -82,7 +82,7 @@ namespace FSI
 
                 options.Applications["Angular"].RootUrl = configuration["App:ClientUrl"];
                 //options.Applications["Angular"].Urls[AccountUrlNames.PasswordReset] = "account/reset-password";
-            }); 
+            });
         }
 
         private void ConfigureVirtualFileSystem(ServiceConfigurationContext context)
@@ -177,10 +177,16 @@ namespace FSI
             app.UseRouting();
             app.UseCors();
 
-            //app.UseAuthentication();
+            app.UseAuthentication();
 
-            //app.UseAuthorization();
+            app.UseAuthorization();
             app.UseUnitOfWork();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHub<TestHub>("/test");
+            });
+
 
             app.UseSwagger();
             app.UseAbpSwaggerUI(c =>

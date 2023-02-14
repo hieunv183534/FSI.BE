@@ -1,7 +1,6 @@
 ﻿using Serilog;
 using Serilog.Events;
 using FSI;
-using FSI.WebAPI.Hubs;
 
 Log.Logger = new LoggerConfiguration()
 #if DEBUG
@@ -25,10 +24,8 @@ try
     builder.Host.AddAppSettingsSecretsJson()
         .UseAutofac()
         .UseSerilog();
-    builder.Services.AddSignalR();
     await builder.AddApplicationAsync<FSIHttpApiHostModule>();
     var app = builder.Build();
-    app.MapHub<ChatHub>("/chat");
     await app.InitializeApplicationAsync();
     await app.RunAsync();
     return 0;
