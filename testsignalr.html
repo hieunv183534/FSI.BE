@@ -11,6 +11,7 @@
 
 <body>
     <button id="btnJoin"> Kết nối1 </button>
+    <button id="btnSend"> Test </button>
     <script>
         var connection;
         document.getElementById("btnJoin").addEventListener('click', async () => {
@@ -29,15 +30,19 @@
                 });
 
                 await connection.start();
-                await connection.invoke("AddTest", {
-                    name: "hieunv",
-                    code: "123",
-                    description: "helo"
-                });
+
 
             } catch (error) {
                 console.log(error);
             }
+        });
+
+        document.getElementById("btnSend").addEventListener('click', async () => {
+            await connection.invoke("AddTest", {
+                name: "hieunv",
+                code: "123",
+                description: "helo"
+            });
         });
     </script>
 </body>
