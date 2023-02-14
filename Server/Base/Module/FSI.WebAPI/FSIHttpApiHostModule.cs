@@ -56,6 +56,24 @@ namespace FSI
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
+
+                x.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+
+                        // If the request is for our hub...
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            (path.StartsWithSegments("/test")))
+                        {
+                            // Read the token out of the query string
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
             });
             context.Services.AddSignalR();
 
@@ -127,6 +145,26 @@ namespace FSI
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = "FSI API", Version = "v1" });
                 options.DocInclusionPredicate((docName, description) => true);
                 options.CustomSchemaIds(type => type.FullName);
+                var securityScheme = new OpenApiSecurityScheme()
+                {
+                    Name = "JWT Authentication",
+                    Description = "Enter a valid jwt bearer token",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Reference = new OpenApiReference()
+                    {
+                        Id = JwtBearerDefaults.AuthenticationScheme,
+                        Type = ReferenceType.SecurityScheme
+                    }
+
+                };
+                options.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {securityScheme , new string[] {}}
+                });
             });
         }
 

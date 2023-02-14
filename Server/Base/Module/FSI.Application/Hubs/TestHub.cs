@@ -11,7 +11,7 @@ using Volo.Abp.ObjectMapping;
 
 namespace FSI.Application.Hubs
 {
-    //[Authorize]
+    [Authorize]
     public class TestHub : Hub
     {
         private readonly ITestRepository _testRepository;
@@ -27,7 +27,9 @@ namespace FSI.Application.Hubs
         {
             var rs = await _testRepository.InsertAsync(_objectMapper.Map<CreateTestDto, FSI.Domain.Test.Test>(input));
 
-            await Clients.All.SendAsync("OnCreatedTest", rs);
+            await Clients.All.SendAsync("OnCreatedTest", await _testRepository.GetListAsync());
+
+            Task.CompletedTask.Wait();
         }
     }
 }

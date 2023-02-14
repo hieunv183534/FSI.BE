@@ -17,6 +17,7 @@
             try {
                 connection = new signalR.HubConnectionBuilder()
                     .withUrl("http://localhost:7777/test", {
+                        accessTokenFactory: () => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4iLCJuYmYiOjE2NzYzNDMxNzIsImV4cCI6MTY3ODkzNTE3MiwiaWF0IjoxNjc2MzQzMTcyfQ.J6guOdGVgHPU6CzIttzOyXWDNZGwHrwN0dkelex6-mk",
                         skipNegotiation: true,
                         transport: signalR.HttpTransportType.WebSockets
                     })
