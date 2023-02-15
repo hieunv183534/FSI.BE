@@ -17,10 +17,12 @@ namespace FSI.Application.Hubs
     {
         private readonly ITestRepository _testRepository;
         private readonly IObjectMapper _objectMapper;
-        public TestHub(ITestRepository testRepository, IObjectMapper objectMapper)
+        private readonly IUnitOfWorkManager _unitOfWorkManager;
+        public TestHub(ITestRepository testRepository, IObjectMapper objectMapper, IUnitOfWorkManager unitOfWorkManager)
         {
             _testRepository = testRepository;
             _objectMapper = objectMapper;
+            _unitOfWorkManager = unitOfWorkManager;
         }
 
         public override Task OnConnectedAsync()
@@ -30,9 +32,14 @@ namespace FSI.Application.Hubs
 
         public async Task AddTest(CreateTestDto input)
         {
-            var test = _objectMapper.Map<CreateTestDto, Domain.Test.Test>(input);
-            var rs = await _testRepository.InsertAsync(test);
-            await Clients.All.SendAsync("OnCreatedTest", await _testRepository.GetCountAsync());
+            using (var uow = _unitOfWorkManager.Begin(requiresNew: true, isTransactional: false))
+            {
+                var test = _objectMapper.Map<CreateTestDto, Domain.Test.Test>(input);
+                var rs = await _testRepository.InsertAsync(test);
+                await Clients.All.SendAsync("OnCreatedTest", await _testRepository.GetListAsync());
+                await uow.CompleteAsync();
+            }
+            
         }
 
         public override Task OnDisconnectedAsync(Exception exception)
