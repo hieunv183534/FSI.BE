@@ -32,12 +32,18 @@ namespace FSI.Application.Hubs
 
         public async Task AddTest(CreateTestDto input)
         {
-            using (var uow = _unitOfWorkManager.Begin(requiresNew: true, isTransactional: false))
+            using (var uow = _unitOfWorkManager.Begin(requiresNew: true, isTransactional: true))
             {
                 var test = _objectMapper.Map<CreateTestDto, Domain.Test.Test>(input);
                 var rs = await _testRepository.InsertAsync(test);
-                await Clients.All.SendAsync("OnCreatedTest", await _testRepository.GetListAsync());
                 await uow.CompleteAsync();
+            }
+
+            using (var uow = _unitOfWorkManager.Begin(requiresNew: true, isTransactional: true))
+            {
+                var rs = await _testRepository.GetListAsync();
+                await uow.CompleteAsync();
+                await Clients.All.SendAsync("OnCreatedTest", rs);
             }
             
         }

@@ -1,7 +1,9 @@
 ﻿using FSI.Application.Contracts.Test.DTO;
 using FSI.Application.Contracts.Test.IService;
+using FSI.Application.Hubs;
 using FSI.Domain.Test;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +20,6 @@ namespace FSI.Application.Test
     public class TestAppService : ApplicationService, ITestAppService
     {
         private readonly ITestRepository _testRepository;
-
         public TestAppService(ITestRepository testRepository)
         {
             _testRepository = testRepository;
