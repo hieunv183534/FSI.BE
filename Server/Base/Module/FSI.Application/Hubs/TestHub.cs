@@ -35,17 +35,11 @@ namespace FSI.Application.Hubs
             using (var uow = _unitOfWorkManager.Begin(requiresNew: true, isTransactional: true))
             {
                 var test = _objectMapper.Map<CreateTestDto, Domain.Test.Test>(input);
-                var rs = await _testRepository.InsertAsync(test);
+                var rs = await _testRepository.InsertAsync(test ,true);
+                var rs1 = await _testRepository.GetListAsync();
+                await Clients.All.SendAsync("OnCreatedTest", rs1);
                 await uow.CompleteAsync();
             }
-
-            using (var uow = _unitOfWorkManager.Begin(requiresNew: true, isTransactional: true))
-            {
-                var rs = await _testRepository.GetListAsync();
-                await uow.CompleteAsync();
-                await Clients.All.SendAsync("OnCreatedTest", rs);
-            }
-            
         }
 
         public override Task OnDisconnectedAsync(Exception exception)
