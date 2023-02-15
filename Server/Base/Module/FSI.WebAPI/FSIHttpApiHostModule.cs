@@ -17,6 +17,7 @@ using FSI.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Volo.Abp.AspNetCore.SignalR;
 using FSI.Application.Hubs;
 
 namespace FSI
@@ -28,7 +29,8 @@ namespace FSI
        typeof(FSIEFCoreModule),
        typeof(AbpAspNetCoreAuthenticationJwtBearerModule),
        typeof(AbpAspNetCoreSerilogModule),
-       typeof(AbpSwashbuckleModule))]
+       typeof(AbpSwashbuckleModule),
+       typeof(AbpAspNetCoreSignalRModule))]
     public class FSIHttpApiHostModule : AbpModule
     {
         public override void ConfigureServices(ServiceConfigurationContext context)
@@ -62,20 +64,30 @@ namespace FSI
                     OnMessageReceived = context =>
                     {
                         var accessToken = context.Request.Query["access_token"];
-
-                        // If the request is for our hub...
                         var path = context.HttpContext.Request.Path;
                         if (!string.IsNullOrEmpty(accessToken) &&
                             (path.StartsWithSegments("/test")))
                         {
-                            // Read the token out of the query string
                             context.Token = accessToken;
                         }
                         return Task.CompletedTask;
                     }
                 };
             });
-            context.Services.AddSignalR();
+
+            Configure<AbpSignalROptions>(options =>
+            {
+                options.Hubs.Add(
+                    new HubConfig(
+                        typeof(TestHub),
+                        "/test",
+                        hubOptions =>
+                        {
+                            hubOptions.LongPolling.PollTimeout = TimeSpan.FromSeconds(30);
+                        }
+                    )
+                );
+            });
 
             ConfigureCors(context, configuration);
             ConfigureSwaggerServices(context, configuration);
@@ -184,16 +196,12 @@ namespace FSI
                 options.AddDefaultPolicy(builder =>
                 {
                     builder
-                        .WithOrigins(
-                            configuration["App:CorsOrigins"]
-                                .Split(",", StringSplitOptions.RemoveEmptyEntries)
-                                .Select(o => o.RemovePostFix("/"))
-                                .ToArray()
-                        )
                         .WithAbpExposedHeaders()
+                        .WithExposedHeaders("Content-Disposition")
                         .SetIsOriginAllowedToAllowWildcardSubdomains()
                         .AllowAnyHeader()
                         .AllowAnyMethod()
+                        .SetIsOriginAllowed((host) => true)
                         .AllowCredentials();
                 });
             });
@@ -220,18 +228,12 @@ namespace FSI
             app.UseAuthorization();
             app.UseUnitOfWork();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapHub<TestHub>("/test");
-            });
-
-
             app.UseSwagger();
             app.UseAbpSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "FSI API");
             });
-            app.UseAuditing();
+            //app.UseAuditing();
             app.UseAbpSerilogEnrichers();
             app.UseConfiguredEndpoints();
         }

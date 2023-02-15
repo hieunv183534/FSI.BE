@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Volo.Abp.DependencyInjection;
 using Volo.Abp.ObjectMapping;
 using Volo.Abp.Uow;
 
@@ -18,23 +17,22 @@ namespace FSI.Application.Hubs
     {
         private readonly ITestRepository _testRepository;
         private readonly IObjectMapper _objectMapper;
-        private readonly IUnitOfWorkManager _unitOfWorkManager;
-
-        public TestHub(ITestRepository testRepository, IObjectMapper objectMapper, IUnitOfWorkManager unitOfWorkManager)
+        public TestHub(ITestRepository testRepository, IObjectMapper objectMapper)
         {
             _testRepository = testRepository;
             _objectMapper = objectMapper;
-            _unitOfWorkManager = unitOfWorkManager;
+        }
+
+        public override Task OnConnectedAsync()
+        {
+            return base.OnConnectedAsync();
         }
 
         public async Task AddTest(CreateTestDto input)
         {
-            using (var uow = _unitOfWorkManager.Begin())
-            {
-                var rs = await _testRepository.InsertAsync(_objectMapper.Map<CreateTestDto, FSI.Domain.Test.Test>(input));
-                await uow.CompleteAsync();
-                await Clients.All.SendAsync("OnCreatedTest", await _testRepository.GetListAsync());
-            }
+            var test = _objectMapper.Map<CreateTestDto, Domain.Test.Test>(input);
+            var rs = await _testRepository.InsertAsync(test);
+            await Clients.All.SendAsync("OnCreatedTest", await _testRepository.GetCountAsync());
         }
 
         public override Task OnDisconnectedAsync(Exception exception)

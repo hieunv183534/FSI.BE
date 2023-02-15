@@ -37,11 +37,15 @@
             }
         });
 
-        document.getElementById("btnSend").addEventListener('click', async () => {
-            await connection.invoke("AddTest", {
+        document.getElementById("btnSend").addEventListener('click', () => {
+            connection.invoke("AddTest", {
                 name: "hieunv",
                 code: "123",
                 description: "helo"
+            }).then((result) => {
+                console.log(result);
+            }).catch((err) => {
+                console.log(err);
             });
         });
     </script>
