@@ -233,7 +233,7 @@ namespace FSI
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "FSI API");
             });
-            //app.UseAuditing();
+            app.UseAuditing();
             app.UseAbpSerilogEnrichers();
             app.UseConfiguredEndpoints();
         }
