@@ -40,6 +40,7 @@ public class FSIDbContext :
     public DbSet<Message> Messages { get; set; }
     public DbSet<Conversation> Conversations { get; set; }
     public DbSet<UserConversation> UserConversations { get; set; }
+    public DbSet<UserConnection> UserConnections { get; set; }
 
 
     public FSIDbContext(DbContextOptions<FSIDbContext> options)
