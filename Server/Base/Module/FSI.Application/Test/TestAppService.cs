@@ -25,6 +25,11 @@ namespace FSI.Application.Test
             _testRepository = testRepository;
         }
 
+        public async Task DeleteAsync(Guid id)
+        {
+            await _testRepository.DeleteAsync(id);
+        }
+
         public async Task<List<TestDto>> GetListAsync()
         {
             var rs = await _testRepository.GetListAsync();

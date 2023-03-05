@@ -12,5 +12,7 @@ namespace FSI.Application.Contracts.Test.IService
         Task<TestDto> InsertTestAsync(CreateTestDto input);
 
         Task<List<TestDto>> GetListAsync();
+
+        Task DeleteAsync(Guid id);
     }
 }
