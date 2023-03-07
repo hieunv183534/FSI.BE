@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FSI.Domain.User;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,14 @@ namespace FSI.Domain.Chat
     {
         public bool JustTwoPeople { get; set; }
 
+        public Guid? UserAId { get; set; }
+
+        public UserRoot? UserA { get; set; }
+
+        public Guid? UserBId { get; set; }
+
+        public UserRoot? UserB { get; set; }
+
         public string ConversationName { get; set; }
 
         public string ConversationAvatar { get; set; }
@@ -19,7 +28,9 @@ namespace FSI.Domain.Chat
 
         public string JoinLink { get; set; }
 
-        public Guid LastMessageId { get; set; }
+        public Guid? LastMessageId { get; set; }
+
+        public Message? LastMessage { get; set; }
 
     }
 }
