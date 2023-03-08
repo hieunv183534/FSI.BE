@@ -257,5 +257,54 @@ namespace FSI.Application.Chat
                 Data = newMessage
             };
         }
+
+        public async Task<ServiceResult> SetNickName(SetNickNameDto input)
+        {
+            var conversation = await _conversationRepository.GetAsync(input.ConversationId);
+
+            if (conversation == null)
+                return new ServiceResult()
+                {
+                    Code = 40001,
+                    Message = "Conversation not found!"
+                };
+
+            var myConversation = await _userConversationRepository.FindAsync(uc => uc.ConversationId.Equals(input.ConversationId) && uc.UserId.Equals(currentUserId));
+
+            if (myConversation == null)
+                return new ServiceResult()
+                {
+                    Code = 40103,
+                    Message = "Conversation not contain you!"
+                };
+
+            var userConversation = await _userConversationRepository.FindAsync(uc => uc.ConversationId.Equals(input.ConversationId) && uc.UserId.Equals(input.UserId));
+
+            if (userConversation == null)
+                return new ServiceResult()
+                {
+                    Code = 40103,
+                    Message = "Conversation not contain this user!"
+                };
+
+            if(myConversation.RoleInConversation <= userConversation.RoleInConversation)
+            {
+                userConversation.NickName = input.NickName;
+                await _userConversationRepository.UpdateAsync(userConversation);
+                return new ServiceResult()
+                {
+                    Code = 20000,
+                    Message = "Set nickname successfully"
+                };
+            }
+            else
+            {
+                return new ServiceResult()
+                {
+                    Code = 40303,
+                    Message = "You don't have enoungh role!"
+                };
+            }
+        }
     }
 }

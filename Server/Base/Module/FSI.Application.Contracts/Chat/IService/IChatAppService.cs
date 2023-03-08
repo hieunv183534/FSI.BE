@@ -19,5 +19,7 @@ namespace FSI.Application.Contracts.Chat.IService
         public Task<ServiceResult> SendMessageToUser(MessageSendToUserDto message);
 
         public Task<ServiceResult> SendMessageToConversation(MessageSendToConversationDto message);
+
+        public Task<ServiceResult> SetNickName(SetNickNameDto input);
     }
 }
