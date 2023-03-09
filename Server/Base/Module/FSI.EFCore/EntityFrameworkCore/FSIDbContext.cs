@@ -1,4 +1,5 @@
-﻿using FSI.Domain.Chat;
+﻿using FSI.Domain.Account;
+using FSI.Domain.Chat;
 using FSI.Domain.File;
 using FSI.Domain.Test;
 using FSI.Domain.User;
@@ -35,6 +36,7 @@ public class FSIDbContext :
 
     public DbSet<Test> Tests { get; set; }
     public DbSet<UserRoot> UserRoots { get; set; }
+    public DbSet<Account> Accounts { get; set; }
     public DbSet<Founder> Founders { get; set; }
     public DbSet<FileInfomation> Files { get; set; }
     public DbSet<Message> Messages { get; set; }
@@ -66,5 +68,9 @@ public class FSIDbContext :
             entity.Property(x => x.Name).HasColumnName("NAME");
             entity.Property(x => x.Description).HasColumnName("DESCRIPTION");
         });
+
+        builder.Entity<Account>().HasIndex(x=> x.Email).IsUnique();
+        builder.Entity<Account>().HasIndex(x=> x.PhoneNumber).IsUnique();
+
     }
 }

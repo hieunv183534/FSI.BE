@@ -1,6 +1,7 @@
 ﻿using FSI.Domain.User;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,6 +31,7 @@ namespace FSI.Domain.Chat
 
         public Guid? LastMessageId { get; set; }
 
+        [NotMapped]
         public Message? LastMessage { get; set; }
 
     }
