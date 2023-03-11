@@ -1,5 +1,9 @@
-﻿using FSI.Application.Contracts.Auth.DTO;
+﻿using AutoMapper.Internal.Mappers;
+using BCrypt.Net;
+using FSI.Application.Contracts.Auth.DTO;
 using FSI.Application.Contracts.Auth.IService;
+using FSI.Domain.Account;
+using FSI.Domain.User;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -15,20 +19,43 @@ using Volo.Abp.DependencyInjection;
 namespace FSI.Application.Auth
 {
     [RemoteService(false)]
-    public class AuthAppService :  IAuthAppService, ITransientDependency
+    public class AuthAppService : ApplicationService, IAuthAppService
     {
+        private readonly IAccountRepository _accountRepository;
+        private readonly IFounderRepository _founderRepository;
+
+        public AuthAppService(IAccountRepository accountRepository, IFounderRepository founderRepository)
+        {
+            _accountRepository = accountRepository;
+            _founderRepository = founderRepository;
+        }
+
         public string Login(LoginDto loginDto)
         {
-            if(loginDto.Username == "admin" && loginDto.Password == "admin")
+            var acc = _accountRepository.FindAsync(a => a.Email.Equals(loginDto.Username) || a.PhoneNumber.Equals(loginDto.Username)).Result;
+            if (acc == null) return null;
+
+            if (BCrypt.Net.BCrypt.Verify(loginDto.Password, acc.PasswordHash))
             {
+                UserRoot user = new UserRoot() {};
+                if (loginDto.Role == "Founder")
+                {
+                    user = _founderRepository.FindAsync(f => f.AccountId.Equals(acc.Id)).Result;
+                    if (user == null) return null;
+                } //... check tiếp các role khác sau
+
+
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var tokenKey = Encoding.ASCII.GetBytes("this-is-my-super-key");
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(new Claim[]
                     {
-                        new Claim(ClaimTypes.Name, "admin"),
-                        new Claim(ClaimTypes.Role, "admin")
+                        new Claim(ClaimTypes.Name, user.Name),
+                        new Claim(ClaimTypes.Role, loginDto.Role),
+                        new Claim(ClaimTypes.Email, acc.Email),
+                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                        new Claim(ClaimTypes.UserData , acc.Id.ToString())
                     }),
                     Expires = DateTime.UtcNow.AddDays(30),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256Signature)
@@ -36,10 +63,14 @@ namespace FSI.Application.Auth
                 var token = tokenHandler.CreateToken(tokenDescriptor);
                 return tokenHandler.WriteToken(token);
             }
-            else
-            {
-                return null;
-            }
+            return null;
+        }
+
+        public AccountDto Register(RegisterDto input)
+        {
+            input.Password = BCrypt.Net.BCrypt.HashPassword(input.Password);
+            var newAcc = _accountRepository.InsertAsync(ObjectMapper.Map<RegisterDto, Account>(input)).Result;
+            return ObjectMapper.Map<Account, AccountDto>(newAcc);
         }
     }
 }

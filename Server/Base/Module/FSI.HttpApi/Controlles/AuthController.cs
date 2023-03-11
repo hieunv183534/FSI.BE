@@ -1,5 +1,6 @@
 ﻿using FSI.Application.Contracts.Auth.DTO;
 using FSI.Application.Contracts.Auth.IService;
+using FSI.Application.Contracts.CommonDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -33,6 +34,14 @@ namespace FSI.HttpApi.Controlles
                 return Unauthorized();
             }
             return Ok(token);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public IActionResult Register([FromBody] RegisterDto account)
+        {
+            var rs = _authAppService.Register(account);
+            return Ok(rs);
         }
     }
 }
