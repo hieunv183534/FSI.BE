@@ -1,5 +1,6 @@
 ﻿using FSI.Application.Contracts.Auth.DTO;
 using FSI.Application.Contracts.Auth.IService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
