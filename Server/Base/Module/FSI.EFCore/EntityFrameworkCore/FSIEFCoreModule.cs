@@ -1,13 +1,15 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.EntityFrameworkCore;
-using Volo.Abp.EntityFrameworkCore.MySQL;
+using Volo.Abp.EntityFrameworkCore.SqlServer;
+//using Volo.Abp.EntityFrameworkCore.MySQL;
 using Volo.Abp.Modularity;
 
 namespace FSI.EntityFrameworkCore;
 
 [DependsOn(
     typeof(FSIDomainModule),
-    typeof(AbpEntityFrameworkCoreMySQLModule)
+    typeof(AbpEntityFrameworkCoreSqlServerModule)
+    //typeof(AbpEntityFrameworkCoreMySQLModule)
     )]
 public class FSIEFCoreModule : AbpModule
 {
@@ -29,8 +31,8 @@ public class FSIEFCoreModule : AbpModule
         {
             /* The main point to change your DBMS.
              * See also NOMMigrationsDbContextFactory for EF Core tooling. */
-            //options.UseSqlServer();
-            options.UseMySQL();
+            options.UseSqlServer();
+            //options.UseMySQL();
         });
     }
 }
