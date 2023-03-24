@@ -597,7 +597,7 @@ namespace FSI.EFCore.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("UserRoot");
                 });
 
-            modelBuilder.Entity("FSI.Domain.User.Founder", b =>
+            modelBuilder.Entity("FSI.Domain.Founder.Founder", b =>
                 {
                     b.HasBaseType("FSI.Domain.User.UserRoot");
 
@@ -613,12 +613,9 @@ namespace FSI.EFCore.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("FavouriteField")
+                    b.Property<string>("FavoriteField")
                         .IsRequired()
                         .HasColumnType("longtext");
-
-                    b.Property<bool>("HasProject")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Personality")
                         .IsRequired()
@@ -635,6 +632,9 @@ namespace FSI.EFCore.Migrations
                     b.Property<string>("WorkingExperience")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<bool>("hasProject")
+                        .HasColumnType("tinyint(1)");
 
                     b.HasDiscriminator().HasValue("Founder");
                 });

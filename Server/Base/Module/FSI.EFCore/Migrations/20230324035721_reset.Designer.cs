@@ -12,8 +12,8 @@ using Volo.Abp.EntityFrameworkCore;
 namespace FSI.EFCore.Migrations
 {
     [DbContext(typeof(FSIDbContext))]
-    [Migration("20230305100638_user-connection-hub")]
-    partial class userconnectionhub
+    [Migration("20230324035721_reset")]
+    partial class reset
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -22,6 +22,74 @@ namespace FSI.EFCore.Migrations
                 .HasAnnotation("_Abp_DatabaseProvider", EfCoreDatabaseProvider.MySql)
                 .HasAnnotation("ProductVersion", "6.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 30);
+
+            modelBuilder.Entity("FSI.Domain.Account.Account", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("ExtraProperties")
+                        .HasColumnType("longtext")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("PhoneNumber")
+                        .IsUnique();
+
+                    b.ToTable("Accounts");
+                });
 
             modelBuilder.Entity("FSI.Domain.Chat.Conversation", b =>
                 {
@@ -75,7 +143,7 @@ namespace FSI.EFCore.Migrations
                     b.Property<bool>("JustTwoPeople")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<Guid>("LastMessageId")
+                    b.Property<Guid?>("LastMessageId")
                         .HasColumnType("char(36)");
 
                     b.Property<DateTime?>("LastModificationTime")
@@ -90,7 +158,17 @@ namespace FSI.EFCore.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<Guid?>("UserAId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("UserBId")
+                        .HasColumnType("char(36)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserAId");
+
+                    b.HasIndex("UserBId");
 
                     b.ToTable("Conversations");
                 });
@@ -389,11 +467,9 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("varchar(40)")
                         .HasColumnName("ConcurrencyStamp");
 
-                    b.Property<Guid>("ConnectionId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("ConversationId")
-                        .HasColumnType("char(36)");
+                    b.Property<string>("ConnectionId")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime(6)")
@@ -434,8 +510,6 @@ namespace FSI.EFCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ConversationId");
-
                     b.HasIndex("UserId");
 
                     b.ToTable("UserConnections");
@@ -444,6 +518,9 @@ namespace FSI.EFCore.Migrations
             modelBuilder.Entity("FSI.Domain.User.UserRoot", b =>
                 {
                     b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("AccountId")
                         .HasColumnType("char(36)");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -515,12 +592,14 @@ namespace FSI.EFCore.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AccountId");
+
                     b.ToTable("UserRoots");
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("UserRoot");
                 });
 
-            modelBuilder.Entity("FSI.Domain.User.Founder", b =>
+            modelBuilder.Entity("FSI.Domain.Founder.Founder", b =>
                 {
                     b.HasBaseType("FSI.Domain.User.UserRoot");
 
@@ -536,12 +615,9 @@ namespace FSI.EFCore.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("FavouriteField")
+                    b.Property<string>("FavoriteField")
                         .IsRequired()
                         .HasColumnType("longtext");
-
-                    b.Property<bool>("HasProject")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Personality")
                         .IsRequired()
@@ -559,7 +635,26 @@ namespace FSI.EFCore.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<bool>("hasProject")
+                        .HasColumnType("tinyint(1)");
+
                     b.HasDiscriminator().HasValue("Founder");
+                });
+
+            modelBuilder.Entity("FSI.Domain.Chat.Conversation", b =>
+                {
+                    b.HasOne("FSI.Domain.User.UserRoot", "UserA")
+                        .WithMany()
+                        .HasForeignKey("UserAId");
+
+                    b.HasOne("FSI.Domain.User.UserRoot", "UserB")
+                        .WithMany()
+                        .HasForeignKey("UserBId")
+                        .HasConstraintName("FK_Conversations_UserRoots_U~1");
+
+                    b.Navigation("UserA");
+
+                    b.Navigation("UserB");
                 });
 
             modelBuilder.Entity("FSI.Domain.Chat.Message", b =>
@@ -613,21 +708,24 @@ namespace FSI.EFCore.Migrations
 
             modelBuilder.Entity("FSI.Domain.User.UserConnection", b =>
                 {
-                    b.HasOne("FSI.Domain.Chat.Conversation", "Conversation")
-                        .WithMany()
-                        .HasForeignKey("ConversationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("FSI.Domain.User.UserRoot", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Conversation");
-
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FSI.Domain.User.UserRoot", b =>
+                {
+                    b.HasOne("FSI.Domain.Account.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
                 });
 #pragma warning restore 612, 618
         }

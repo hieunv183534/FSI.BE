@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FSI.Domain.User
+namespace FSI.Application.Contracts.Founder.DTO
 {
-    public class Founder : UserRoot
+    public class CreateFounderDto
     {
         public string Speciality { get; set; }
 
@@ -22,9 +22,6 @@ namespace FSI.Domain.User
 
         public string Award { get; set; }
 
-        public string FavouriteField { get; set; }
-
-        public bool HasProject { get; set; }
-
+        public string FavoriteField { get; set; }
     }
 }

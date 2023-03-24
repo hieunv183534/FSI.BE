@@ -2,6 +2,7 @@
 using FSI.Domain.Chat;
 using FSI.Domain.Test;
 using FSI.Domain.User;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 using Volo.Abp.Domain.Repositories;
@@ -10,7 +11,7 @@ using Volo.Abp.Uow;
 
 namespace FSI.Application.Hubs
 {
-    
+    [Authorize]
     public class ChatHub : Hub
     {
         private readonly IObjectMapper _objectMapper;
@@ -46,6 +47,7 @@ namespace FSI.Application.Hubs
                     ConnectionId = Context.ConnectionId,
                     UserId = userId
                 });
+                await uow.CompleteAsync();
             }
         }
 
@@ -56,6 +58,7 @@ namespace FSI.Application.Hubs
             {
                 var userConnection = await _userConnectionRepository.GetAsync(uc => uc.ConnectionId.Equals(Context.ConnectionId));
                 await _userConnectionRepository.DeleteAsync(userConnection.Id);
+                await uow.CompleteAsync();
             }
         }
     }

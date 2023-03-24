@@ -17,8 +17,8 @@
         document.getElementById("btnJoin").addEventListener('click', async () => {
             try {
                 connection = new signalR.HubConnectionBuilder()
-                    .withUrl("http://localhost:7777/test", {
-                        accessTokenFactory: () => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4iLCJuYmYiOjE2NzYzNDMxNzIsImV4cCI6MTY3ODkzNTE3MiwiaWF0IjoxNjc2MzQzMTcyfQ.J6guOdGVgHPU6CzIttzOyXWDNZGwHrwN0dkelex6-mk",
+                    .withUrl("http://localhost:7777/chat", {
+                        accessTokenFactory: () => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiTmd1eeG7hW4gVsSDbiBIaeG6v3UiLCJyb2xlIjoiRm91bmRlciIsImVtYWlsIjoidmhpZXVrazIwMDAwQGdtYWlsLmNvbSIsIm5hbWVpZCI6IjNhMGEyNDEwLWQ4MzItYWNlZC04ODJjLTRiZGNiMGRhMjgwNSIsImdpdmVuX25hbWUiOiIzYTBhMjQxMC1hOTViLTUwN2ItOWRhOS00NmUyMTllODg5OTgiLCJuYmYiOjE2Nzk2NDYwMzEsImV4cCI6MTY4MjIzODAzMSwiaWF0IjoxNjc5NjQ2MDMxfQ.3Qf_RpZZh6KYwgx2Y9h1iJ8LXSFhBPkO_AlWv7Au5qw",
                         skipNegotiation: true,
                         transport: signalR.HttpTransportType.WebSockets
                     })

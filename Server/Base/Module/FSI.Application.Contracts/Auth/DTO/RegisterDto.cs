@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FSI.Application.Contracts.User.DTO;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,5 +14,9 @@ namespace FSI.Application.Contracts.Auth.DTO
         public string PhoneNumber { get; set; }
 
         public string Password { get; set; }
+
+        public string RoleRegister { get; set; }
+
+        public UserRootDto BaseInfomation { get; set; }
     }
 }

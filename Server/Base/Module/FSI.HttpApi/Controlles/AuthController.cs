@@ -33,6 +33,10 @@ namespace FSI.HttpApi.Controlles
             {
                 return Unauthorized();
             }
+            else if(token == "null")
+            {
+                return BadRequest("Bạn chưa đăng ký thông tin!");
+            }
             return Ok(token);
         }
 

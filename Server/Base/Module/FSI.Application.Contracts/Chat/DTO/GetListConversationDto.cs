@@ -9,6 +9,6 @@ namespace FSI.Application.Contracts.Chat.DTO
 {
     public class GetListConversationDto : PagedAndSortedResultRequestDto
     {
-        public string Filter { get; set; }
+        public string? Filter { get; set; }
     }
 }

@@ -24,7 +24,7 @@ namespace FSI
 
         public virtual HttpStatusCode GetStatusCode(HttpContext httpContext, Exception exception)
         {
-            if (exception is IHasHttpStatusCode exceptionWithHttpStatusCode &&
+                if (exception is IHasHttpStatusCode exceptionWithHttpStatusCode &&
                 exceptionWithHttpStatusCode.HttpStatusCode > 0)
             {
                 return (HttpStatusCode)exceptionWithHttpStatusCode.HttpStatusCode;

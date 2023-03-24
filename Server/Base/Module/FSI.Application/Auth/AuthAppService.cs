@@ -2,8 +2,11 @@
 using BCrypt.Net;
 using FSI.Application.Contracts.Auth.DTO;
 using FSI.Application.Contracts.Auth.IService;
+using FSI.Application.Contracts.User.DTO;
 using FSI.Domain.Account;
+using FSI.Domain.Founder;
 using FSI.Domain.User;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -38,7 +41,7 @@ namespace FSI.Application.Auth
             if (BCrypt.Net.BCrypt.Verify(loginDto.Password, acc.PasswordHash))
             {
                 UserRoot user = new UserRoot() {};
-                if (loginDto.Role == "Founder")
+                if (true)
                 {
                     user = _founderRepository.FindAsync(f => f.AccountId.Equals(acc.Id)).Result;
                     if (user == null) return null;
@@ -52,10 +55,10 @@ namespace FSI.Application.Auth
                     Subject = new ClaimsIdentity(new Claim[]
                     {
                         new Claim(ClaimTypes.Name, user.Name),
-                        new Claim(ClaimTypes.Role, loginDto.Role),
+                        new Claim(ClaimTypes.Role, "Founder"),
                         new Claim(ClaimTypes.Email, acc.Email),
                         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                        new Claim(ClaimTypes.UserData , acc.Id.ToString())
+                        new Claim(ClaimTypes.GivenName , acc.Id.ToString())
                     }),
                     Expires = DateTime.UtcNow.AddDays(30),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256Signature)
@@ -70,6 +73,11 @@ namespace FSI.Application.Auth
         {
             input.Password = BCrypt.Net.BCrypt.HashPassword(input.Password);
             var newAcc = _accountRepository.InsertAsync(ObjectMapper.Map<RegisterDto, Account>(input)).Result;
+
+            var founderInfo = ObjectMapper.Map<UserRootDto, FSI.Domain.Founder.Founder>(input.BaseInfomation);
+            founderInfo.AccountId = newAcc.Id;
+            var userInfo = _founderRepository.InsertAsync(founderInfo).Result;
+
             return ObjectMapper.Map<Account, AccountDto>(newAcc);
         }
     }

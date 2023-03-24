@@ -3,6 +3,7 @@ using FSI.Domain.Chat;
 using FSI.Domain.File;
 using FSI.Domain.Test;
 using FSI.Domain.User;
+using FSI.Domain.Founder;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;

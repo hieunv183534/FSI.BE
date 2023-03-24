@@ -66,7 +66,8 @@ namespace FSI
                         var accessToken = context.Request.Query["access_token"];
                         var path = context.HttpContext.Request.Path;
                         if (!string.IsNullOrEmpty(accessToken) &&
-                            (path.StartsWithSegments("/test")))
+                            (path.StartsWithSegments("/test") ||
+                            path.StartsWithSegments("/chat")))
                         {
                             context.Token = accessToken;
                         }
@@ -81,6 +82,17 @@ namespace FSI
                     new HubConfig(
                         typeof(TestHub),
                         "/test",
+                        hubOptions =>
+                        {
+                            hubOptions.LongPolling.PollTimeout = TimeSpan.FromSeconds(30);
+                        }
+                    )
+                );
+
+                options.Hubs.Add(
+                    new HubConfig(
+                        typeof(ChatHub),
+                        "/chat",
                         hubOptions =>
                         {
                             hubOptions.LongPolling.PollTimeout = TimeSpan.FromSeconds(30);

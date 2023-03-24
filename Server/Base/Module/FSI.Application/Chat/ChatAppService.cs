@@ -154,23 +154,24 @@ namespace FSI.Application.Chat
             // lấy các conversation hai người 
             var conversation1s = conversations.Where(c => c.JustTwoPeople &&
             (c.UserAId.Equals(currentUserId) || c.UserAId.Equals(currentUserId)) &&
-            c.ConversationName.Contains(input.Filter));
+            c.ConversationName.Contains(input.Filter)).ToList();
 
             // lấy các conversation còn lại
-            var conversation2s = from c in conversations
-                                 join uc in userConversations
-                                 on c.Id equals uc.ConversationId
-                                 where uc.UserId.Equals(currentUserId) &&
-                                 c.ConversationName.Contains(input.Filter)
-                                 select c;
+            var conversation2s = (from c in conversations
+                                  join uc in userConversations
+                                  on c.Id equals uc.ConversationId
+                                  where uc.UserId.Equals(currentUserId) &&
+                                  c.ConversationName.Contains(input.Filter)
+                                  select c).ToList();
             return new ServiceResult()
             {
                 Code = 20000,
                 Message = "Get list conversation successfully!",
-                Data = conversation1s.Union(conversation2s)
-                                    .OrderBy(c => c.LastMessage.CreationTime)
-                                    .Skip(input.SkipCount)
-                                    .Take(input.MaxResultCount)
+                Data = conversation1s
+                        .Concat(conversation2s)
+                        .OrderBy(c => c.LastMessage.CreationTime)
+                        .Skip(input.SkipCount)
+                        .Take(input.MaxResultCount)
             };
         }
 
@@ -287,7 +288,7 @@ namespace FSI.Application.Chat
                     Message = "Conversation not contain this user!"
                 };
 
-            if(myConversation.RoleInConversation <= userConversation.RoleInConversation)
+            if (myConversation.RoleInConversation <= userConversation.RoleInConversation)
             {
                 userConversation.NickName = input.NickName;
                 await _userConversationRepository.UpdateAsync(userConversation);
