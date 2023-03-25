@@ -17,36 +17,32 @@ namespace FSI.Application.Hubs
         private readonly IObjectMapper _objectMapper;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly IUserConversationRepository _userConversationRepository;
-        private readonly IUserConnectionRepository _userConnectionRepository;
+        private Guid currentUserId;
 
-        public ChatHub(IObjectMapper objectMapper, IUnitOfWorkManager unitOfWorkManager, IUserConnectionRepository userConnectionRepository, IUserConversationRepository userConversationRepository)
+        public ChatHub(IObjectMapper objectMapper, IUnitOfWorkManager unitOfWorkManager, IUserConversationRepository userConversationRepository)
         {
             _objectMapper = objectMapper;
             _unitOfWorkManager = unitOfWorkManager;
-            _userConnectionRepository = userConnectionRepository;
             _userConversationRepository = userConversationRepository;
+            this.currentUserId = Guid.Parse(Context.GetHttpContext().User.FindFirst(ClaimTypes.NameIdentifier).Value);
         }
 
         public override async Task OnConnectedAsync()
         {
             using (var uow = _unitOfWorkManager.Begin(requiresNew: true, isTransactional: true))
             {
-                var userId = Guid.Parse(Context.GetHttpContext().User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
                 // lấy ra tất cả conversation thuộc về người dùng rồi add người dùng vào tất cả groupConversation đấy
-
-                var conversationsOfUser = await _userConversationRepository.GetListAsync(uc => uc.UserId.Equals(userId));
-
+                var conversationsOfUser = await _userConversationRepository.GetListAsync(uc => uc.UserId.Equals(currentUserId));
                 conversationsOfUser.ForEach(c =>
                 {
                     Groups.AddToGroupAsync(Context.ConnectionId, c.Id.ToString());
                 });
 
-                await _userConnectionRepository.InsertAsync(new UserConnection()
-                {
-                    ConnectionId = Context.ConnectionId,
-                    UserId = userId
-                });
+
+                // add connection vào group idUser hiện tại dùng để send cho riêng người dùng này
+                await Groups.AddToGroupAsync(Context.ConnectionId, currentUserId.ToString());
+
                 await uow.CompleteAsync();
             }
         }
@@ -56,8 +52,15 @@ namespace FSI.Application.Hubs
         {
             using (var uow = _unitOfWorkManager.Begin(requiresNew: true, isTransactional: true))
             {
-                var userConnection = await _userConnectionRepository.GetAsync(uc => uc.ConnectionId.Equals(Context.ConnectionId));
-                await _userConnectionRepository.DeleteAsync(userConnection.Id);
+                // lấy ra tất cả conversation thuộc về người dùng rồi xóa connection từ tất cả groupConversation đấy
+                var conversationsOfUser = await _userConversationRepository.GetListAsync(uc => uc.UserId.Equals(currentUserId));
+                conversationsOfUser.ForEach(c =>
+                {
+                    Groups.RemoveFromGroupAsync(Context.ConnectionId, c.Id.ToString());
+                });
+
+                // xóa connection từ group idUser hiện tại dùng để send cho riêng người dùng này
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, currentUserId.ToString());
                 await uow.CompleteAsync();
             }
         }

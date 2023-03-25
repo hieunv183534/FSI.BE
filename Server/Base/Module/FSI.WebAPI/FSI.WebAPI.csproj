@@ -1,40 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>93d5d161-4dc0-4a03-b1df-f995d1a0a489</UserSecretsId>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>..\..\..</DockerfileContext>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>93d5d161-4dc0-4a03-b1df-f995d1a0a489</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>..\..\..</DockerfileContext>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Controlles\**" />
-    <Content Remove="Controlles\**" />
-    <EmbeddedResource Remove="Controlles\**" />
-    <None Remove="Controlles\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Controlles\**" />
+		<Content Remove="Controlles\**" />
+		<EmbeddedResource Remove="Controlles\**" />
+		<None Remove="Controlles\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.8">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.1" />
-    <PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
-    <PackageReference Include="Serilog.Sinks.Async" Version="1.5.0" />
-    <PackageReference Include="Volo.Abp.AspNetCore.Authentication.JwtBearer" Version="5.3.1" />
-    <PackageReference Include="Volo.Abp.AspNetCore.Serilog" Version="5.3.1" />
-    <PackageReference Include="Volo.Abp.AspNetCore.SignalR" Version="6.0.1" />
-    <PackageReference Include="Volo.Abp.Autofac" Version="5.3.1" />
-    <PackageReference Include="Volo.Abp.Swashbuckle" Version="5.3.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.8">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.1" />
+		<PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
+		<PackageReference Include="Serilog.Sinks.Async" Version="1.5.0" />
+		<PackageReference Include="Volo.Abp.AspNetCore.Authentication.JwtBearer" Version="5.3.1" />
+		<PackageReference Include="Volo.Abp.AspNetCore.Serilog" Version="5.3.1" />
+		<PackageReference Include="Volo.Abp.AspNetCore.SignalR" Version="6.0.1" />
+		<PackageReference Include="Volo.Abp.Autofac" Version="5.3.1" />
+		<PackageReference Include="Volo.Abp.Swashbuckle" Version="5.3.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\FSI.Application\FSI.Application.csproj" />
-    <ProjectReference Include="..\FSI.EFCore\FSI.EFCore.csproj" />
-    <ProjectReference Include="..\FSI.HttpApi\FSI.HttpApi.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\FSI.Application\FSI.Application.csproj" />
+		<ProjectReference Include="..\FSI.EFCore\FSI.EFCore.csproj" />
+		<ProjectReference Include="..\FSI.HttpApi\FSI.HttpApi.csproj" />
+	</ItemGroup>
 
 </Project>

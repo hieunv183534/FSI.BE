@@ -24,6 +24,11 @@ namespace FSI.HttpApi.Controlles
             _authAppService = authAppService;
         }
 
+        /// <summary>
+        /// Đăng nhập
+        /// </summary>
+        /// <param name="account"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginDto account)

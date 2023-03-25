@@ -28,21 +28,24 @@ namespace FSI.Application.Chat
         private readonly IConversationRepository _conversationRepository;
         private readonly IUserConversationRepository _userConversationRepository;
         private readonly IMessageRepository _messageRepository;
-        private readonly IUserConnectionRepository _userConnectionRepository;
         private readonly IHubContext<ChatHub> _hubContext;
         private readonly Guid currentUserId;
 
-        public ChatAppService(IConversationRepository conversationRepository, IUserConversationRepository userConversationRepository, IMessageRepository messageRepository, IUserConnectionRepository userConnectionRepository, IHubContext<ChatHub> hubContext, IHttpContextAccessor httpContextAccessor)
+        public ChatAppService(IConversationRepository conversationRepository, IUserConversationRepository userConversationRepository, IMessageRepository messageRepository, IHubContext<ChatHub> hubContext, IHttpContextAccessor httpContextAccessor)
         {
             _conversationRepository = conversationRepository;
             _userConversationRepository = userConversationRepository;
             _messageRepository = messageRepository;
-            _userConnectionRepository = userConnectionRepository;
             _hubContext = hubContext;
             _httpContextAccessor = httpContextAccessor;
             this.currentUserId = Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
         }
 
+        /// <summary>
+        /// thêm hội thoại
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public async Task<ServiceResult> AddConversation(AddConversationDto input)
         {
             var newConversation = await _conversationRepository.InsertAsync(new Conversation()
@@ -83,9 +86,8 @@ namespace FSI.Application.Chat
 
             await _userConversationRepository.InsertManyAsync(userConversations);
 
-            // lấy hết connection của những người được thêm để thông báo
-            var connectionIds = (await _userConnectionRepository.GetListAsync(uc => input.MemberIds.Contains(uc.UserId))).Select(uc => uc.ConnectionId);
-            await _hubContext.Clients.Clients(connectionIds.ToList()).SendAsync("BeAddedToAConversation", newConversation.Id);
+            // gửi thông báo đến tất cả những người được thêm
+            await _hubContext.Clients.Groups(input.MemberIds.Select(x => x.ToString()).ToList()).SendAsync("BeAddedToAConversation", newConversation);
 
             return new ServiceResult()
             {
@@ -121,12 +123,7 @@ namespace FSI.Application.Chat
                     LastIndexSeen = 0
                 });
 
-                // lấy connections của người đó để thông báo về việc add này.
-                // lấy hết các conncectionId tương ứng với các connection người đó ở các thiết bị khác nhau
-                var connectionIds = (await _userConnectionRepository.GetListAsync(uc => uc.UserId.Equals(userId))).Select(uc => uc.ConnectionId);
-
-                // gửi thông báo đến người được thêm vào cuộc hội thoại
-                await _hubContext.Clients.Clients(connectionIds.ToList()).SendAsync("BeAddedToAConversation", conversationId);
+                await _hubContext.Clients.Group(userId.ToString()).SendAsync("BeAddedToAConversation", conversationId);
 
                 return new ServiceResult()
                 {
@@ -180,7 +177,8 @@ namespace FSI.Application.Chat
             var oldConversation = await _conversationRepository.FindAsync(c => (c.UserAId.Equals(currentUserId) && c.UserBId.Equals(message.TargetId)) ||
                                                                             (c.UserBId.Equals(currentUserId) && c.UserAId.Equals(message.TargetId)));
             Message newMessage;
-            if (oldConversation == null)
+            
+            if (oldConversation == null) // trường hợp tin nhắn request đầu tiên
             {
                 var newConversation = await _conversationRepository.InsertAsync(new Conversation()
                 {
@@ -200,14 +198,9 @@ namespace FSI.Application.Chat
                 newConversation.LastMessageId = newMessage.Id;
                 await _conversationRepository.UpdateAsync(newConversation);
 
-                // lấy các connnection của người nhận và bản thân để add vào groupConversation
-                var connectionIds = (await _userConnectionRepository.GetListAsync(uc => uc.UserId.Equals(message.TargetId))).Select(uc => uc.ConnectionId);
-                connectionIds.ToList().ForEach(async cnId =>
-                {
-                    await _hubContext.Groups.AddToGroupAsync(cnId, newConversation.Id.ToString());
-                });
 
-                await _hubContext.Clients.Group(newConversation.Id.ToString()).SendAsync("OnMessage", newMessage);
+                // gửi thông báo đến người được nhận tin nhắn request
+                await _hubContext.Clients.Group(message.TargetId.ToString()).SendAsync("OnNewRequestMessage", newMessage);
             }
             else
             {
