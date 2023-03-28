@@ -9,6 +9,7 @@ using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.EntityFrameworkCore;
+using FSI.Domain.Project;
 
 namespace FSI.EntityFrameworkCore;
 
@@ -44,6 +45,8 @@ public class FSIDbContext :
     public DbSet<Conversation> Conversations { get; set; }
     public DbSet<UserConversation> UserConversations { get; set; }
     public DbSet<UserConnection> UserConnections { get; set; }
+    public DbSet<Project> Projects { get; set; }
+    public DbSet<ProjectUser> ProjectUsers { get; set; }
 
 
     public FSIDbContext(DbContextOptions<FSIDbContext> options)
