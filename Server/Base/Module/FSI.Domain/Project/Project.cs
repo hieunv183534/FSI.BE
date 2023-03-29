@@ -14,9 +14,21 @@ namespace FSI.Domain.Project
 
         public string Description { get; set; }
 
-        public string Field { get; set; }
+        public List<string> Field { get; set; }
 
         public ProjectStage Stage { get; set; }
+
+        public DateTime FoundedTime { get; set; }
+
+        public string Area { get; set; }
+
+        public string Website { get; set; }
+
+        public string Fb { get; set; }
+
+        public string Compliment { get; set; }
+
+        public string GrowHistory { get; set; }
 
     }
 }

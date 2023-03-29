@@ -76,5 +76,10 @@ public class FSIDbContext :
         builder.Entity<Account>().HasIndex(x=> x.Email).IsUnique();
         builder.Entity<Account>().HasIndex(x=> x.PhoneNumber).IsUnique();
 
+        builder.Entity<Project>(entity =>
+        {
+            entity.Property(x => x.Field).IsJson();
+        });
+
     }
 }

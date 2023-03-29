@@ -8,9 +8,11 @@ namespace FSI.Common.Enums
 {
     public enum ProjectStage
     {
-        Idea,
-        TeamUp,
-        Develop,
-        Running
+        PreSeed,
+        Seed,
+        Early,
+        Grow,
+        Expansion,
+        Exit
     }
 }
