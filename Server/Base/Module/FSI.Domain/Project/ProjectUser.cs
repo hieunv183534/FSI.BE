@@ -20,5 +20,7 @@ namespace FSI.Domain.Project
         public Guid UserId { get; set; }
 
         public RoleInProject Role { get; set; }
+
+        public bool IsActive { get; set; }
     }
 }

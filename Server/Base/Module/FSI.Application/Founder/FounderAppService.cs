@@ -4,6 +4,7 @@ using FSI.Application.Hubs;
 using FSI.Domain.Founder;
 using FSI.Domain.Test;
 using FSI.Domain.User;
+using FSI.GrpcClient.RecommendationSystem;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
@@ -27,17 +28,22 @@ namespace FSI.Application.Founder
         protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
-        public FounderAppService(IFounderRepository founderRepository, IHttpContextAccessor httpContextAccessor)
+
+        private readonly IRecommendationSystem _recommendationSystem;
+
+        public FounderAppService(IFounderRepository founderRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem)
         {
             _founderRepository = founderRepository;
             _httpContextAccessor = httpContextAccessor;
             this.currentUserId = Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            _recommendationSystem = recommendationSystem;
         }
 
         public async Task<List<FounderDto>> GetListAsync()
         {
+            var testrs = await _recommendationSystem.Test(this.currentUserId.ToString());
             var rs = await _founderRepository.GetListAsync();
-            return ObjectMapper.Map<List<FSI.Domain.Founder.Founder>, List<FounderDto>>(rs);
+            return new List<FounderDto>() { new FounderDto() { Activity = testrs } };
         }
 
         public async Task<FounderDto> InsertFounderAsync(CreateFounderDto input)

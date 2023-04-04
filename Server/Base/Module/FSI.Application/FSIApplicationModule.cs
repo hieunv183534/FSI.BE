@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FSI.GrpcClient.RecommendationSystem;
+using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp;
 using Volo.Abp.AutoMapper;
 using Volo.Abp.Modularity;
@@ -18,6 +19,8 @@ namespace FSI
             {
                 options.AddMaps<FSIApplicationModule>();
             });
+
+            context.Services.AddScoped<IRecommendationSystem, RecommendationSystem>();
         }
 
     }

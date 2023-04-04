@@ -7,6 +7,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Protos\greet.proto" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.10.0" />
@@ -17,6 +21,11 @@
 	<ItemGroup>
 		<ProjectReference Include="..\FSI.Application.Contracts\FSI.Application.Contracts.csproj" />
 		<ProjectReference Include="..\FSI.Domain\FSI.Domain.csproj" />
+		<ProjectReference Include="..\FSI.GrpcClient\FSI.GrpcClient.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Protobuf Include="Protos\greet.proto" GrpcServices="Client" />
 	</ItemGroup>
 
 </Project>

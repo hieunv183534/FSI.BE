@@ -13,6 +13,8 @@ namespace FSI.Domain.Chat
     {
         public bool JustTwoPeople { get; set; }
 
+        public bool IsActive { get; set; }
+
         public Guid? UserAId { get; set; }
 
         public UserRoot? UserA { get; set; }
