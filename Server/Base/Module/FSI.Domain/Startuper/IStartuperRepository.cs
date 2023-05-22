@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
 
-namespace FSI.Domain.Founder
+namespace FSI.Domain.Startuper
 {
-    public interface IFounderRepository : IRepository<Founder, Guid>
+    public interface IStartuperRepository : IRepository<Startuper, Guid>
     {
     }
 }

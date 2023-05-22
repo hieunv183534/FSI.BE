@@ -3,13 +3,14 @@ using FSI.Domain.Chat;
 using FSI.Domain.File;
 using FSI.Domain.Test;
 using FSI.Domain.User;
-using FSI.Domain.Founder;
+using FSI.Domain.Startuper;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.EntityFrameworkCore;
 using FSI.Domain.Project;
+using FSI.Domain.Investor;
 
 namespace FSI.EntityFrameworkCore;
 
@@ -39,7 +40,8 @@ public class FSIDbContext :
     public DbSet<Test> Tests { get; set; }
     public DbSet<UserRoot> UserRoots { get; set; }
     public DbSet<Account> Accounts { get; set; }
-    public DbSet<Founder> Founders { get; set; }
+    public DbSet<Startuper> Startupers { get; set; }
+    public DbSet<Investor> Investors { get; set; }
     public DbSet<FileInfomation> Files { get; set; }
     public DbSet<Message> Messages { get; set; }
     public DbSet<Conversation> Conversations { get; set; }
@@ -79,6 +81,11 @@ public class FSIDbContext :
         builder.Entity<Project>(entity =>
         {
             entity.Property(x => x.Field).IsJson();
+        });
+
+        builder.Entity<Investor>(entity =>
+        {
+            entity.Property(x => x.InvestFields).IsJson();
         });
 
     }

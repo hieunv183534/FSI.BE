@@ -4,7 +4,7 @@ using FSI.Application.Contracts.Auth.DTO;
 using FSI.Application.Contracts.Auth.IService;
 using FSI.Application.Contracts.User.DTO;
 using FSI.Domain.Account;
-using FSI.Domain.Founder;
+using FSI.Domain.Startuper;
 using FSI.Domain.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
@@ -25,12 +25,12 @@ namespace FSI.Application.Auth
     public class AuthAppService : ApplicationService, IAuthAppService
     {
         private readonly IAccountRepository _accountRepository;
-        private readonly IFounderRepository _founderRepository;
+        private readonly IStartuperRepository _startuperRepository;
 
-        public AuthAppService(IAccountRepository accountRepository, IFounderRepository founderRepository)
+        public AuthAppService(IAccountRepository accountRepository, IStartuperRepository startuperRepository)
         {
             _accountRepository = accountRepository;
-            _founderRepository = founderRepository;
+            _startuperRepository = startuperRepository;
         }
 
         public string Login(LoginDto loginDto)
@@ -43,7 +43,7 @@ namespace FSI.Application.Auth
                 UserRoot user = new UserRoot() {};
                 if (true)
                 {
-                    user = _founderRepository.FindAsync(f => f.AccountId.Equals(acc.Id)).Result;
+                    user = _startuperRepository.FindAsync(f => f.AccountId.Equals(acc.Id)).Result;
                     if (user == null) return null;
                 } //... check tiếp các role khác sau
 
@@ -55,7 +55,7 @@ namespace FSI.Application.Auth
                     Subject = new ClaimsIdentity(new Claim[]
                     {
                         new Claim(ClaimTypes.Name, user.Name),
-                        new Claim(ClaimTypes.Role, "Founder"),
+                        new Claim(ClaimTypes.Role, "Startuper"),
                         new Claim(ClaimTypes.Email, acc.Email),
                         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                         new Claim(ClaimTypes.GivenName , acc.Id.ToString())
@@ -74,9 +74,9 @@ namespace FSI.Application.Auth
             input.Password = BCrypt.Net.BCrypt.HashPassword(input.Password);
             var newAcc = _accountRepository.InsertAsync(ObjectMapper.Map<RegisterDto, Account>(input)).Result;
 
-            var founderInfo = ObjectMapper.Map<UserRootDto, FSI.Domain.Founder.Founder>(input.BaseInfomation);
-            founderInfo.AccountId = newAcc.Id;
-            var userInfo = _founderRepository.InsertAsync(founderInfo).Result;
+            var startuperInfo = ObjectMapper.Map<UserRootDto, FSI.Domain.Startuper.Startuper>(input.BaseInfomation);
+            startuperInfo.AccountId = newAcc.Id;
+            var userInfo = _startuperRepository.InsertAsync(startuperInfo).Result;
 
             return ObjectMapper.Map<Account, AccountDto>(newAcc);
         }

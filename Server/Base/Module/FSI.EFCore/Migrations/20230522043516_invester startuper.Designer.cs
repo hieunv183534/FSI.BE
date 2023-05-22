@@ -12,8 +12,8 @@ using Volo.Abp.EntityFrameworkCore;
 namespace FSI.EFCore.Migrations
 {
     [DbContext(typeof(FSIDbContext))]
-    [Migration("20230328075018_project")]
-    partial class project
+    [Migration("20230522043516_invester startuper")]
+    partial class investerstartuper
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -129,6 +129,9 @@ namespace FSI.EFCore.Migrations
                     b.Property<string>("ExtraProperties")
                         .HasColumnType("longtext")
                         .HasColumnName("ExtraProperties");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
@@ -395,6 +398,14 @@ namespace FSI.EFCore.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("char(36)");
 
+                    b.Property<string>("Area")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Compliment")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasMaxLength(40)
@@ -425,7 +436,18 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("ExtraProperties");
 
+                    b.Property<string>("Fb")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Field")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("FoundedTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("GrowHistory")
                         .IsRequired()
                         .HasColumnType("longtext");
 
@@ -449,6 +471,10 @@ namespace FSI.EFCore.Migrations
 
                     b.Property<int>("Stage")
                         .HasColumnType("int");
+
+                    b.Property<string>("Website")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
@@ -485,6 +511,9 @@ namespace FSI.EFCore.Migrations
                     b.Property<string>("ExtraProperties")
                         .HasColumnType("longtext")
                         .HasColumnName("ExtraProperties");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
@@ -725,6 +754,31 @@ namespace FSI.EFCore.Migrations
                     b.ToTable("UserRoots");
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("UserRoot");
+                });
+
+            modelBuilder.Entity("FSI.Domain.Investor.Investor", b =>
+                {
+                    b.HasBaseType("FSI.Domain.User.UserRoot");
+
+                    b.Property<string>("BasicDescription")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("InvestFields")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("InvestorName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("MaxInvestValue")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinInvestValue")
+                        .HasColumnType("int");
+
+                    b.HasDiscriminator().HasValue("Investor");
                 });
 
             modelBuilder.Entity("FSI.Domain.Startuper.Startuper", b =>

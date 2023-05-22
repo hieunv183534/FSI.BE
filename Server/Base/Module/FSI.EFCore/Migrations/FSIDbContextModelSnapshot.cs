@@ -128,6 +128,9 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("ExtraProperties");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("tinyint(1)")
@@ -507,6 +510,9 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("ExtraProperties");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("tinyint(1)")
@@ -748,7 +754,32 @@ namespace FSI.EFCore.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("UserRoot");
                 });
 
-            modelBuilder.Entity("FSI.Domain.Founder.Founder", b =>
+            modelBuilder.Entity("FSI.Domain.Investor.Investor", b =>
+                {
+                    b.HasBaseType("FSI.Domain.User.UserRoot");
+
+                    b.Property<string>("BasicDescription")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("InvestFields")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("InvestorName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("MaxInvestValue")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinInvestValue")
+                        .HasColumnType("int");
+
+                    b.HasDiscriminator().HasValue("Investor");
+                });
+
+            modelBuilder.Entity("FSI.Domain.Startuper.Startuper", b =>
                 {
                     b.HasBaseType("FSI.Domain.User.UserRoot");
 
@@ -787,7 +818,7 @@ namespace FSI.EFCore.Migrations
                     b.Property<bool>("hasProject")
                         .HasColumnType("tinyint(1)");
 
-                    b.HasDiscriminator().HasValue("Founder");
+                    b.HasDiscriminator().HasValue("Startuper");
                 });
 
             modelBuilder.Entity("FSI.Domain.Chat.Conversation", b =>

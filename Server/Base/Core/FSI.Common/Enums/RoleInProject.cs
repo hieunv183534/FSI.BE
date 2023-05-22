@@ -10,6 +10,7 @@ namespace FSI.Common.Enums
     {
         Founder,
         CoFounder,
-        Member
+        Member,
+        Investor
     }
 }

@@ -1,12 +1,15 @@
-﻿using System;
+﻿using FSI.Domain.Account;
+using FSI.Domain.User;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Volo.Abp.Domain.Entities.Auditing;
 
-namespace FSI.Application.Contracts.Founder.DTO
+namespace FSI.Domain.Startuper
 {
-    public class CreateFounderDto
+    public class Startuper : UserRoot
     {
         public string Speciality { get; set; }
 
@@ -23,5 +26,8 @@ namespace FSI.Application.Contracts.Founder.DTO
         public string Award { get; set; }
 
         public string FavoriteField { get; set; }
+
+        public bool hasProject { get; set; }
+
     }
 }

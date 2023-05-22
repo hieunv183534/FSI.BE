@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Dtos;
 
-namespace FSI.Application.Contracts.Founder.DTO
+namespace FSI.Application.Contracts.Startuper.DTO
 {
-    public class FounderDto : UserRootDto
+    public class StartuperDto : UserRootDto
     {
         public string Speciality { get; set; }
 

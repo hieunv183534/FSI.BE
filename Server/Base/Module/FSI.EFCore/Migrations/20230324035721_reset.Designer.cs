@@ -599,7 +599,7 @@ namespace FSI.EFCore.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("UserRoot");
                 });
 
-            modelBuilder.Entity("FSI.Domain.Founder.Founder", b =>
+            modelBuilder.Entity("FSI.Domain.Startuper.Startuper", b =>
                 {
                     b.HasBaseType("FSI.Domain.User.UserRoot");
 
@@ -638,7 +638,7 @@ namespace FSI.EFCore.Migrations
                     b.Property<bool>("hasProject")
                         .HasColumnType("tinyint(1)");
 
-                    b.HasDiscriminator().HasValue("Founder");
+                    b.HasDiscriminator().HasValue("Startuper");
                 });
 
             modelBuilder.Entity("FSI.Domain.Chat.Conversation", b =>

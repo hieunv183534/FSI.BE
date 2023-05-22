@@ -8,9 +8,9 @@ using Volo.Abp.AspNetCore.Mvc;
 
 namespace FSI.Controlles
 {
-    public abstract class FounderController : AbpControllerBase
+    public abstract class StartuperController : AbpControllerBase
     {
-        protected FounderController()
+        protected StartuperController()
         {
             LocalizationResource = typeof(FSIResource);
         }
