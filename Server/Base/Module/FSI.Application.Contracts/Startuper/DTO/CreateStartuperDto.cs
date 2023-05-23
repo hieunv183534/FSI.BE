@@ -23,5 +23,7 @@ namespace FSI.Application.Contracts.Startuper.DTO
         public string Award { get; set; }
 
         public string FavoriteField { get; set; }
+
+        public bool hasProject { get; set; }
     }
 }

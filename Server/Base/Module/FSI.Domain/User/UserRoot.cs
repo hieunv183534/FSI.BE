@@ -20,5 +20,7 @@ namespace FSI.Domain.User
 
         public Account.Account Account { get; set; }
 
+        public string AvatarUrl { get; set; }
+
     }
 }

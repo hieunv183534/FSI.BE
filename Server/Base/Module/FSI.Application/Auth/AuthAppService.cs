@@ -4,6 +4,7 @@ using FSI.Application.Contracts.Auth.DTO;
 using FSI.Application.Contracts.Auth.IService;
 using FSI.Application.Contracts.User.DTO;
 using FSI.Domain.Account;
+using FSI.Domain.Investor;
 using FSI.Domain.Startuper;
 using FSI.Domain.User;
 using Microsoft.AspNetCore.Authorization;
@@ -26,11 +27,13 @@ namespace FSI.Application.Auth
     {
         private readonly IAccountRepository _accountRepository;
         private readonly IStartuperRepository _startuperRepository;
+        private readonly IInvestorRepository _investorRepository;
 
-        public AuthAppService(IAccountRepository accountRepository, IStartuperRepository startuperRepository)
+        public AuthAppService(IAccountRepository accountRepository, IStartuperRepository startuperRepository, IInvestorRepository investorRepository)
         {
             _accountRepository = accountRepository;
             _startuperRepository = startuperRepository;
+            _investorRepository = investorRepository;
         }
 
         public string Login(LoginDto loginDto)
@@ -40,13 +43,17 @@ namespace FSI.Application.Auth
 
             if (BCrypt.Net.BCrypt.Verify(loginDto.Password, acc.PasswordHash))
             {
-                UserRoot user = new UserRoot() {};
-                if (true)
+                UserRoot user = new UserRoot() { };
+                if (loginDto.Role == Common.Enums.FsiRole.Startuper)
                 {
                     user = _startuperRepository.FindAsync(f => f.AccountId.Equals(acc.Id)).Result;
                     if (user == null) return null;
-                } //... check tiếp các role khác sau
-
+                }
+                else if (loginDto.Role == Common.Enums.FsiRole.Investor)
+                {
+                    user = _investorRepository.FindAsync(f => f.AccountId.Equals(acc.Id)).Result;
+                    if (user == null) return null;
+                }
 
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var tokenKey = Encoding.ASCII.GetBytes("this-is-my-super-key");
@@ -55,7 +62,7 @@ namespace FSI.Application.Auth
                     Subject = new ClaimsIdentity(new Claim[]
                     {
                         new Claim(ClaimTypes.Name, user.Name),
-                        new Claim(ClaimTypes.Role, "Startuper"),
+                        new Claim(ClaimTypes.Role, loginDto.Role.ToString()),
                         new Claim(ClaimTypes.Email, acc.Email),
                         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                         new Claim(ClaimTypes.GivenName , acc.Id.ToString())
@@ -74,10 +81,18 @@ namespace FSI.Application.Auth
             input.Password = BCrypt.Net.BCrypt.HashPassword(input.Password);
             var newAcc = _accountRepository.InsertAsync(ObjectMapper.Map<RegisterDto, Account>(input)).Result;
 
-            var startuperInfo = ObjectMapper.Map<UserRootDto, FSI.Domain.Startuper.Startuper>(input.BaseInfomation);
-            startuperInfo.AccountId = newAcc.Id;
-            var userInfo = _startuperRepository.InsertAsync(startuperInfo).Result;
-
+            if (input.RoleRegister == Common.Enums.FsiRole.Startuper)
+            {
+                var startuperInfo = ObjectMapper.Map<UserRootDto, FSI.Domain.Startuper.Startuper>(input.BaseInfomation);
+                startuperInfo.AccountId = newAcc.Id;
+                var userInfo = _startuperRepository.InsertAsync(startuperInfo).Result;
+            }
+            else if (input.RoleRegister == Common.Enums.FsiRole.Investor)
+            {
+                var investorInfo = ObjectMapper.Map<UserRootDto, FSI.Domain.Investor.Investor>(input.BaseInfomation);
+                investorInfo.AccountId = newAcc.Id;
+                var userInfo = _investorRepository.InsertAsync(investorInfo).Result;
+            }
             return ObjectMapper.Map<Account, AccountDto>(newAcc);
         }
     }

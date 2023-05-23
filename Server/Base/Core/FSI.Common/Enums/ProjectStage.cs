@@ -15,4 +15,12 @@ namespace FSI.Common.Enums
         Expansion,
         Exit
     }
+
+    public enum ProjectEventType
+    {
+        Init,
+        PersonalChange,
+        PhaseSwich,
+        GetInvesment
+    }
 }

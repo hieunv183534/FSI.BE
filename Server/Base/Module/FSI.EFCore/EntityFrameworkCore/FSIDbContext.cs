@@ -49,6 +49,7 @@ public class FSIDbContext :
     public DbSet<UserConnection> UserConnections { get; set; }
     public DbSet<Project> Projects { get; set; }
     public DbSet<ProjectUser> ProjectUsers { get; set; }
+    public DbSet<ProjectFile> ProjectFiles { get; set; }
 
 
     public FSIDbContext(DbContextOptions<FSIDbContext> options)
@@ -61,8 +62,10 @@ public class FSIDbContext :
     {
         base.OnModelCreating(builder);
 
-        builder.Model.SetMaxIdentifierLength(30);
+        //builder.Model.SetMaxIdentifierLength(30);
         /* Include modules to your migration db context */
+
+        builder.Ignore<ProjectHistoryEvent>();
 
 
         /* Configure your own tables/entities inside here */
@@ -81,6 +84,7 @@ public class FSIDbContext :
         builder.Entity<Project>(entity =>
         {
             entity.Property(x => x.Field).IsJson();
+            entity.Property(x => x.History).IsJson();
         });
 
         builder.Entity<Investor>(entity =>

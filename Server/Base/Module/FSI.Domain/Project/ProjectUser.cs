@@ -22,5 +22,9 @@ namespace FSI.Domain.Project
         public RoleInProject Role { get; set; }
 
         public bool IsActive { get; set; }
+
+        public int TotalExpectedInvestment { get; set; }
+
+        public int TotalInvestment { get; set; }
     }
 }

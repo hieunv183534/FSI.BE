@@ -3,6 +3,7 @@ using System;
 using FSI.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -11,9 +12,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace FSI.EFCore.Migrations
 {
     [DbContext(typeof(FSIDbContext))]
-    partial class FSIDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230522063727_project history")]
+    partial class projecthistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -479,74 +481,6 @@ namespace FSI.EFCore.Migrations
                     b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("FSI.Domain.Project.ProjectFile", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasMaxLength(40)
-                        .HasColumnType("varchar(40)")
-                        .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<string>("ExtraProperties")
-                        .HasColumnType("longtext")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<Guid>("FileId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<string>("Note")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FileId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("ProjectFiles");
-                });
-
             modelBuilder.Entity("FSI.Domain.Project.ProjectUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -957,25 +891,6 @@ namespace FSI.EFCore.Migrations
                         .IsRequired();
 
                     b.Navigation("Author");
-                });
-
-            modelBuilder.Entity("FSI.Domain.Project.ProjectFile", b =>
-                {
-                    b.HasOne("FSI.Domain.File.FileInfomation", "File")
-                        .WithMany()
-                        .HasForeignKey("FileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FSI.Domain.Project.Project", "Project")
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("File");
-
-                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("FSI.Domain.Project.ProjectUser", b =>

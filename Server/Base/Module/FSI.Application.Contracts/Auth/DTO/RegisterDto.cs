@@ -1,4 +1,5 @@
 ﻿using FSI.Application.Contracts.User.DTO;
+using FSI.Common.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace FSI.Application.Contracts.Auth.DTO
 
         public string Password { get; set; }
 
-        public string RoleRegister { get; set; }
+        public FsiRole RoleRegister { get; set; }
 
         public UserRootDto BaseInfomation { get; set; }
     }

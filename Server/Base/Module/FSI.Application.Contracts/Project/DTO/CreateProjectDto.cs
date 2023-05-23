@@ -1,14 +1,14 @@
 ﻿using FSI.Common.Enums;
+using FSI.Domain.Project;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Volo.Abp.Domain.Entities.Auditing;
 
-namespace FSI.Domain.Project
+namespace FSI.Application.Contracts.Project.DTO
 {
-    public class Project : FullAuditedAggregateRoot<Guid>
+    public class CreateProjectDto
     {
         public string ProjectName { get; set; }
 
@@ -31,6 +31,5 @@ namespace FSI.Domain.Project
         public List<ProjectHistoryEvent> History { get; set; }
 
         public string AvatarUrl { get; set; }
-
     }
 }

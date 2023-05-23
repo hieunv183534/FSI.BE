@@ -1,13 +1,12 @@
-﻿using FSI.Domain.User;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FSI.Domain.Investor
+namespace FSI.Application.Contracts.Investor.DTO
 {
-    public class Investor : UserRoot
+    public class CreateInvestorDto
     {
         public string InvestorName { get; set; }
 
