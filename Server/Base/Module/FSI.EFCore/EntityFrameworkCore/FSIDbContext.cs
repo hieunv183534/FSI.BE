@@ -83,7 +83,7 @@ public class FSIDbContext :
 
         builder.Entity<Project>(entity =>
         {
-            entity.Property(x => x.Field).IsJson();
+            entity.Property(x => x.Fields).IsJson();
             entity.Property(x => x.History).IsJson();
         });
 

@@ -11,23 +11,23 @@ namespace FSI.Domain.Startuper
 {
     public class Startuper : UserRoot
     {
-        public string Speciality { get; set; }
+        public string? Speciality { get; set; }
 
-        public string Personality { get; set; }
+        public string? Personality { get; set; }
 
-        public string Skill { get; set; }
+        public string? Skill { get; set; }
 
-        public string WorkingExperience { get; set; }
+        public string? WorkingExperience { get; set; }
 
-        public string Activity { get; set; }
+        public string? Activity { get; set; }
 
-        public string Certificate { get; set; }
+        public string? Certificate { get; set; }
 
-        public string Award { get; set; }
+        public string? Award { get; set; }
 
-        public string FavoriteField { get; set; }
+        public string? FavoriteField { get; set; }
 
-        public bool hasProject { get; set; }
+        public bool? hasProject { get; set; }
 
     }
 }

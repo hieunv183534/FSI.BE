@@ -10,17 +10,17 @@ namespace FSI.Domain.User
 
         public DateTime DateOfBirth { get; set; }
 
-        public string IdentityCard { get; set; }
+        public string? IdentityCard { get; set; }
 
-        public string Location { get; set; }
+        public string? Location { get; set; }
 
-        public string WorkingPlace { get; set; }
+        public string? WorkingPlace { get; set; }
 
         public Guid AccountId { get; set; }
 
         public Account.Account Account { get; set; }
 
-        public string AvatarUrl { get; set; }
+        public string? AvatarUrl { get; set; }
 
     }
 }

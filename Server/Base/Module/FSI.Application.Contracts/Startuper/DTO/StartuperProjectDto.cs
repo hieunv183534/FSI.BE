@@ -4,13 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FSI.Common.Enums
+namespace FSI.Application.Contracts.Startuper.DTO
 {
-    public enum RoleInProject
+    public class StartuperProjectDto
     {
-        Investor,
-        Member,
-        CoFounder,
-        Founder
     }
 }

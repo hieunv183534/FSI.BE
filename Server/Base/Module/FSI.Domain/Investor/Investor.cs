@@ -9,18 +9,18 @@ namespace FSI.Domain.Investor
 {
     public class Investor : UserRoot
     {
-        public string InvestorName { get; set; }
+        public string? InvestorName { get; set; }
 
-        public int MinInvestValue { get; set; }
+        public int? MinInvestValue { get; set; }
 
-        public int MaxInvestValue { get; set; }
+        public int? MaxInvestValue { get; set; }
 
-        public string BasicDescription { get; set; }
+        public string? BasicDescription { get; set; }
 
-        public List<string> InvestFields { get; set; }
+        public List<string>? InvestFields { get; set; }
 
-        public string Company { get; set; }
+        public string? Company { get; set; }
 
-        public string Position { get; set; }
+        public string? Position { get; set; }
     }
 }

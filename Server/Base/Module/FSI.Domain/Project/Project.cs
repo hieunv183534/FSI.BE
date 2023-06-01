@@ -1,4 +1,5 @@
 ﻿using FSI.Common.Enums;
+using FSI.Domain.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,17 +21,21 @@ namespace FSI.Domain.Project
 
         public DateTime FoundedTime { get; set; }
 
-        public string Area { get; set; }
+        public string? Area { get; set; }
 
-        public string Website { get; set; }
+        public string? Website { get; set; }
 
-        public string Fb { get; set; }
+        public string? Fb { get; set; }
 
-        public string Compliment { get; set; }
+        public string? Compliment { get; set; }
 
         public List<ProjectHistoryEvent> History { get; set; }
 
-        public string AvatarUrl { get; set; }
+        public string? AvatarUrl { get; set; }
+
+        public Guid FounderId { get; set; }
+
+        public UserRoot Founder { get; set; }
 
     }
 }

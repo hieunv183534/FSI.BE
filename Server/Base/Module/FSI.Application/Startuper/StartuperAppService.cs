@@ -15,6 +15,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp;
+using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.ObjectMapping;
 
@@ -63,6 +64,16 @@ namespace FSI.Application.Startuper
         public async Task DeleteAsync(Guid id)
         {
             await _startuperRepository.DeleteAsync(id);
+        }
+
+        public Task<PagedResultDto<StartuperDto>> GetListFounder(GetListFounderDto input)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedResultDto<StartuperDto>> GetListStartuperForProject(GetListStartuperForProjectDto input)
+        {
+            throw new NotImplementedException();
         }
     }
 }

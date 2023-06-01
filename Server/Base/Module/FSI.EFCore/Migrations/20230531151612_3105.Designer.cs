@@ -3,6 +3,7 @@ using System;
 using FSI.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -11,9 +12,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace FSI.EFCore.Migrations
 {
     [DbContext(typeof(FSIDbContext))]
-    partial class FSIDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230531151612_3105")]
+    partial class _3105
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -397,12 +399,15 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Area")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("AvatarUrl")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Compliment")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -436,6 +441,7 @@ namespace FSI.EFCore.Migrations
                         .HasColumnName("ExtraProperties");
 
                     b.Property<string>("Fb")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Fields")
@@ -474,6 +480,7 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Website")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
@@ -757,6 +764,7 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("AvatarUrl")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -793,6 +801,7 @@ namespace FSI.EFCore.Migrations
                         .HasColumnName("ExtraProperties");
 
                     b.Property<string>("IdentityCard")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<bool>("IsDeleted")
@@ -810,6 +819,7 @@ namespace FSI.EFCore.Migrations
                         .HasColumnName("LastModifierId");
 
                     b.Property<string>("Location")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Name")
@@ -821,6 +831,7 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("WorkingPlace")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
@@ -837,24 +848,29 @@ namespace FSI.EFCore.Migrations
                     b.HasBaseType("FSI.Domain.User.UserRoot");
 
                     b.Property<string>("BasicDescription")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Company")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("InvestFields")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("InvestorName")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int?>("MaxInvestValue")
+                    b.Property<int>("MaxInvestValue")
                         .HasColumnType("int");
 
-                    b.Property<int?>("MinInvestValue")
+                    b.Property<int>("MinInvestValue")
                         .HasColumnType("int");
 
                     b.Property<string>("Position")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasDiscriminator().HasValue("Investor");
@@ -865,30 +881,38 @@ namespace FSI.EFCore.Migrations
                     b.HasBaseType("FSI.Domain.User.UserRoot");
 
                     b.Property<string>("Activity")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Award")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Certificate")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("FavoriteField")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Personality")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Skill")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Speciality")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("WorkingExperience")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<bool?>("hasProject")
+                    b.Property<bool>("hasProject")
                         .HasColumnType("tinyint(1)");
 
                     b.HasDiscriminator().HasValue("Startuper");

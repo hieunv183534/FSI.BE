@@ -10,6 +10,8 @@ namespace FSI.Application.Contracts.Project.DTO
 {
     public class CreateProjectDto
     {
+        public Guid? ProjectId { get; set; }
+
         public string ProjectName { get; set; }
 
         public string Description { get; set; }
