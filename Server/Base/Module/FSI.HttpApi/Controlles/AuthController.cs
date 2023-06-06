@@ -31,9 +31,9 @@ namespace FSI.HttpApi.Controlles
         /// <returns></returns>
         [AllowAnonymous]
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginDto account)
+        public async Task<IActionResult> Login([FromBody] LoginDto account)
         {
-            var token = _authAppService.Login(account);
+            var token = await _authAppService.Login(account);
             if (token == null)
             {
                 return Unauthorized();
@@ -47,9 +47,9 @@ namespace FSI.HttpApi.Controlles
 
         [AllowAnonymous]
         [HttpPost("register")]
-        public IActionResult Register([FromBody] RegisterDto account)
+        public async Task<IActionResult> Register([FromBody] RegisterDto account)
         {
-            var rs = _authAppService.Register(account);
+            var rs = await _authAppService.Register(account);
             return Ok(rs);
         }
     }

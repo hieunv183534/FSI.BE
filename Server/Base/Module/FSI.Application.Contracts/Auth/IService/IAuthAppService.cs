@@ -10,8 +10,8 @@ namespace FSI.Application.Contracts.Auth.IService
 {
     public interface IAuthAppService
     {
-        string Login(LoginDto input);
+        Task<string> Login(LoginDto input);
 
-        AccountDto Register(RegisterDto input);
+        Task<AccountDto> Register(RegisterDto input);
     }
 }

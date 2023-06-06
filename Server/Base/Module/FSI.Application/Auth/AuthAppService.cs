@@ -36,9 +36,9 @@ namespace FSI.Application.Auth
             _investorRepository = investorRepository;
         }
 
-        public string Login(LoginDto loginDto)
+        public async Task<string> Login(LoginDto loginDto)
         {
-            var acc = _accountRepository.FindAsync(a => a.Email.Equals(loginDto.Username) || a.PhoneNumber.Equals(loginDto.Username)).Result;
+            var acc = await _accountRepository.FindAsync(a => a.Email.Equals(loginDto.Username) || a.PhoneNumber.Equals(loginDto.Username));
             if (acc == null) return null;
 
             if (BCrypt.Net.BCrypt.Verify(loginDto.Password, acc.PasswordHash))
@@ -46,12 +46,12 @@ namespace FSI.Application.Auth
                 UserRoot user = new UserRoot() { };
                 if (loginDto.Role == Common.Enums.FsiRole.Startuper)
                 {
-                    user = _startuperRepository.FindAsync(f => f.AccountId.Equals(acc.Id)).Result;
+                    user = await _startuperRepository.FindAsync(f => f.AccountId.Equals(acc.Id));
                     if (user == null) return null;
                 }
                 else if (loginDto.Role == Common.Enums.FsiRole.Investor)
                 {
-                    user = _investorRepository.FindAsync(f => f.AccountId.Equals(acc.Id)).Result;
+                    user = await _investorRepository.FindAsync(f => f.AccountId.Equals(acc.Id));
                     if (user == null) return null;
                 }
 
@@ -76,22 +76,22 @@ namespace FSI.Application.Auth
             return null;
         }
 
-        public AccountDto Register(RegisterDto input)
+        public async Task<AccountDto> Register(RegisterDto input)
         {
             input.Password = BCrypt.Net.BCrypt.HashPassword(input.Password);
-            var newAcc = _accountRepository.InsertAsync(ObjectMapper.Map<RegisterDto, Account>(input)).Result;
+            var newAcc = await _accountRepository.InsertAsync(ObjectMapper.Map<RegisterDto, Account>(input));
 
             if (input.RoleRegister == Common.Enums.FsiRole.Startuper)
             {
                 var startuperInfo = ObjectMapper.Map<UserRootDto, FSI.Domain.Startuper.Startuper>(input.BaseInfomation);
                 startuperInfo.AccountId = newAcc.Id;
-                var userInfo = _startuperRepository.InsertAsync(startuperInfo).Result;
+                var userInfo = await _startuperRepository.InsertAsync(startuperInfo);
             }
             else if (input.RoleRegister == Common.Enums.FsiRole.Investor)
             {
                 var investorInfo = ObjectMapper.Map<UserRootDto, FSI.Domain.Investor.Investor>(input.BaseInfomation);
                 investorInfo.AccountId = newAcc.Id;
-                var userInfo = _investorRepository.InsertAsync(investorInfo).Result;
+                var userInfo = await _investorRepository.InsertAsync(investorInfo);
             }
             return ObjectMapper.Map<Account, AccountDto>(newAcc);
         }
