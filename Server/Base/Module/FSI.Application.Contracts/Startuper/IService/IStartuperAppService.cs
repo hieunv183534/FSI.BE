@@ -17,5 +17,7 @@ namespace FSI.Application.Contracts.Startuper.IService
         Task<PagedResultDto<StartuperDto>> GetListStartuperForProject(GetListStartuperForProjectDto input);
 
         Task<PagedResultDto<StartuperDto>> GetListFounder(GetListFounderDto input);
+
+        Task<bool> GetCheckIsNewProfile();
     }
 }

@@ -21,5 +21,7 @@ namespace FSI.Application.Contracts.User.DTO
         public string Location { get; set; }
 
         public string WorkingPlace { get; set; }
+
+        public string? AvatarUrl { get; set; }
     }
 }

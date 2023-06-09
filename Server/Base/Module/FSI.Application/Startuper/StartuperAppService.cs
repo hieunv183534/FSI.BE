@@ -75,5 +75,26 @@ namespace FSI.Application.Startuper
         {
             throw new NotImplementedException();
         }
+
+        public async Task<bool> GetCheckIsNewProfile()
+        {
+            var startuper = await _startuperRepository.GetAsync(this.currentUserId);
+            if (startuper.Personality == null &&
+                startuper.Skill == null &&
+                startuper.hasProject == null &&
+                startuper.Activity == null &&
+                startuper.Award == null &&
+                startuper.Certificate == null &&
+                startuper.FavoriteField == null &&
+                startuper.Speciality == null &&
+                startuper.WorkingExperience == null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }

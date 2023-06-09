@@ -12,5 +12,7 @@ namespace FSI.Application.Contracts.Investor.IService
         Task<InvestorDto> InsertInvestorAsync(CreateInvestorDto input);
 
         Task<List<InvestorDto>> GetListAsync();
+
+        Task<bool> GetCheckIsNewProfile();
     }
 }

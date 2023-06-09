@@ -53,5 +53,19 @@ namespace FSI.Application.Investor
             var rs = await _investorRepository.UpdateAsync(thisInvestor);
             return ObjectMapper.Map<FSI.Domain.Investor.Investor, InvestorDto>(rs);
         }
+
+        public async Task<bool> GetCheckIsNewProfile()
+        {
+            var investor = await _investorRepository.GetAsync(this.currentUserId);
+
+            if (investor.InvestorName == null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }
