@@ -1,0 +1,24 @@
+public class CreateStartuperDto
+    {
+        public string Speciality { get; set; } lĩnh vực hoạt động => combobox chọn 1
+
+        public string Personality { get; set; } Tính cách/ phong cách => combobox chọn 3-5
+
+        public string Skill { get; set; } kỹ năng => 
+
+        public string WorkingExperience { get; set; } kinh nghiệm làm việc => nhập thành 1 array { cty, vị trí, thời gian}
+
+        public string Activity { get; set; }
+
+        public string Certificate { get; set; } bằng cấp, chứng chỉ => string
+
+        public string Award { get; set; }
+
+        public string FavoriteField { get; set; }
+
+        public bool hasProject { get; set; }
+
+        => thời gian khả dụng  giờ/ tuần
+
+        => slogan, mô tả về bản thân
+    }
