@@ -19,6 +19,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Volo.Abp.AspNetCore.SignalR;
 using FSI.Application.Hubs;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace FSI
 {
@@ -74,6 +75,11 @@ namespace FSI
                         return Task.CompletedTask;
                     }
                 };
+            });
+
+            Configure<FormOptions>(options =>
+            {
+                options.MemoryBufferThreshold = Int32.MaxValue;
             });
 
             Configure<AbpSignalROptions>(options =>

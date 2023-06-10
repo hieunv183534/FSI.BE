@@ -1,6 +1,7 @@
 ﻿using FSI.Application.Contracts.Startuper.DTO;
 using FSI.Application.Contracts.Startuper.IService;
 using FSI.Application.Hubs;
+using FSI.Domain.File;
 using FSI.Domain.Startuper;
 using FSI.Domain.Test;
 using FSI.Domain.User;
@@ -25,18 +26,20 @@ namespace FSI.Application.Startuper
     public class StartuperAppService : ApplicationService, IStartuperAppService
     {
         private readonly IStartuperRepository _startuperRepository;
+        private readonly IFileInfomationRepository _fileInfomationRepository;
         protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
         private readonly IRecommendationSystem _recommendationSystem;
 
-        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem)
+        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository)
         {
             _startuperRepository = startuperRepository;
             _httpContextAccessor = httpContextAccessor;
             this.currentUserId = Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
             _recommendationSystem = recommendationSystem;
+            _fileInfomationRepository = fileInfomationRepository;
         }
 
         public async Task<List<StartuperDto>> GetListAsync()
@@ -50,12 +53,16 @@ namespace FSI.Application.Startuper
         {
             var thisStartuper = await _startuperRepository.GetAsync(this.currentUserId);
             thisStartuper.Speciality = input.Speciality;
+            thisStartuper.Field = input.Field;
             thisStartuper.Activity = input.Activity;
             thisStartuper.Personality = input.Personality;
             thisStartuper.Award = input.Award;
-            thisStartuper.FavoriteField = input.FavoriteField;
             thisStartuper.Certificate = input.Certificate;
             thisStartuper.Skill = input.Skill;
+            thisStartuper.hasProject = input.hasProject;
+            thisStartuper.Describe = input.Describe;
+            thisStartuper.YearOfExp= input.YearOfExp;
+            thisStartuper.AvailableTime = input.AvailableTime;
             thisStartuper.WorkingExperience = input.WorkingExperience;
             var rs = await _startuperRepository.UpdateAsync(thisStartuper);
             return ObjectMapper.Map<FSI.Domain.Startuper.Startuper, StartuperDto>(rs);
@@ -85,9 +92,12 @@ namespace FSI.Application.Startuper
                 startuper.Activity == null &&
                 startuper.Award == null &&
                 startuper.Certificate == null &&
-                startuper.FavoriteField == null &&
+                startuper.Field == null &&
                 startuper.Speciality == null &&
-                startuper.WorkingExperience == null)
+                startuper.WorkingExperience == null &&
+                startuper.Describe == null &&
+                startuper.YearOfExp == null &&
+                startuper.AvailableTime == null)
             {
                 return true;
             }
@@ -95,6 +105,26 @@ namespace FSI.Application.Startuper
             {
                 return false;
             }
+        }
+
+        public async Task UploadAvatar()
+        {
+            var file = _httpContextAccessor.HttpContext.Request.Form.Files[0];
+            var fileName = Guid.NewGuid().ToString();
+            string filePath = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/images"),
+                fileName + Path.GetExtension(file.FileName));
+
+            using (Stream fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+
+            await _fileInfomationRepository.InsertAsync(new FileInfomation()
+            {
+                AuthorId = this.currentUserId,
+                Url = filePath,
+                Size = (int)file.Length
+            });
         }
     }
 }

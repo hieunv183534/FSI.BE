@@ -8,22 +8,28 @@ namespace FSI.Application.Contracts.Startuper.DTO
 {
     public class CreateStartuperDto
     {
-        public string Speciality { get; set; }
+        public int? Field { get; set; }
 
-        public string Personality { get; set; }
+        public string? Speciality { get; set; }
 
-        public string Skill { get; set; }
+        public List<int>? Personality { get; set; }
 
-        public string WorkingExperience { get; set; }
+        public List<int>? Skill { get; set; }
 
-        public string Activity { get; set; }
+        public string? WorkingExperience { get; set; }
 
-        public string Certificate { get; set; }
+        public string? Activity { get; set; }
 
-        public string Award { get; set; }
+        public string? Certificate { get; set; }
 
-        public string FavoriteField { get; set; }
+        public string? Award { get; set; }
 
-        public bool hasProject { get; set; }
+        public bool? hasProject { get; set; }
+
+        public string? Describe { get; set; }
+
+        public int? YearOfExp { get; set; }
+
+        public int? AvailableTime { get; set; }
     }
 }

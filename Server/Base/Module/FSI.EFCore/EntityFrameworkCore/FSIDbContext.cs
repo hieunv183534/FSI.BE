@@ -87,6 +87,12 @@ public class FSIDbContext :
             entity.Property(x => x.History).IsJson();
         });
 
+        builder.Entity<Startuper>(entity =>
+        {
+            entity.Property(x => x.Personality).IsJson();
+            entity.Property(x => x.Skill).IsJson();
+        });
+
         builder.Entity<Investor>(entity =>
         {
             entity.Property(x => x.InvestFields).IsJson();

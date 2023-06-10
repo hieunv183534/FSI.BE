@@ -11,23 +11,41 @@ namespace FSI.Domain.Startuper
 {
     public class Startuper : UserRoot
     {
+
+        // lĩnh vực 
+        public int? Field { get; set; }
+
+        // chuyên môn: mô tả những gì họ làm bằng text
         public string? Speciality { get; set; }
 
-        public string? Personality { get; set; }
+        // tính cách
+        public List<int>? Personality { get; set; }
 
-        public string? Skill { get; set; }
+        // kỹ năng, kỹ năng mềm
+        public List<int>? Skill { get; set; }
 
+        // kinh nghiệm làm việc
         public string? WorkingExperience { get; set; }
 
+        // hoạt động
         public string? Activity { get; set; }
 
+        // chứng chỉ
         public string? Certificate { get; set; }
 
+        // giải thưởng
         public string? Award { get; set; }
 
-        public string? FavoriteField { get; set; }
-
         public bool? hasProject { get; set; }
+
+        // mô tả bản thân, slogan
+        public string? Describe { get; set; }
+
+        // số năm kinh nghiệp trong chuyên môn
+        public int? YearOfExp { get; set; }
+
+        // thời gian khả dụng ( giờ/ tuần)
+        public int? AvailableTime { get; set; }
 
     }
 }

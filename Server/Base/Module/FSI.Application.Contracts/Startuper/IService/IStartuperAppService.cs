@@ -19,5 +19,7 @@ namespace FSI.Application.Contracts.Startuper.IService
         Task<PagedResultDto<StartuperDto>> GetListFounder(GetListFounderDto input);
 
         Task<bool> GetCheckIsNewProfile();
+
+        Task UploadAvatar();
     }
 }
