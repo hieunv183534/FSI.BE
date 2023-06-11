@@ -22,7 +22,7 @@ namespace FSI.Application.Contracts.Project.DTO
 
         public DateTime? FoundedTime { get; set; }
 
-        public string? Area { get; set; }
+        public int? Area { get; set; }
 
         public string? Website { get; set; }
 
