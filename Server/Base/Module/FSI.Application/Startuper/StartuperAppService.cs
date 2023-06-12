@@ -56,14 +56,14 @@ namespace FSI.Application.Startuper
             thisStartuper.Field = input.Field;
             thisStartuper.Activity = input.Activity;
             thisStartuper.Personality = input.Personality;
-            thisStartuper.Award = input.Award;
-            thisStartuper.Certificate = input.Certificate;
+            thisStartuper.CertificateAndAward = input.CertificateAndAward;
             thisStartuper.Skill = input.Skill;
             thisStartuper.hasProject = input.hasProject;
             thisStartuper.Describe = input.Describe;
             thisStartuper.YearOfExp= input.YearOfExp;
             thisStartuper.AvailableTime = input.AvailableTime;
             thisStartuper.WorkingExperience = input.WorkingExperience;
+            thisStartuper.IsNewProfile = false;
             var rs = await _startuperRepository.UpdateAsync(thisStartuper);
             return ObjectMapper.Map<FSI.Domain.Startuper.Startuper, StartuperDto>(rs);
         }
@@ -86,45 +86,33 @@ namespace FSI.Application.Startuper
         public async Task<bool> GetCheckIsNewProfile()
         {
             var startuper = await _startuperRepository.GetAsync(this.currentUserId);
-            if (startuper.Personality == null &&
-                startuper.Skill == null &&
-                startuper.hasProject == null &&
-                startuper.Activity == null &&
-                startuper.Award == null &&
-                startuper.Certificate == null &&
-                startuper.Field == null &&
-                startuper.Speciality == null &&
-                startuper.WorkingExperience == null &&
-                startuper.Describe == null &&
-                startuper.YearOfExp == null &&
-                startuper.AvailableTime == null)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return (bool)startuper.IsNewProfile;
         }
 
         public async Task UploadAvatar()
         {
             var file = _httpContextAccessor.HttpContext.Request.Form.Files[0];
-            var fileName = Guid.NewGuid().ToString();
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
             string filePath = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/images"),
-                fileName + Path.GetExtension(file.FileName));
+                fileName);
 
             using (Stream fileStream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(fileStream);
             }
 
+            var fileUrl = "http://localhost:7777/images/" + fileName;
+
             await _fileInfomationRepository.InsertAsync(new FileInfomation()
             {
                 AuthorId = this.currentUserId,
-                Url = filePath,
+                Url = fileUrl,
                 Size = (int)file.Length
             });
+
+            var myInfo = await _startuperRepository.GetAsync(this.currentUserId);
+            myInfo.AvatarUrl = fileUrl;
+            await _startuperRepository.UpdateAsync(myInfo);
         }
     }
 }

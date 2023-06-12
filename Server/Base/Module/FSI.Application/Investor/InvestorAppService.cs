@@ -58,14 +58,7 @@ namespace FSI.Application.Investor
         {
             var investor = await _investorRepository.GetAsync(this.currentUserId);
 
-            if (investor.InvestorName == null)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return (bool)investor.IsNewProfile;
         }
     }
 }

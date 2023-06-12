@@ -22,5 +22,6 @@ namespace FSI.Domain.User
 
         public string? AvatarUrl { get; set; }
 
+        public bool? IsNewProfile { get; set; }
     }
 }

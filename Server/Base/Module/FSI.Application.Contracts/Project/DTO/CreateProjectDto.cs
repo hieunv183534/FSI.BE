@@ -33,5 +33,9 @@ namespace FSI.Application.Contracts.Project.DTO
         public List<ProjectHistoryEvent>? History { get; set; }
 
         public string AvatarUrl { get; set; }
+
+        public bool? IsHireNewMember { get; set; }
+
+        public List<int>? AvailableTimeRequire { get; set; }
     }
 }

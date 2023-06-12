@@ -85,6 +85,7 @@ public class FSIDbContext :
         {
             entity.Property(x => x.Fields).IsJson();
             entity.Property(x => x.History).IsJson();
+            entity.Property(x => x.AvailableTimeRequire).IsJson();
         });
 
         builder.Entity<Startuper>(entity =>

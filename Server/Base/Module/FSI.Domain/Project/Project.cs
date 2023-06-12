@@ -37,5 +37,9 @@ namespace FSI.Domain.Project
 
         public UserRoot? Founder { get; set; }
 
+        public bool? IsHireNewMember { get; set; }
+
+        public List<int>? AvailableTimeRequire { get; set; }
+
     }
 }

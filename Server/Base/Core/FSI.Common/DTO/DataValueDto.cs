@@ -210,5 +210,18 @@ namespace FSI.Common.DTO
             new DataPointDto("30+ tiếng/tuần",4),
             new DataPointDto("Toàn thời gian",5)
         };
+
+        public static List<DataPointDto> ProjectStages = new List<DataPointDto>
+        {
+            new DataPointDto("Xác lập",1),
+            new DataPointDto("Nghiên cứu",2),
+            new DataPointDto("MVP",3),
+            new DataPointDto("Kiểm thử",4),
+            new DataPointDto("Tăng trưởng 1",5),
+            new DataPointDto("Tăng trưởng 2",6),
+            new DataPointDto("Tăng trưởng 3",7),
+            new DataPointDto("Tăng trưởng 4",8)
+        };
+       
     }
 }

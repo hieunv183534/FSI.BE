@@ -85,12 +85,14 @@ namespace FSI.Application.Auth
             {
                 var startuperInfo = ObjectMapper.Map<UserRootDto, FSI.Domain.Startuper.Startuper>(input.BaseInfomation);
                 startuperInfo.AccountId = newAcc.Id;
+                startuperInfo.IsNewProfile = true;
                 var userInfo = await _startuperRepository.InsertAsync(startuperInfo);
             }
             else if (input.RoleRegister == Common.Enums.FsiRole.Investor)
             {
                 var investorInfo = ObjectMapper.Map<UserRootDto, FSI.Domain.Investor.Investor>(input.BaseInfomation);
                 investorInfo.AccountId = newAcc.Id;
+                investorInfo.IsNewProfile = true;
                 var userInfo = await _investorRepository.InsertAsync(investorInfo);
             }
             return ObjectMapper.Map<Account, AccountDto>(newAcc);

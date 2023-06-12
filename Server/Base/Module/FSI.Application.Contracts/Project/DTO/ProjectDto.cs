@@ -38,5 +38,9 @@ namespace FSI.Application.Contracts.Project.DTO
         public Guid? FounderId { get; set; }
 
         public UserRootDto? Founder { get; set; }
+
+        public bool? IsHireNewMember { get; set; }
+
+        public List<int>? AvailableTimeRequire { get; set; }
     }
 }

@@ -26,5 +26,8 @@ namespace FSI.Application.Contracts.Project.IService
         Task<PagedResultDto<ProjectDto>> GetListProjectForInvestor(GetListProjectForInvestorDto input);
 
         Task<List<ProjectUserDto>> GetProjectByUser(Guid userId);
+
+        Task UploadAvatar(Guid? projectId);
+
     }
 }

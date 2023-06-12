@@ -30,11 +30,8 @@ namespace FSI.Domain.Startuper
         // hoạt động
         public string? Activity { get; set; }
 
-        // chứng chỉ
-        public string? Certificate { get; set; }
-
-        // giải thưởng
-        public string? Award { get; set; }
+        // chứng chỉ & giải thưởng
+        public string? CertificateAndAward { get; set; }
 
         public bool? hasProject { get; set; }
 

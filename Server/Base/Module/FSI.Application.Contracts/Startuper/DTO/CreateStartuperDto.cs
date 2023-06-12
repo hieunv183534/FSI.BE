@@ -20,9 +20,7 @@ namespace FSI.Application.Contracts.Startuper.DTO
 
         public string? Activity { get; set; }
 
-        public string? Certificate { get; set; }
-
-        public string? Award { get; set; }
+        public string? CertificateAndAward { get; set; }
 
         public bool? hasProject { get; set; }
 

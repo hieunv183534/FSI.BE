@@ -1,6 +1,8 @@
 ﻿using FSI.Application.Contracts.Project.DTO;
 using FSI.Application.Contracts.Project.IService;
+using FSI.Domain.File;
 using FSI.Domain.Project;
+using FSI.Domain.Startuper;
 using FSI.Domain.User;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -22,17 +24,19 @@ namespace FSI.Application.Project
         private readonly IProjectRepository _projectRepository;
         private readonly IRepository<ProjectUser, Guid> _projectUserRepository;
         private readonly IUserRootRepository _userRepository;
+        private readonly IFileInfomationRepository _fileInfomationRepository;
         protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
-        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository)
+        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository)
         {
             _projectRepository = projectRepository;
             _projectUserRepository = projectUserRepository;
             _httpContextAccessor = httpContextAccessor;
             this.currentUserId = Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
             _userRepository = userRepository;
+            _fileInfomationRepository = fileInfomationRepository;
         }
 
         public async Task<ProjectDto> InsertProjectAsync(CreateProjectDto input)
@@ -49,7 +53,9 @@ namespace FSI.Application.Project
                 Stage = input.Stage,
                 Website = input.Website,
                 FoundedTime = input.FoundedTime,
-                ProjectName = input.ProjectName
+                ProjectName = input.ProjectName,
+                IsHireNewMember = input.IsHireNewMember,
+                AvailableTimeRequire = input.AvailableTimeRequire,
             });
 
             var projectUser = await _projectUserRepository.InsertAsync(new ProjectUser()
@@ -123,7 +129,7 @@ namespace FSI.Application.Project
         {
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(input.ProjectId));
             if (myProjectUser == null)
-                throw new BusinessException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này1");
+                throw new BusinessException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
 
             if ((int)myProjectUser.Role < 2)
                 throw new BusinessException(message: "Bạn không đủ quyền");
@@ -135,9 +141,9 @@ namespace FSI.Application.Project
 
         public async Task<PagedResultDto<ProjectDto>> GetListProjectForStartuper(GetListProjectForStartuperDto input)
         {
-            var projects = await _projectRepository.GetListAsync(x => x.ProjectName.Contains(input.Filter) &&
-                                                                     x.Stage == input.Stage &&
-                                                                     x.Area.Equals(input.Area));
+            var projects = (await _projectRepository.GetListProjectForStartuper(input.Filter, input.Area, input.Field, input.Stage, input.AvailableTime))
+                .WhereIf(input.Field.HasValue, x => x.Fields.Contains(input.Field.Value))
+                .WhereIf(input.AvailableTime.HasValue, x => x.AvailableTimeRequire.Contains(input.AvailableTime.Value)).ToList();
 
             return new PagedResultDto<ProjectDto>()
             {
@@ -165,6 +171,39 @@ namespace FSI.Application.Project
             var projectUsers = await _projectUserRepository.GetListAsync(x => x.UserId.Equals(userId));
 
             return ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(projectUsers);
+        }
+
+        public async Task UploadAvatar(Guid? projectId)
+        {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
+            if (myProjectUser == null)
+                throw new BusinessException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+
+            if ((int)myProjectUser.Role < 2)
+                throw new BusinessException(message: "Bạn không đủ quyền");
+
+            var file = _httpContextAccessor.HttpContext.Request.Form.Files[0];
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string filePath = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/images"),
+                fileName);
+
+            using (Stream fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+
+            var fileUrl = "http://localhost:7777/images/" + fileName;
+
+            await _fileInfomationRepository.InsertAsync(new FileInfomation()
+            {
+                AuthorId = this.currentUserId,
+                Url = fileUrl,
+                Size = (int)file.Length
+            });
+
+            var project = await _projectRepository.GetAsync(projectId.Value);
+            project.AvatarUrl = fileUrl;
+            await _projectRepository.UpdateAsync(project);
         }
     }
 }

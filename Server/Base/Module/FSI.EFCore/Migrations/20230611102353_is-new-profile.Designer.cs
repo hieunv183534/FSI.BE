@@ -3,6 +3,7 @@ using System;
 using FSI.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -11,9 +12,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace FSI.EFCore.Migrations
 {
     [DbContext(typeof(FSIDbContext))]
-    partial class FSIDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230611102353_is-new-profile")]
+    partial class isnewprofile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -399,9 +401,6 @@ namespace FSI.EFCore.Migrations
                     b.Property<int?>("Area")
                         .HasColumnType("int");
 
-                    b.Property<string>("AvailableTimeRequire")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("AvatarUrl")
                         .HasColumnType("longtext");
 
@@ -457,9 +456,6 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
-
-                    b.Property<bool?>("IsHireNewMember")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime(6)")
@@ -875,7 +871,10 @@ namespace FSI.EFCore.Migrations
                     b.Property<int?>("AvailableTime")
                         .HasColumnType("int");
 
-                    b.Property<string>("CertificateAndAward")
+                    b.Property<string>("Award")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Certificate")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Describe")

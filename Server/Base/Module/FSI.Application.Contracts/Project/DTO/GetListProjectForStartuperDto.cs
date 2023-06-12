@@ -14,8 +14,10 @@ namespace FSI.Application.Contracts.Project.DTO
 
         public ProjectStage? Stage { get; set; }
 
-        public string? Field { get; set; }
+        public int? Field { get; set; }
 
-        public string? Area { get; set; }
+        public int? Area { get; set; }
+
+        public int? AvailableTime { get; set; }
     }
 }
