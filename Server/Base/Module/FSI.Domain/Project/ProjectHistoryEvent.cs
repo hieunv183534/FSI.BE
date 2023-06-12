@@ -17,5 +17,7 @@ namespace FSI.Domain.Project
         public ProjectEventType Type { get; set; }
 
         public string Detail { get; set; }
+
+        public DateTime? EventTime { get; set; }
     }
 }

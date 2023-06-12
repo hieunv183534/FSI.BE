@@ -16,5 +16,7 @@ namespace FSI.Application.Contracts.Project.DTO
         public ProjectEventType Type { get; set; }
 
         public string Detail { get; set; }
+
+        public DateTime? EventTime { get; set; }
     }
 }

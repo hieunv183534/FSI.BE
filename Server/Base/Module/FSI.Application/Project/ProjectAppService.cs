@@ -56,6 +56,7 @@ namespace FSI.Application.Project
                 ProjectName = input.ProjectName,
                 IsHireNewMember = input.IsHireNewMember,
                 AvailableTimeRequire = input.AvailableTimeRequire,
+                FounderId = this.currentUserId
             });
 
             var projectUser = await _projectUserRepository.InsertAsync(new ProjectUser()
@@ -66,7 +67,8 @@ namespace FSI.Application.Project
                 UserId = this.currentUserId
             });
 
-            return ObjectMapper.Map<FSI.Domain.Project.Project, ProjectDto>(project);
+            var rs = ObjectMapper.Map<FSI.Domain.Project.Project, ProjectDto>(project);
+            return rs;
         }
 
         public async Task<ProjectDto> UpdateProjectAsync(CreateProjectDto input)

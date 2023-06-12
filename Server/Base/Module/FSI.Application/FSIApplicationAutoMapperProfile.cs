@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using FSI.Application.Contracts.Auth.DTO;
+using FSI.Application.Contracts.Project.DTO;
 using FSI.Application.Contracts.Startuper.DTO;
 using FSI.Application.Contracts.Test.DTO;
 using FSI.Application.Contracts.User.DTO;
 using FSI.Domain.Account;
+using FSI.Domain.Project;
 using FSI.Domain.Startuper;
 using FSI.Domain.Test;
 
@@ -19,6 +21,7 @@ namespace FSI
             CreateMap<Test, TestDto>().ReverseMap();
             CreateMap<Test, CreateTestDto>().ReverseMap();
             CreateMap<Account, AccountDto>().ReverseMap();
+            CreateMap<Project, ProjectDto>().ReverseMap();
             CreateMap<Startuper, StartuperDto>().ReverseMap();
             CreateMap<UserRootDto, FSI.Domain.Startuper.Startuper>().ReverseMap();
             CreateMap<RegisterDto, Account>().ForMember(a => a.PasswordHash , r=> r.MapFrom(src => src.Password)).ReverseMap();
