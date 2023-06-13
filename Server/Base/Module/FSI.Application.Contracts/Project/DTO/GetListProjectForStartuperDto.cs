@@ -19,5 +19,7 @@ namespace FSI.Application.Contracts.Project.DTO
         public int? Area { get; set; }
 
         public int? AvailableTime { get; set; }
+
+        public bool? IsMyProject { get; set; } = false;
     }
 }

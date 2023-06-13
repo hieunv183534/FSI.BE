@@ -1,5 +1,7 @@
 ﻿using FSI.Application.Contracts.Investor.DTO;
 using FSI.Application.Contracts.Project.DTO;
+using FSI.Application.Contracts.Startuper.DTO;
+using FSI.Application.Contracts.User.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +21,7 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task<ProjectDto> GetProjectById(Guid projectId);
 
-        Task AddProjectHistoryEvent(AddProjectHistoryEventDto input);
+        Task UpdateProjectHistory(Guid projectId,List<ProjectHistoryEventDto> input);
 
         Task<PagedResultDto<ProjectDto>> GetListProjectForStartuper(GetListProjectForStartuperDto input);
 
@@ -28,6 +30,10 @@ namespace FSI.Application.Contracts.Project.IService
         Task<List<ProjectUserDto>> GetProjectByUser(Guid userId);
 
         Task UploadAvatar(Guid? projectId);
+
+        Task<List<ProjectUserDto>> GetUsersOfProject(Guid projectId);
+
+        Task<UserRootDto> GetUserByUserNameForInviteToProject(string userName, Guid projectId);
 
     }
 }

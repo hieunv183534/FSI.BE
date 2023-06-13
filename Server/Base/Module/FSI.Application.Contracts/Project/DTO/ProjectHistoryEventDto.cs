@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 
 namespace FSI.Application.Contracts.Project.DTO
 {
-    public class AddProjectHistoryEventDto
+    public class ProjectHistoryEventDto
     {
-        public Guid ProjectId { get; set; }
-
         public ProjectStage Stage { get; set; }
 
         public ProjectEventType Type { get; set; }

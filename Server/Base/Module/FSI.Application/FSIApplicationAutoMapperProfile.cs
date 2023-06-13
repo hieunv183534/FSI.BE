@@ -23,6 +23,7 @@ namespace FSI
             CreateMap<Account, AccountDto>().ReverseMap();
             CreateMap<Project, ProjectDto>().ReverseMap();
             CreateMap<Startuper, StartuperDto>().ReverseMap();
+            CreateMap<ProjectHistoryEvent, ProjectHistoryEventDto>().ReverseMap();
             CreateMap<UserRootDto, FSI.Domain.Startuper.Startuper>().ReverseMap();
             CreateMap<RegisterDto, Account>().ForMember(a => a.PasswordHash , r=> r.MapFrom(src => src.Password)).ReverseMap();
         }

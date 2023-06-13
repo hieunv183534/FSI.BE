@@ -8,10 +8,8 @@ using Volo.Abp.Domain.Entities.Auditing;
 
 namespace FSI.Domain.Project
 {
-    public class ProjectHistoryEvent : FullAuditedAggregateRoot<Guid>
+    public class ProjectHistoryEvent
     {
-        public Guid ProjectId { get; set; }
-
         public ProjectStage Stage { get; set; }
 
         public ProjectEventType Type { get; set; }

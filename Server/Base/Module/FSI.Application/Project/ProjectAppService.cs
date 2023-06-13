@@ -1,5 +1,7 @@
 ﻿using FSI.Application.Contracts.Project.DTO;
 using FSI.Application.Contracts.Project.IService;
+using FSI.Application.Contracts.User.DTO;
+using FSI.Domain.Account;
 using FSI.Domain.File;
 using FSI.Domain.Project;
 using FSI.Domain.Startuper;
@@ -25,11 +27,12 @@ namespace FSI.Application.Project
         private readonly IRepository<ProjectUser, Guid> _projectUserRepository;
         private readonly IUserRootRepository _userRepository;
         private readonly IFileInfomationRepository _fileInfomationRepository;
+        private readonly IAccountRepository _accountRepository;
         protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
-        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository)
+        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository)
         {
             _projectRepository = projectRepository;
             _projectUserRepository = projectUserRepository;
@@ -37,6 +40,7 @@ namespace FSI.Application.Project
             this.currentUserId = Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
             _userRepository = userRepository;
             _fileInfomationRepository = fileInfomationRepository;
+            _accountRepository = accountRepository;
         }
 
         public async Task<ProjectDto> InsertProjectAsync(CreateProjectDto input)
@@ -127,17 +131,17 @@ namespace FSI.Application.Project
             return ObjectMapper.Map<FSI.Domain.Project.Project, ProjectDto>(project);
         }
 
-        public async Task AddProjectHistoryEvent(AddProjectHistoryEventDto input)
+        public async Task UpdateProjectHistory(Guid projectId, List<ProjectHistoryEventDto> input)
         {
-            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(input.ProjectId));
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
             if (myProjectUser == null)
                 throw new BusinessException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
 
             if ((int)myProjectUser.Role < 2)
                 throw new BusinessException(message: "Bạn không đủ quyền");
 
-            var project = await _projectRepository.GetAsync(input.ProjectId);
-            project.History.Add(ObjectMapper.Map<AddProjectHistoryEventDto, ProjectHistoryEvent>(input));
+            var project = await _projectRepository.GetAsync(projectId);
+            project.History = ObjectMapper.Map<List<ProjectHistoryEventDto>, List<ProjectHistoryEvent>>(input);
             await _projectRepository.UpdateAsync(project);
         }
 
@@ -146,6 +150,17 @@ namespace FSI.Application.Project
             var projects = (await _projectRepository.GetListProjectForStartuper(input.Filter, input.Area, input.Field, input.Stage, input.AvailableTime))
                 .WhereIf(input.Field.HasValue, x => x.Fields.Contains(input.Field.Value))
                 .WhereIf(input.AvailableTime.HasValue, x => x.AvailableTimeRequire.Contains(input.AvailableTime.Value)).ToList();
+
+            var myProjectIds = (await _projectUserRepository.GetListAsync(x => x.UserId.Equals(this.currentUserId))).Select(x => x.ProjectId).ToList();
+
+            if (input.IsMyProject.Value)
+            {
+                projects = projects.Where(x => myProjectIds.Contains(x.Id)).ToList();
+            }
+            else
+            {
+                projects = projects.Where(x => !myProjectIds.Contains(x.Id)).ToList();
+            }
 
             return new PagedResultDto<ProjectDto>()
             {
@@ -206,6 +221,30 @@ namespace FSI.Application.Project
             var project = await _projectRepository.GetAsync(projectId.Value);
             project.AvatarUrl = fileUrl;
             await _projectRepository.UpdateAsync(project);
+        }
+
+        public async Task<List<ProjectUserDto>> GetUsersOfProject(Guid projectId)
+        {
+            var projectUsers = await _projectUserRepository.GetQueryableAsync();
+            var users = await _userRepository.GetQueryableAsync();
+
+            var query = from pu in projectUsers
+                        join u in users
+                        on pu.UserId equals u.Id
+                        where pu.ProjectId.Equals(projectId)
+                        select pu;
+
+            var usersOfProject = query.ToList();
+
+            return ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(usersOfProject);
+
+        }
+
+        public async Task<UserRootDto> GetUserByUserNameForInviteToProject(string userName, Guid projectId)
+        {
+            var account = await _accountRepository.FirstOrDefaultAsync(x => x.PhoneNumber.Equals(userName) || x.Email.Equals(userName));
+
+
         }
     }
 }
