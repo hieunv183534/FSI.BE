@@ -6,6 +6,7 @@ using FSI.Domain.File;
 using FSI.Domain.Project;
 using FSI.Domain.Startuper;
 using FSI.Domain.User;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,7 @@ using Volo.Abp.ObjectMapping;
 
 namespace FSI.Application.Project
 {
+    [Authorize]
     public class ProjectAppService : ApplicationService, IProjectAppService
     {
         private readonly IProjectRepository _projectRepository;
@@ -244,7 +246,17 @@ namespace FSI.Application.Project
         {
             var account = await _accountRepository.FirstOrDefaultAsync(x => x.PhoneNumber.Equals(userName) || x.Email.Equals(userName));
 
+            if(account == null)
+                throw new BusinessException(message: "Không tìm thấy người dùng!");
 
+            var user = await _userRepository.FirstOrDefaultAsync(x => x.AccountId.Equals(account.Id));
+
+            var userProject = await _projectUserRepository.FirstOrDefaultAsync(x => x.UserId.Equals(user.Id) && x.ProjectId.Equals(projectId));
+
+            if(userProject != null)
+                throw new BusinessException(message: "Người dùng đã thuộc dự án!");
+
+            return ObjectMapper.Map<UserRoot, UserRootDto>(user);
         }
     }
 }
