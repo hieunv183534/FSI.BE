@@ -18,7 +18,7 @@ namespace FSI.Application.Contracts.User.DTO
 
         public string IdentityCard { get; set; }
 
-        public string Location { get; set; }
+        public int? Location { get; set; }
 
         public string WorkingPlace { get; set; }
 
