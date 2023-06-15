@@ -31,6 +31,8 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task UploadAvatar(Guid? projectId);
 
+        Task UploadFile(Guid? projectId, string fileTitle, string note);
+
         Task<List<ProjectUserDto>> GetUsersOfProject(Guid projectId);
 
         Task<UserRootDto> GetUserByUserNameForInviteToProject(string userName, Guid projectId);

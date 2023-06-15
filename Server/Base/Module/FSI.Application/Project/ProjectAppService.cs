@@ -81,10 +81,10 @@ namespace FSI.Application.Project
         {
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(input.ProjectId));
             if (myProjectUser == null)
-                throw new BusinessException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này1");
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này1");
 
             if ((int)myProjectUser.Role < 2)
-                throw new BusinessException(message: "Bạn không đủ quyền");
+                throw new UserFriendlyException(message: "Bạn không đủ quyền");
 
             var project = await _projectRepository.GetAsync(input.ProjectId.Value);
 
@@ -108,7 +108,7 @@ namespace FSI.Application.Project
         {
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(input.ProjectId));
             if (myProjectUser == null)
-                throw new BusinessException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này1");
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này1");
 
             if ((int)myProjectUser.Role >= 2 && (myProjectUser.Role > input.Role))
             {
@@ -122,7 +122,7 @@ namespace FSI.Application.Project
             }
             else
             {
-                throw new BusinessException(message: "Bạn không đủ quyền");
+                throw new UserFriendlyException(message: "Bạn không đủ quyền");
             }
         }
 
@@ -137,10 +137,10 @@ namespace FSI.Application.Project
         {
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
             if (myProjectUser == null)
-                throw new BusinessException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
 
             if ((int)myProjectUser.Role < 2)
-                throw new BusinessException(message: "Bạn không đủ quyền");
+                throw new UserFriendlyException(message: "Bạn không đủ quyền");
 
             var project = await _projectRepository.GetAsync(projectId);
             project.History = ObjectMapper.Map<List<ProjectHistoryEventDto>, List<ProjectHistoryEvent>>(input);
@@ -192,14 +192,49 @@ namespace FSI.Application.Project
             return ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(projectUsers);
         }
 
+
+        public async Task<List<ProjectUserDto>> GetUsersOfProject(Guid projectId)
+        {
+            var projectUsers = await _projectUserRepository.GetQueryableAsync();
+            var users = await _userRepository.GetQueryableAsync();
+
+            var query = from pu in projectUsers
+                        join u in users
+                        on pu.UserId equals u.Id
+                        where pu.ProjectId.Equals(projectId)
+                        select pu;
+
+            var usersOfProject = query.ToList();
+
+            return ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(usersOfProject);
+
+        }
+
+        public async Task<UserRootDto> GetUserByUserNameForInviteToProject(string userName, Guid projectId)
+        {
+            var account = await _accountRepository.FirstOrDefaultAsync(x => x.PhoneNumber.Equals(userName) || x.Email.Equals(userName));
+
+            if (account == null)
+                throw new UserFriendlyException(message: "Không tìm thấy người dùng!");
+
+            var user = await _userRepository.FirstOrDefaultAsync(x => x.AccountId.Equals(account.Id));
+
+            var userProject = await _projectUserRepository.FirstOrDefaultAsync(x => x.UserId.Equals(user.Id) && x.ProjectId.Equals(projectId));
+
+            if (userProject != null)
+                throw new UserFriendlyException(message: "Người dùng đã thuộc dự án!");
+
+            return ObjectMapper.Map<UserRoot, UserRootDto>(user);
+        }
+
         public async Task UploadAvatar(Guid? projectId)
         {
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
             if (myProjectUser == null)
-                throw new BusinessException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
 
             if ((int)myProjectUser.Role < 2)
-                throw new BusinessException(message: "Bạn không đủ quyền");
+                throw new UserFriendlyException(message: "Bạn không đủ quyền");
 
             var file = _httpContextAccessor.HttpContext.Request.Form.Files[0];
             var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
@@ -225,38 +260,23 @@ namespace FSI.Application.Project
             await _projectRepository.UpdateAsync(project);
         }
 
-        public async Task<List<ProjectUserDto>> GetUsersOfProject(Guid projectId)
+        public async Task UploadFile(Guid? projectId, string fileTitle, string note)
         {
-            var projectUsers = await _projectUserRepository.GetQueryableAsync();
-            var users = await _userRepository.GetQueryableAsync();
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
+            if (myProjectUser == null)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
 
-            var query = from pu in projectUsers
-                        join u in users
-                        on pu.UserId equals u.Id
-                        where pu.ProjectId.Equals(projectId)
-                        select pu;
+            var file = _httpContextAccessor.HttpContext.Request.Form.Files[0];
 
-            var usersOfProject = query.ToList();
+            string filePath = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/images"),
+                file.FileName);
 
-            return ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(usersOfProject);
+            using (Stream fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
 
-        }
-
-        public async Task<UserRootDto> GetUserByUserNameForInviteToProject(string userName, Guid projectId)
-        {
-            var account = await _accountRepository.FirstOrDefaultAsync(x => x.PhoneNumber.Equals(userName) || x.Email.Equals(userName));
-
-            if(account == null)
-                throw new BusinessException(message: "Không tìm thấy người dùng!");
-
-            var user = await _userRepository.FirstOrDefaultAsync(x => x.AccountId.Equals(account.Id));
-
-            var userProject = await _projectUserRepository.FirstOrDefaultAsync(x => x.UserId.Equals(user.Id) && x.ProjectId.Equals(projectId));
-
-            if(userProject != null)
-                throw new BusinessException(message: "Người dùng đã thuộc dự án!");
-
-            return ObjectMapper.Map<UserRoot, UserRootDto>(user);
+            var fileUrl = "http://localhost:7777/files/" + file.FileName;
         }
     }
 }
