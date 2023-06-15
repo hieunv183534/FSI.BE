@@ -27,6 +27,7 @@ namespace FSI.Application.Project
     {
         private readonly IProjectRepository _projectRepository;
         private readonly IRepository<ProjectUser, Guid> _projectUserRepository;
+        private readonly IRepository<ProjectFile, Guid> _projectFileRepository;
         private readonly IUserRootRepository _userRepository;
         private readonly IFileInfomationRepository _fileInfomationRepository;
         private readonly IAccountRepository _accountRepository;
@@ -34,7 +35,7 @@ namespace FSI.Application.Project
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
-        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository)
+        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository)
         {
             _projectRepository = projectRepository;
             _projectUserRepository = projectUserRepository;
@@ -43,6 +44,7 @@ namespace FSI.Application.Project
             _userRepository = userRepository;
             _fileInfomationRepository = fileInfomationRepository;
             _accountRepository = accountRepository;
+            _projectFileRepository = projectFileRepository;
         }
 
         public async Task<ProjectDto> InsertProjectAsync(CreateProjectDto input)
@@ -268,15 +270,99 @@ namespace FSI.Application.Project
 
             var file = _httpContextAccessor.HttpContext.Request.Form.Files[0];
 
-            string filePath = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/images"),
+            string filePath = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), @"Docs"),
                 file.FileName);
-
             using (Stream fileStream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(fileStream);
             }
 
-            var fileUrl = "http://localhost:7777/files/" + file.FileName;
+            var fileInfo = await _fileInfomationRepository.InsertAsync(new FileInfomation()
+            {
+                AuthorId = this.currentUserId,
+                Url = file.FileName,
+                Size = (int)file.Length,
+                ContentType = file.ContentType
+            });
+
+            await _projectFileRepository.InsertAsync(new ProjectFile()
+            {
+               ProjectId = projectId.Value,
+               FileId = fileInfo.Id,
+               Note = note,
+               Title= fileTitle
+            });
+        }
+
+        public async Task<List<ProjectUserDto>> GetUsersRequestToProject(Guid projectId)
+        {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
+            if (myProjectUser == null)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+
+            if ((int)myProjectUser.Role < 2)
+                throw new UserFriendlyException(message: "Bạn không đủ quyền");
+            var users = await _userRepository.GetListAsync();
+            var projectUsers = await _projectUserRepository.GetListAsync(x => !x.IsActive &&
+                                                                                x.ProjectId.Equals(projectId) &&
+                                                                                x.IsFromUser &&
+                                                                                x.Role != Common.Enums.RoleInProject.Investor);
+            return ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(projectUsers);
+        }
+
+        public async Task<List<ProjectUserDto>> GetUsersProjectRequestTo(Guid projectId)
+        {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
+            if (myProjectUser == null)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+
+            if ((int)myProjectUser.Role < 2)
+                throw new UserFriendlyException(message: "Bạn không đủ quyền");
+            var users = await _userRepository.GetListAsync();
+            var projectUsers = await _projectUserRepository.GetListAsync(x => !x.IsActive &&
+                                                                                x.ProjectId.Equals(projectId) &&
+                                                                                !x.IsFromUser &&
+                                                                                x.Role != Common.Enums.RoleInProject.Investor);
+            return ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(projectUsers);
+        }
+
+        public async Task RequestToUserFromProject(Guid userId, Guid projectId)
+        {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
+            if (myProjectUser == null)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+
+            if ((int)myProjectUser.Role < 2)
+                throw new UserFriendlyException(message: "Bạn không đủ quyền");
+
+            var myProjectUser1 = await _projectUserRepository.FindAsync(x => x.UserId.Equals(userId) && x.ProjectId.Equals(projectId));
+            if (myProjectUser != null)
+                throw new UserFriendlyException(message: "Người dùng đã thuộc về dự án hoặc đã gửi request!");
+
+            await _projectUserRepository.InsertAsync(new ProjectUser()
+            {
+                ProjectId = projectId,
+                UserId = userId,
+                IsActive = false,
+                IsFromUser =  false,
+                Role = Common.Enums.RoleInProject.CoFounder
+            });
+        }
+
+        public async Task RequestToProject(Guid projectId)
+        {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
+            if (myProjectUser != null)
+                throw new UserFriendlyException(message: "Bạn đã thuộc về dự án hoặc đã gửi request!");
+
+            await _projectUserRepository.InsertAsync(new ProjectUser()
+            {
+                ProjectId = projectId,
+                UserId = this.currentUserId,
+                IsActive = false,
+                IsFromUser = true,
+                Role = Common.Enums.RoleInProject.CoFounder
+            });
         }
     }
 }

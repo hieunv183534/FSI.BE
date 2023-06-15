@@ -19,5 +19,7 @@ namespace FSI.Domain.File
 
         public long Size { get; set; }
 
+        public string ContentType { get; set; }
+
     }
 }

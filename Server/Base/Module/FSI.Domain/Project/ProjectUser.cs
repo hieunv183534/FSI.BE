@@ -26,5 +26,7 @@ namespace FSI.Domain.Project
         public int TotalExpectedInvestment { get; set; }
 
         public int TotalInvestment { get; set; }
+
+        public bool IsFromUser { get; set; }
     }
 }

@@ -37,5 +37,13 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task<UserRootDto> GetUserByUserNameForInviteToProject(string userName, Guid projectId);
 
+        Task<List<ProjectUserDto>> GetUsersRequestToProject(Guid projectId);
+
+        Task<List<ProjectUserDto>> GetUsersProjectRequestTo(Guid projectId);
+
+        Task RequestToUserFromProject(Guid userId, Guid projectId);
+
+        Task RequestToProject(Guid projectId);
+
     }
 }
