@@ -8,6 +8,7 @@ using FSI.Domain.User;
 using FSI.GrpcClient.RecommendationSystem;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,8 @@ using Volo.Abp.ObjectMapping;
 
 namespace FSI.Application.Startuper
 {
-    [Authorize(Roles = "Startuper")]
+    [Authorize]
+    [IgnoreAntiforgeryToken]
     public class StartuperAppService : ApplicationService, IStartuperAppService
     {
         private readonly IStartuperRepository _startuperRepository;
@@ -107,7 +109,8 @@ namespace FSI.Application.Startuper
             {
                 AuthorId = this.currentUserId,
                 Url = fileUrl,
-                Size = (int)file.Length
+                Size = (int)file.Length,
+                ContentType = file.ContentType
             });
 
             var myInfo = await _startuperRepository.GetAsync(this.currentUserId);

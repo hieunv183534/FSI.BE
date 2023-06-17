@@ -7,6 +7,7 @@ using FSI.Domain.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Connections.Internal;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,7 @@ using Volo.Abp.Domain.Repositories;
 namespace FSI.Application.Chat
 {
     [Authorize]
+    [IgnoreAntiforgeryToken]
     public class ChatAppService : ApplicationService, IChatAppService
     {
         protected HttpContext HttpContext => _httpContextAccessor.HttpContext;

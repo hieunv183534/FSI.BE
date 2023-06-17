@@ -5,7 +5,9 @@ using FSI.Application.Contracts.Startuper.IService;
 using FSI.Domain.Investor;
 using FSI.Domain.Startuper;
 using FSI.GrpcClient.RecommendationSystem;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +19,8 @@ using Volo.Abp.ObjectMapping;
 
 namespace FSI.Application.Investor
 {
+    [Authorize]
+    [IgnoreAntiforgeryToken]
     public class InvestorAppService : ApplicationService, IInvestorAppService
     {
         private readonly IInvestorRepository _investorRepository;

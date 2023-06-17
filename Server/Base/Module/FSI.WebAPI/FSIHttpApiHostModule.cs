@@ -237,6 +237,7 @@ namespace FSI
             app.UseAbpRequestLocalization();
 
             app.UseCorrelationId();
+            app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseRouting();
             app.UseCors();

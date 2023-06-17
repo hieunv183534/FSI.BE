@@ -1,7 +1,6 @@
-﻿using FSI.Domain.Account;
+﻿using FSI.Application.Contracts.Auth.DTO;
 using FSI.Domain.File;
 using FSI.Domain.Project;
-using FSI.Domain.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -17,30 +16,27 @@ using Volo.Abp.Domain.Repositories;
 namespace FSI.HttpApi.Controlles
 {
     [Authorize]
-    [Route("api/auth")]
+    [Route("api/fsi/project")]
     [ApiController]
-    public class SecretFileController : AbpController
+    public class DocfileController : AbpController
     {
-        private readonly IProjectRepository _projectRepository;
         private readonly IRepository<ProjectUser, Guid> _projectUserRepository;
         private readonly IRepository<ProjectFile, Guid> _projectFileRepository;
-        private readonly IUserRootRepository _userRepository;
         private readonly IFileInfomationRepository _fileInfomationRepository;
 
-        public SecretFileController(IProjectRepository projectRepository, IRepository<ProjectFile, Guid> projectFileRepository, IFileInfomationRepository fileInfomationRepository, IRepository<ProjectUser, Guid> projectUserRepository)
+        public DocfileController(IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectUser, Guid> projectUserRepository, IFileInfomationRepository fileInfomationRepository)
         {
-            _projectRepository = projectRepository;
             _projectFileRepository = projectFileRepository;
-            _fileInfomationRepository = fileInfomationRepository;
             _projectUserRepository = projectUserRepository;
+            _fileInfomationRepository = fileInfomationRepository;
         }
 
         [HttpGet("get-file/{projectFileId}")]
-        public async Task<IActionResult> GetFile([FromRoute] Guid projectFileId)
+        public async Task<IActionResult> Login([FromRoute] Guid projectFileId)
         {
             var currentUserId = Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var projectFile = await _projectFileRepository.GetAsync(projectFileId,includeDetails: true);
-
+            var projectFile = await _projectFileRepository.GetAsync(projectFileId, includeDetails: true);
+            var files = await _fileInfomationRepository.GetListAsync();
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectFile.ProjectId));
             if (myProjectUser == null)
                 throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");

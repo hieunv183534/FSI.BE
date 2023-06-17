@@ -8,10 +8,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Dtos;
+using Volo.Abp.Domain.Entities.Auditing;
 
 namespace FSI.Application.Contracts.Project.DTO
 {
-    public class ProjectDto : AuditedEntityDto<Guid>
+    public class ProjectDto : FullAuditedAggregateRoot<Guid>
     {
         public string? ProjectName { get; set; }
 

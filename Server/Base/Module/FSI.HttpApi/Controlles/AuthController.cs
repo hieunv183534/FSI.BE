@@ -15,6 +15,7 @@ namespace FSI.HttpApi.Controlles
     [Authorize]
     [Route("api/auth")]
     [ApiController]
+    [IgnoreAntiforgeryToken]
     public class AuthController : AbpController
     {
         private readonly IAuthAppService _authAppService;

@@ -3,6 +3,7 @@ using FSI.Domain.Chat;
 using FSI.Domain.Test;
 using FSI.Domain.User;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 using Volo.Abp.Domain.Repositories;
@@ -12,6 +13,7 @@ using Volo.Abp.Uow;
 namespace FSI.Application.Hubs
 {
     [Authorize]
+    [IgnoreAntiforgeryToken]
     public class ChatHub : Hub
     {
         private readonly IObjectMapper _objectMapper;

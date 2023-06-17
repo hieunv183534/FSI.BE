@@ -65,7 +65,9 @@ namespace FSI.Application.Auth
                         new Claim(ClaimTypes.Role, loginDto.Role.ToString()),
                         new Claim(ClaimTypes.Email, acc.Email),
                         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                        new Claim(ClaimTypes.GivenName , acc.Id.ToString())
+                        new Claim(ClaimTypes.GivenName , acc.Id.ToString()),
+                        new Claim("phoneNumber" , acc.PhoneNumber),
+                        new Claim("avatarUrl" , user.AvatarUrl ?? "../../../../assets/img/profileIcon.png"),
                     }),
                     Expires = DateTime.UtcNow.AddDays(30),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256Signature)

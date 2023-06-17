@@ -8,6 +8,8 @@ using FSI.Domain.Startuper;
 using FSI.Domain.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,12 +19,14 @@ using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
+using Volo.Abp.Data;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.ObjectMapping;
 
 namespace FSI.Application.Project
 {
     [Authorize]
+    [IgnoreAntiforgeryToken]
     public class ProjectAppService : ApplicationService, IProjectAppService
     {
         private readonly IProjectRepository _projectRepository;
@@ -49,7 +53,7 @@ namespace FSI.Application.Project
 
         public async Task<ProjectDto> InsertProjectAsync(CreateProjectDto input)
         {
-            var project = await _projectRepository.InsertAsync(new Domain.Project.Project()
+                    var project = await _projectRepository.InsertAsync(new Domain.Project.Project()
             {
                 Area = input.Area,
                 AvatarUrl = input.AvatarUrl,
@@ -132,7 +136,13 @@ namespace FSI.Application.Project
         {
             var users = await _userRepository.GetListAsync();
             var project = await _projectRepository.GetAsync(projectId);
-            return ObjectMapper.Map<FSI.Domain.Project.Project, ProjectDto>(project);
+            var membersAndInvestor = await _projectUserRepository.GetListAsync(x => x.IsActive && x.ProjectId.Equals(projectId));
+            var memberCount = membersAndInvestor.Where(x=> x.Role != Common.Enums.RoleInProject.Investor).Count();
+            var totalInvesment = membersAndInvestor.Where(x => x.Role == Common.Enums.RoleInProject.Investor).Select(x => x.TotalInvestment).Sum();
+            var rs = ObjectMapper.Map<FSI.Domain.Project.Project, ProjectDto>(project);
+            rs.SetProperty("memberCount", memberCount);
+            rs.SetProperty("totalInvesment", totalInvesment);
+            return rs;
         }
 
         public async Task UpdateProjectHistory(Guid projectId, List<ProjectHistoryEventDto> input)
@@ -197,16 +207,10 @@ namespace FSI.Application.Project
 
         public async Task<List<ProjectUserDto>> GetUsersOfProject(Guid projectId)
         {
-            var projectUsers = await _projectUserRepository.GetQueryableAsync();
-            var users = await _userRepository.GetQueryableAsync();
+            var users = await _userRepository.GetListAsync();
 
-            var query = from pu in projectUsers
-                        join u in users
-                        on pu.UserId equals u.Id
-                        where pu.ProjectId.Equals(projectId)
-                        select pu;
-
-            var usersOfProject = query.ToList();
+            var usersOfProject = await _projectUserRepository.GetListAsync(x=> x.ProjectId.Equals(projectId) &&
+                                                                                x.IsActive && x.Role != Common.Enums.RoleInProject.Investor);
 
             return ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(usersOfProject);
 
@@ -363,6 +367,16 @@ namespace FSI.Application.Project
                 IsFromUser = true,
                 Role = Common.Enums.RoleInProject.CoFounder
             });
+        }
+
+        public async Task<List<ProjectFileDto>> GetProjectFiles(Guid projectId)
+        {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
+            if (myProjectUser == null)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+            var files = await _fileInfomationRepository.GetListAsync();
+            var projectFiles = await _projectFileRepository.GetListAsync(x => x.ProjectId.Equals(projectId), includeDetails: true);
+            return ObjectMapper.Map<List<ProjectFile>, List<ProjectFileDto>>(projectFiles);
         }
     }
 }

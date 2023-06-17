@@ -33,6 +33,8 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task UploadFile(Guid? projectId, string fileTitle, string note);
 
+        Task<List<ProjectFileDto>> GetProjectFiles(Guid projectId);
+
         Task<List<ProjectUserDto>> GetUsersOfProject(Guid projectId);
 
         Task<UserRootDto> GetUserByUserNameForInviteToProject(string userName, Guid projectId);
