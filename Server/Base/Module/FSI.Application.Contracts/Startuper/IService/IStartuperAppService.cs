@@ -1,4 +1,5 @@
 ﻿using FSI.Application.Contracts.Startuper.DTO;
+using FSI.Application.Contracts.User.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,5 +22,9 @@ namespace FSI.Application.Contracts.Startuper.IService
         Task<bool> GetCheckIsNewProfile();
 
         Task UploadAvatar();
+
+        Task<StartuperDto> GetMyInfoAsync();
+
+        Task UpdateBaseInfo(UpdateBaseInfoDto input);
     }
 }

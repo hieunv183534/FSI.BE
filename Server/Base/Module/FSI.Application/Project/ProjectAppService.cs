@@ -53,7 +53,7 @@ namespace FSI.Application.Project
 
         public async Task<ProjectDto> InsertProjectAsync(CreateProjectDto input)
         {
-                    var project = await _projectRepository.InsertAsync(new Domain.Project.Project()
+            var project = await _projectRepository.InsertAsync(new Domain.Project.Project()
             {
                 Area = input.Area,
                 AvatarUrl = input.AvatarUrl,
@@ -85,14 +85,14 @@ namespace FSI.Application.Project
 
         public async Task<ProjectDto> UpdateProjectAsync(CreateProjectDto input)
         {
-            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(input.ProjectId));
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(input.Id));
             if (myProjectUser == null)
-                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này1");
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
 
             if ((int)myProjectUser.Role < 2)
                 throw new UserFriendlyException(message: "Bạn không đủ quyền");
 
-            var project = await _projectRepository.GetAsync(input.ProjectId.Value);
+            var project = await _projectRepository.GetAsync(input.Id.Value);
 
             project.ProjectName = input.ProjectName;
             project.AvatarUrl = input.AvatarUrl;
@@ -105,6 +105,8 @@ namespace FSI.Application.Project
             project.History = input.History;
             project.Stage = input.Stage;
             project.Website = input.Website;
+            project.IsHireNewMember = input.IsHireNewMember;
+            project.AvailableTimeRequire = input.AvailableTimeRequire;
 
             var rs = await _projectRepository.UpdateAsync(project);
             return ObjectMapper.Map<FSI.Domain.Project.Project, ProjectDto>(rs);
@@ -137,7 +139,7 @@ namespace FSI.Application.Project
             var users = await _userRepository.GetListAsync();
             var project = await _projectRepository.GetAsync(projectId);
             var membersAndInvestor = await _projectUserRepository.GetListAsync(x => x.IsActive && x.ProjectId.Equals(projectId));
-            var memberCount = membersAndInvestor.Where(x=> x.Role != Common.Enums.RoleInProject.Investor).Count();
+            var memberCount = membersAndInvestor.Where(x => x.Role != Common.Enums.RoleInProject.Investor).Count();
             var totalInvesment = membersAndInvestor.Where(x => x.Role == Common.Enums.RoleInProject.Investor).Select(x => x.TotalInvestment).Sum();
             var rs = ObjectMapper.Map<FSI.Domain.Project.Project, ProjectDto>(project);
             rs.SetProperty("memberCount", memberCount);
@@ -159,11 +161,15 @@ namespace FSI.Application.Project
             await _projectRepository.UpdateAsync(project);
         }
 
-        public async Task<PagedResultDto<ProjectDto>> GetListProjectForStartuper(GetListProjectForStartuperDto input)
+        public async Task<PagedResultDto<ProjectDto>> PostToGetListProjectForStartuper(GetListProjectForStartuperDto input)
         {
-            var projects = (await _projectRepository.GetListProjectForStartuper(input.Filter, input.Area, input.Field, input.Stage, input.AvailableTime))
-                .WhereIf(input.Field.HasValue, x => x.Fields.Contains(input.Field.Value))
-                .WhereIf(input.AvailableTime.HasValue, x => x.AvailableTimeRequire.Contains(input.AvailableTime.Value)).ToList();
+            var projects = await _projectRepository.GetListAsync();
+
+            projects = projects.WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.ProjectName.Contains(input.Filter) || x.Description.Contains(input.Filter))
+                                .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Area.Value))
+                                .WhereIf(input.Stages.Count != 0, x => input.Stages.Contains(x.Stage.Value))
+                                .WhereIf(input.Fields.Count != 0, x => x.Fields.Any(y => input.Fields.Contains(y)))
+                                .WhereIf(input.AvailableTimes.Count != 0, x => x.AvailableTimeRequire.Any(y => input.AvailableTimes.Contains(y))).ToList();
 
             var myProjectIds = (await _projectUserRepository.GetListAsync(x => x.UserId.Equals(this.currentUserId))).Select(x => x.ProjectId).ToList();
 
@@ -183,7 +189,7 @@ namespace FSI.Application.Project
             };
         }
 
-        public async Task<PagedResultDto<ProjectDto>> GetListProjectForInvestor(GetListProjectForInvestorDto input)
+        public async Task<PagedResultDto<ProjectDto>> PostToGetListProjectForInvestor(GetListProjectForInvestorDto input)
         {
             var projects = await _projectRepository.GetListAsync(x => x.ProjectName.Contains(input.Filter) &&
                                                                      x.Stage == input.Stage &&
@@ -209,7 +215,7 @@ namespace FSI.Application.Project
         {
             var users = await _userRepository.GetListAsync();
 
-            var usersOfProject = await _projectUserRepository.GetListAsync(x=> x.ProjectId.Equals(projectId) &&
+            var usersOfProject = await _projectUserRepository.GetListAsync(x => x.ProjectId.Equals(projectId) &&
                                                                                 x.IsActive && x.Role != Common.Enums.RoleInProject.Investor);
 
             return ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(usersOfProject);
@@ -233,7 +239,7 @@ namespace FSI.Application.Project
             return ObjectMapper.Map<UserRoot, UserRootDto>(user);
         }
 
-        public async Task UploadAvatar(Guid? projectId)
+        public async Task<string> UploadAvatar(Guid? projectId)
         {
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
             if (myProjectUser == null)
@@ -258,12 +264,14 @@ namespace FSI.Application.Project
             {
                 AuthorId = this.currentUserId,
                 Url = fileUrl,
-                Size = (int)file.Length
+                Size = (int)file.Length,
+                ContentType = file.ContentType
             });
 
             var project = await _projectRepository.GetAsync(projectId.Value);
             project.AvatarUrl = fileUrl;
-            await _projectRepository.UpdateAsync(project);
+             var rs =await _projectRepository.UpdateAsync(project);
+            return rs.AvatarUrl;
         }
 
         public async Task UploadFile(Guid? projectId, string fileTitle, string note)
@@ -291,10 +299,10 @@ namespace FSI.Application.Project
 
             await _projectFileRepository.InsertAsync(new ProjectFile()
             {
-               ProjectId = projectId.Value,
-               FileId = fileInfo.Id,
-               Note = note,
-               Title= fileTitle
+                ProjectId = projectId.Value,
+                FileId = fileInfo.Id,
+                Note = note,
+                Title = fileTitle
             });
         }
 
@@ -340,7 +348,7 @@ namespace FSI.Application.Project
                 throw new UserFriendlyException(message: "Bạn không đủ quyền");
 
             var myProjectUser1 = await _projectUserRepository.FindAsync(x => x.UserId.Equals(userId) && x.ProjectId.Equals(projectId));
-            if (myProjectUser != null)
+            if (myProjectUser1 != null)
                 throw new UserFriendlyException(message: "Người dùng đã thuộc về dự án hoặc đã gửi request!");
 
             await _projectUserRepository.InsertAsync(new ProjectUser()
@@ -348,7 +356,7 @@ namespace FSI.Application.Project
                 ProjectId = projectId,
                 UserId = userId,
                 IsActive = false,
-                IsFromUser =  false,
+                IsFromUser = false,
                 Role = Common.Enums.RoleInProject.CoFounder
             });
         }

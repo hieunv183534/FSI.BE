@@ -12,13 +12,13 @@ namespace FSI.Application.Contracts.Project.DTO
     {
         public string? Filter { get; set; }
 
-        public ProjectStage? Stage { get; set; }
+        public List<ProjectStage> Stages { get; set; }
 
-        public int? Field { get; set; }
+        public List<int> Fields { get; set; }
 
-        public int? Area { get; set; }
+        public List<int> Areas { get; set; }
 
-        public int? AvailableTime { get; set; }
+        public List<int> AvailableTimes { get; set; }
 
         public bool? IsMyProject { get; set; } = false;
     }

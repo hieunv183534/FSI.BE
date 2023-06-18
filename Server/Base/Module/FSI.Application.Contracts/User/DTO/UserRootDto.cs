@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Dtos;
+using Volo.Abp.Domain.Entities.Auditing;
 
 namespace FSI.Application.Contracts.User.DTO
 {
-    public class UserRootDto :  AuditedEntityDto<Guid>
+    public class UserRootDto : FullAuditedAggregateRoot<Guid>
     {
         public string Name { get; set; }
 

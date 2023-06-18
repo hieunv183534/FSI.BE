@@ -1,6 +1,8 @@
 ﻿using FSI.Application.Contracts.Startuper.DTO;
 using FSI.Application.Contracts.Startuper.IService;
+using FSI.Application.Contracts.User.DTO;
 using FSI.Application.Hubs;
+using FSI.Domain.Account;
 using FSI.Domain.File;
 using FSI.Domain.Startuper;
 using FSI.Domain.Test;
@@ -19,6 +21,7 @@ using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
+using Volo.Abp.Data;
 using Volo.Abp.ObjectMapping;
 
 namespace FSI.Application.Startuper
@@ -29,19 +32,21 @@ namespace FSI.Application.Startuper
     {
         private readonly IStartuperRepository _startuperRepository;
         private readonly IFileInfomationRepository _fileInfomationRepository;
+        private readonly IAccountRepository _accountRepository;
         protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
         private readonly IRecommendationSystem _recommendationSystem;
 
-        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository)
+        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository)
         {
             _startuperRepository = startuperRepository;
             _httpContextAccessor = httpContextAccessor;
             this.currentUserId = Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
             _recommendationSystem = recommendationSystem;
             _fileInfomationRepository = fileInfomationRepository;
+            _accountRepository = accountRepository;
         }
 
         public async Task<List<StartuperDto>> GetListAsync()
@@ -70,10 +75,6 @@ namespace FSI.Application.Startuper
             return ObjectMapper.Map<FSI.Domain.Startuper.Startuper, StartuperDto>(rs);
         }
 
-        public async Task DeleteAsync(Guid id)
-        {
-            await _startuperRepository.DeleteAsync(id);
-        }
 
         public Task<PagedResultDto<StartuperDto>> GetListFounder(GetListFounderDto input)
         {
@@ -116,6 +117,33 @@ namespace FSI.Application.Startuper
             var myInfo = await _startuperRepository.GetAsync(this.currentUserId);
             myInfo.AvatarUrl = fileUrl;
             await _startuperRepository.UpdateAsync(myInfo);
+        }
+
+        public async Task<StartuperDto> GetMyInfoAsync()
+        {
+            var myInfo = await _startuperRepository.GetAsync(currentUserId);
+            var acc = await _accountRepository.GetAsync(myInfo.AccountId);
+            myInfo.SetProperty("phoneNumber", acc.PhoneNumber);
+            myInfo.SetProperty("email", acc.Email);
+            return ObjectMapper.Map<Domain.Startuper.Startuper, StartuperDto>(myInfo);
+        }
+
+        public async Task UpdateBaseInfo(UpdateBaseInfoDto input)
+        {
+            var myUserInfo = await _startuperRepository.GetAsync(currentUserId);
+            var acc = await _accountRepository.GetAsync(myUserInfo.AccountId);
+
+            myUserInfo.Name = input.Name;
+            myUserInfo.Phone = input.PhoneNumber ?? myUserInfo.Phone;
+            myUserInfo.DateOfBirth = input.DateOfBirth;
+            myUserInfo.IdentityCard = input.IdentityCard;
+            myUserInfo.Location = input.Location;
+            myUserInfo.WorkingPlace = input.WorkingPlace;
+
+            acc.Email = input.Email ?? acc.Email;
+            acc.PhoneNumber = input.PhoneNumber ?? acc.PhoneNumber;
+            await _startuperRepository.UpdateAsync(myUserInfo);
+            await _accountRepository.UpdateAsync(acc);
         }
     }
 }

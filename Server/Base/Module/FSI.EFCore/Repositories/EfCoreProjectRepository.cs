@@ -18,14 +18,5 @@ namespace FSI.EFCore.Repositories
         public EfCoreProjectRepository(IDbContextProvider<FSIDbContext> dbContextProvider) : base(dbContextProvider)
         {
         }
-
-        public async Task<List<Project>> GetListProjectForStartuper(string? filter, int? area, int? field, ProjectStage? stage, int? availableTime)
-        {
-            var dbSet = await GetDbSetAsync();
-            return await dbSet.WhereIf(!String.IsNullOrWhiteSpace(filter), x => x.ProjectName.Contains(filter))
-                .WhereIf(area.HasValue, x => x.Area == area)
-                .WhereIf(stage.HasValue, x => x.Stage == stage)
-                .ToListAsync();
-        }
     }
 }

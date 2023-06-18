@@ -23,13 +23,13 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task UpdateProjectHistory(Guid projectId,List<ProjectHistoryEventDto> input);
 
-        Task<PagedResultDto<ProjectDto>> GetListProjectForStartuper(GetListProjectForStartuperDto input);
+        Task<PagedResultDto<ProjectDto>> PostToGetListProjectForStartuper(GetListProjectForStartuperDto input);
 
-        Task<PagedResultDto<ProjectDto>> GetListProjectForInvestor(GetListProjectForInvestorDto input);
+        Task<PagedResultDto<ProjectDto>> PostToGetListProjectForInvestor(GetListProjectForInvestorDto input);
 
         Task<List<ProjectUserDto>> GetProjectByUser(Guid userId);
 
-        Task UploadAvatar(Guid? projectId);
+        Task<string> UploadAvatar(Guid? projectId);
 
         Task UploadFile(Guid? projectId, string fileTitle, string note);
 
