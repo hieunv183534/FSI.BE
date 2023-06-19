@@ -36,6 +36,11 @@ namespace FSI.Application.Auth
             _investorRepository = investorRepository;
         }
 
+        public Task<bool> ChangePassword(string oldPass, string newPass)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<string> Login(LoginDto loginDto)
         {
             var acc = await _accountRepository.FindAsync(a => a.Email.Equals(loginDto.Username) || a.PhoneNumber.Equals(loginDto.Username));

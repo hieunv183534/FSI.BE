@@ -13,5 +13,7 @@ namespace FSI.Application.Contracts.Auth.IService
         Task<string> Login(LoginDto input);
 
         Task<AccountDto> Register(RegisterDto input);
+
+        Task<bool> ChangePassword(string oldPass, string newPass);
     }
 }

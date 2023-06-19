@@ -166,7 +166,7 @@ namespace FSI.Application.Project
             var projects = await _projectRepository.GetListAsync();
 
             projects = projects.WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.ProjectName.Contains(input.Filter) || x.Description.Contains(input.Filter))
-                                .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Area.Value))
+                                .WhereIf(input.Areas.Count != 0 , x => input.Areas.Contains(x.Area.Value))
                                 .WhereIf(input.Stages.Count != 0, x => input.Stages.Contains(x.Stage.Value))
                                 .WhereIf(input.Fields.Count != 0, x => x.Fields.Any(y => input.Fields.Contains(y)))
                                 .WhereIf(input.AvailableTimes.Count != 0, x => x.AvailableTimeRequire.Any(y => input.AvailableTimes.Contains(y))).ToList();
@@ -182,9 +182,19 @@ namespace FSI.Application.Project
                 projects = projects.Where(x => !myProjectIds.Contains(x.Id)).ToList();
             }
 
+            var projectPageds = projects.Skip(input.SkipCount).Take(input.MaxResultCount).ToList();
+            var projectUsers = await _projectUserRepository.GetListAsync();
+
+            projectPageds.ForEach(async p =>
+            {
+                var membersAndInvestor = projectUsers.Where(x => x.IsActive && x.ProjectId.Equals(p.Id)).ToList();
+                p.SetProperty("memberCount", membersAndInvestor.Where(x => x.Role != Common.Enums.RoleInProject.Investor).Count());
+                p.SetProperty("totalInvesment", membersAndInvestor.Where(x => x.Role == Common.Enums.RoleInProject.Investor).Select(x => x.TotalInvestment).Sum());
+            });
+
             return new PagedResultDto<ProjectDto>()
             {
-                Items = ObjectMapper.Map<List<FSI.Domain.Project.Project>, List<ProjectDto>>(projects.Skip(input.SkipCount).Take(input.MaxResultCount).ToList()),
+                Items = ObjectMapper.Map<List<FSI.Domain.Project.Project>, List<ProjectDto>>(projectPageds),
                 TotalCount = projects.Count
             };
         }
@@ -209,7 +219,6 @@ namespace FSI.Application.Project
 
             return ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(projectUsers);
         }
-
 
         public async Task<List<ProjectUserDto>> GetUsersOfProject(Guid projectId)
         {

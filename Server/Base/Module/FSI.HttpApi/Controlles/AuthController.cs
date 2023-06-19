@@ -53,5 +53,12 @@ namespace FSI.HttpApi.Controlles
             var rs = await _authAppService.Register(account);
             return Ok(rs);
         }
+
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto input)
+        {
+            return Ok();
+        }
+ 
     }
 }
