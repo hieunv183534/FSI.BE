@@ -22,5 +22,9 @@ namespace FSI.Application.Contracts.Project.DTO
         public string Title { get; set; }
 
         public string Note { get; set; }
+
+        public bool VisibleForInvestor { get; set; }
+
+        public bool VisibleForAll { get; set; }
     }
 }

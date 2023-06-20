@@ -31,7 +31,7 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task<string> UploadAvatar(Guid? projectId);
 
-        Task UploadFile(Guid? projectId, string fileTitle, string note);
+        Task UploadFile(Guid? projectId, string fileTitle, string note, bool visibleForInvestor, bool visibleForAll);
 
         Task<List<ProjectFileDto>> GetProjectFiles(Guid projectId);
 

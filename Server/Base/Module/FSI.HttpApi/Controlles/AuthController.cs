@@ -54,10 +54,12 @@ namespace FSI.HttpApi.Controlles
             return Ok(rs);
         }
 
+        [Authorize]
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto input)
         {
-            return Ok();
+            var rs = await _authAppService.ChangePassword(input.OldPassword, input.NewPassword);
+            return Ok(rs);
         }
  
     }

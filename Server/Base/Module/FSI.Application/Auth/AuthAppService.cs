@@ -8,6 +8,7 @@ using FSI.Domain.Investor;
 using FSI.Domain.Startuper;
 using FSI.Domain.User;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -29,16 +30,29 @@ namespace FSI.Application.Auth
         private readonly IStartuperRepository _startuperRepository;
         private readonly IInvestorRepository _investorRepository;
 
-        public AuthAppService(IAccountRepository accountRepository, IStartuperRepository startuperRepository, IInvestorRepository investorRepository)
+        protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public AuthAppService(IAccountRepository accountRepository, IStartuperRepository startuperRepository, IInvestorRepository investorRepository, IHttpContextAccessor httpContextAccessor)
         {
             _accountRepository = accountRepository;
             _startuperRepository = startuperRepository;
             _investorRepository = investorRepository;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public Task<bool> ChangePassword(string oldPass, string newPass)
+        public async Task<bool> ChangePassword(string oldPass, string newPass)
         {
-            throw new NotImplementedException();
+            var accId = Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.GivenName).Value);
+            var acc = await _accountRepository.GetAsync(accId);
+
+            if (BCrypt.Net.BCrypt.Verify(oldPass, acc.PasswordHash))
+            {
+                acc.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPass);
+                await _accountRepository.UpdateAsync(acc);
+                return true;
+            }
+            else return false;
         }
 
         public async Task<string> Login(LoginDto loginDto)

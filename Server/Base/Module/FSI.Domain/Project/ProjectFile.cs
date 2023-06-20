@@ -21,5 +21,9 @@ namespace FSI.Domain.Project
         public string Title { get; set; }
 
         public string Note { get; set; }
+
+        public bool VisibleForInvestor { get; set; } = false;
+
+        public bool VisibleForAll { get; set; } = false;
     }
 }
