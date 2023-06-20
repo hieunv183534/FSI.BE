@@ -47,5 +47,9 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task RequestToProject(Guid projectId);
 
+        Task AcceptRequestFromAProject(Guid projectId);
+
+        Task CancelRequestToAProject(Guid projectId);
+
     }
 }

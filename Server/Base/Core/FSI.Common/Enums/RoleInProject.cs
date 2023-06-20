@@ -13,4 +13,12 @@ namespace FSI.Common.Enums
         CoFounder,
         Founder
     }
+
+    public enum RelationWithProject
+    {
+        IsMemberOfProject,
+        NotMemberOfProject,
+        ProjectRequestTo,
+        RequestToProject
+    }
 }

@@ -20,6 +20,6 @@ namespace FSI.Application.Contracts.Project.DTO
 
         public List<int> AvailableTimes { get; set; }
 
-        public bool? IsMyProject { get; set; } = false;
+        public RelationWithProject RelationWithProject { get; set; }
     }
 }

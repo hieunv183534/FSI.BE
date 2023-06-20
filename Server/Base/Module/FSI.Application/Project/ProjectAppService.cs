@@ -1,6 +1,7 @@
 ﻿using FSI.Application.Contracts.Project.DTO;
 using FSI.Application.Contracts.Project.IService;
 using FSI.Application.Contracts.User.DTO;
+using FSI.Common.Enums;
 using FSI.Domain.Account;
 using FSI.Domain.File;
 using FSI.Domain.Project;
@@ -148,11 +149,32 @@ namespace FSI.Application.Project
             var rs = ObjectMapper.Map<FSI.Domain.Project.Project, ProjectDto>(project);
             rs.SetProperty("memberCount", memberCount);
             rs.SetProperty("totalInvesment", totalInvesment);
-            var isMyProject = true;
-            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
-            if (myProjectUser == null) isMyProject = false;
-            if (!myProjectUser.IsActive) isMyProject = false;
-            rs.SetProperty("isMyProject", isMyProject);
+            RelationWithProject relationWithProject;
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectId));
+            if (myProjectUser == null) 
+            {
+                relationWithProject = RelationWithProject.NotMemberOfProject;
+            }
+            else
+            {
+                if (myProjectUser.IsActive)
+                {
+                    relationWithProject = RelationWithProject.IsMemberOfProject;
+                }
+                else
+                {
+                    if(myProjectUser.IsFromUser)
+                    {
+                        relationWithProject = RelationWithProject.RequestToProject;
+                    }
+                    else
+                    {
+                        relationWithProject = RelationWithProject.ProjectRequestTo;
+                    }
+                }
+            }
+       
+            rs.SetProperty("relationWithProject", relationWithProject);
             return rs;
         }
 
@@ -182,14 +204,24 @@ namespace FSI.Application.Project
                                 .WhereIf(input.AvailableTimes.Count != 0, x => x.AvailableTimeRequire.Any(y => input.AvailableTimes.Contains(y))).ToList();
 
             var myProjectIds = (await _projectUserRepository.GetListAsync(x => x.UserId.Equals(this.currentUserId) && x.IsActive)).Select(x => x.ProjectId).ToList();
+            var projectRequestToMeIds =  (await _projectUserRepository.GetListAsync(x=> x.UserId.Equals(currentUserId) && !x.IsActive && !x.IsFromUser)).Select(x => x.ProjectId).ToList();
+            var projectMeRequestToIds = (await _projectUserRepository.GetListAsync(x => x.UserId.Equals(currentUserId) && !x.IsActive && x.IsFromUser)).Select(x => x.ProjectId).ToList();
+            var projectUserIds = (await _projectUserRepository.GetListAsync(x=> x.UserId.Equals(currentUserId))).Select(x => x.ProjectId).ToList();
 
-            if (input.IsMyProject.Value)
+            switch (input.RelationWithProject)
             {
-                projects = projects.Where(x => myProjectIds.Contains(x.Id)).ToList();
-            }
-            else
-            {
-                projects = projects.Where(x => !myProjectIds.Contains(x.Id)).ToList();
+                case Common.Enums.RelationWithProject.IsMemberOfProject:
+                    projects = projects.Where(x=> myProjectIds.Contains(x.Id)).ToList();
+                    break;
+                case Common.Enums.RelationWithProject.NotMemberOfProject:
+                    projects = projects.Where(x => !projectUserIds.Contains(x.Id)).ToList();
+                    break;
+                case Common.Enums.RelationWithProject.ProjectRequestTo:
+                    projects = projects.Where(x => projectRequestToMeIds.Contains(x.Id)).ToList();
+                    break;
+                case Common.Enums.RelationWithProject.RequestToProject:
+                    projects = projects.Where(x => projectMeRequestToIds.Contains(x.Id)).ToList();
+                    break;
             }
 
             var projectPageds = projects.Skip(input.SkipCount).Take(input.MaxResultCount).ToList();
@@ -389,22 +421,6 @@ namespace FSI.Application.Project
             });
         }
 
-        public async Task RequestToProject(Guid projectId)
-        {
-            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
-            if (myProjectUser != null)
-                throw new UserFriendlyException(message: "Bạn đã thuộc về dự án hoặc đã gửi request!");
-
-            await _projectUserRepository.InsertAsync(new ProjectUser()
-            {
-                ProjectId = projectId,
-                UserId = this.currentUserId,
-                IsActive = false,
-                IsFromUser = true,
-                Role = Common.Enums.RoleInProject.CoFounder
-            });
-        }
-
         public async Task<List<ProjectFileDto>> GetProjectFiles(Guid projectId)
         {
             var files = await _fileInfomationRepository.GetListAsync();
@@ -431,6 +447,71 @@ namespace FSI.Application.Project
                 }
             }
             return ObjectMapper.Map<List<ProjectFile>, List<ProjectFileDto>>(projectFiles);
+        }
+
+        public async Task RequestToProject(Guid projectId)
+        {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
+            if (myProjectUser != null)
+                throw new UserFriendlyException(message: "Bạn đã thuộc về dự án hoặc đã gửi request!");
+
+            await _projectUserRepository.InsertAsync(new ProjectUser()
+            {
+                ProjectId = projectId,
+                UserId = this.currentUserId,
+                IsActive = false,
+                IsFromUser = true,
+                Role = Common.Enums.RoleInProject.CoFounder
+            });
+        }
+
+        public async Task AcceptRequestFromAProject(Guid projectId)
+        {
+            var projectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectId));
+
+            if(projectUser == null)
+                throw new UserFriendlyException(message: "Không tìm thấy request!");
+
+            if (projectUser.IsActive)
+            {
+                throw new UserFriendlyException(message: "Bạn đã là thành viên dự án!");
+            }
+            else
+            {
+                if (projectUser.IsFromUser)
+                {
+                    throw new UserFriendlyException(message: "Request không phải tới bạn, không thể accept!");
+                }
+                else
+                {
+                    projectUser.IsActive = true;
+                    await _projectUserRepository.UpdateAsync(projectUser);
+                }
+            }
+        }
+
+        public async Task CancelRequestToAProject(Guid projectId)
+        {
+            var projectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectId));
+
+            if (projectUser == null)
+                throw new UserFriendlyException(message: "Không tìm thấy request!");
+
+            if (projectUser.IsActive)
+            {
+                throw new UserFriendlyException(message: "Bạn đã là thành viên dự án!");
+            }
+            else
+            {
+                if (!projectUser.IsFromUser)
+                {
+                    throw new UserFriendlyException(message: "Request không phải từ bạn, không thể cancel!");
+                }
+                else
+                {
+                    await _projectUserRepository.DeleteAsync(projectUser.Id);
+                }
+            }
         }
     }
 }
