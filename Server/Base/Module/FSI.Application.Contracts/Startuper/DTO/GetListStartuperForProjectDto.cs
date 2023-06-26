@@ -9,6 +9,18 @@ namespace FSI.Application.Contracts.Startuper.DTO
 {
     public class GetListStartuperForProjectDto : PagedAndSortedResultRequestDto
     {
-       
+        public string? Filter { get; set; }
+
+        public List<int>? Fields { get; set; }
+
+        public List<int>? Personalities { get; set; }
+
+        public List<int>? Skills { get; set; }
+
+        public List<int> AvailableTimes { get; set; }
+
+        public List<int> YearOfExps { get; set; }
+
+        public List<int> Areas { get; set; }
     }
 }

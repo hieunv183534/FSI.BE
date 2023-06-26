@@ -1,4 +1,5 @@
-﻿using FSI.Application.Contracts.Startuper.DTO;
+﻿using FSI.Application.Contracts.Project.DTO;
+using FSI.Application.Contracts.Startuper.DTO;
 using FSI.Application.Contracts.Startuper.IService;
 using FSI.Application.Contracts.User.DTO;
 using FSI.Application.Hubs;
@@ -81,9 +82,28 @@ namespace FSI.Application.Startuper
             throw new NotImplementedException();
         }
 
-        public Task<PagedResultDto<StartuperDto>> GetListStartuperForProject(GetListStartuperForProjectDto input)
+        public async Task<PagedResultDto<StartuperDto>> GetListStartuperForProject(GetListStartuperForProjectDto input)
         {
-            throw new NotImplementedException();
+            var startupers = await _startuperRepository.GetListAsync();
+            startupers = startupers.WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.Phone.Equals(input.Filter) ||
+                                                                                            x.Name.Contains(input.Filter) ||
+                                                                                            x.Describe.Contains(input.Filter) ||
+                                                                                            x.Activity.Contains(input.Filter) ||
+                                                                                            x.WorkingExperience.Contains(input.Filter))
+                                    .WhereIf(input.Fields.Count != 0, x => input.Fields.Contains(x.Field.Value))
+                                    .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Location.Value))
+                                    .WhereIf(input.YearOfExps.Count != 0, x => input.YearOfExps.Contains(x.YearOfExp.Value))
+                                    .WhereIf(input.AvailableTimes.Count != 0, x => input.AvailableTimes.Contains(x.AvailableTime.Value))
+                                    .WhereIf(input.Skills.Count != 0, x => x.Skill.Any(y => input.Skills.Contains(y)))
+                                    .WhereIf(input.Personalities.Count != 0, x => x.Personality.Any(y => input.Personalities.Contains(y)))
+                                    .ToList();
+
+            var startuperPageds = startupers.Skip(input.SkipCount).Take(input.MaxResultCount).ToList();
+            return new PagedResultDto<StartuperDto>()
+            {
+                Items = ObjectMapper.Map<List<FSI.Domain.Startuper.Startuper>, List<StartuperDto>>(startuperPageds),
+                TotalCount = startupers.Count
+            };
         }
 
         public async Task<bool> GetCheckIsNewProfile()
