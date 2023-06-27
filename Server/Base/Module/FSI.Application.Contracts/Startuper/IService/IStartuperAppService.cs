@@ -15,7 +15,7 @@ namespace FSI.Application.Contracts.Startuper.IService
 
         Task<List<StartuperDto>> GetListAsync();
 
-        Task<PagedResultDto<StartuperDto>> GetListStartuperForProject(GetListStartuperForProjectDto input);
+        Task<PagedResultDto<StartuperDto>> PostToGetListStartuper(GetListStartuperForProjectDto input);
 
         Task<PagedResultDto<StartuperDto>> GetListFounder(GetListFounderDto input);
 

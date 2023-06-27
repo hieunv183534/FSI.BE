@@ -3,8 +3,10 @@ using FSI.Application.Contracts.Startuper.DTO;
 using FSI.Application.Contracts.Startuper.IService;
 using FSI.Application.Contracts.User.DTO;
 using FSI.Application.Hubs;
+using FSI.Common.Enums;
 using FSI.Domain.Account;
 using FSI.Domain.File;
+using FSI.Domain.Project;
 using FSI.Domain.Startuper;
 using FSI.Domain.Test;
 using FSI.Domain.User;
@@ -23,6 +25,7 @@ using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Data;
+using Volo.Abp.Domain.Repositories;
 using Volo.Abp.ObjectMapping;
 
 namespace FSI.Application.Startuper
@@ -34,13 +37,15 @@ namespace FSI.Application.Startuper
         private readonly IStartuperRepository _startuperRepository;
         private readonly IFileInfomationRepository _fileInfomationRepository;
         private readonly IAccountRepository _accountRepository;
+        private readonly IRepository<Friend, Guid> _friendRepository;
+        private readonly IRepository<ProjectUser, Guid> _projectUserRepository;
         protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
         private readonly IRecommendationSystem _recommendationSystem;
 
-        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository)
+        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<Friend, Guid> friendRepository, IRepository<ProjectUser, Guid> projectUserRepository)
         {
             _startuperRepository = startuperRepository;
             _httpContextAccessor = httpContextAccessor;
@@ -48,6 +53,8 @@ namespace FSI.Application.Startuper
             _recommendationSystem = recommendationSystem;
             _fileInfomationRepository = fileInfomationRepository;
             _accountRepository = accountRepository;
+            _friendRepository = friendRepository;
+            _projectUserRepository = projectUserRepository;
         }
 
         public async Task<List<StartuperDto>> GetListAsync()
@@ -68,7 +75,7 @@ namespace FSI.Application.Startuper
             thisStartuper.Skill = input.Skill;
             thisStartuper.hasProject = input.hasProject;
             thisStartuper.Describe = input.Describe;
-            thisStartuper.YearOfExp= input.YearOfExp;
+            thisStartuper.YearOfExp = input.YearOfExp;
             thisStartuper.AvailableTime = input.AvailableTime;
             thisStartuper.WorkingExperience = input.WorkingExperience;
             thisStartuper.IsNewProfile = false;
@@ -82,7 +89,7 @@ namespace FSI.Application.Startuper
             throw new NotImplementedException();
         }
 
-        public async Task<PagedResultDto<StartuperDto>> GetListStartuperForProject(GetListStartuperForProjectDto input)
+        public async Task<PagedResultDto<StartuperDto>> PostToGetListStartuper(GetListStartuperForProjectDto input)
         {
             var startupers = await _startuperRepository.GetListAsync();
             startupers = startupers.WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.Phone.Equals(input.Filter) ||
@@ -97,6 +104,40 @@ namespace FSI.Application.Startuper
                                     .WhereIf(input.Skills.Count != 0, x => x.Skill.Any(y => input.Skills.Contains(y)))
                                     .WhereIf(input.Personalities.Count != 0, x => x.Personality.Any(y => input.Personalities.Contains(y)))
                                     .ToList();
+
+            var allPatners = await _friendRepository.GetListAsync(x => x.UserAId.Equals(currentUserId) || x.UserBId.Equals(currentUserId));
+            var myPatnerIds = allPatners.Where(x => x.IsActive).Select(x =>
+            {
+                if (x.UserAId.Equals(currentUserId)) return x.UserBId;
+                else return x.UserAId;
+            });
+
+            var fromMeIds = allPatners.Where(x => x.UserAId.Equals(currentUserId) && !x.IsActive).Select(x => x.UserBId);
+            var toMeIds = allPatners.Where(x => x.UserBId.Equals(currentUserId) && !x.IsActive).Select(x => x.UserAId);
+
+            var allIds = myPatnerIds.Concat(fromMeIds).Concat(toMeIds);
+
+            if (input.Mode.Equals(GuidStartuperMode.UuidStartuperModeNew))
+            {
+                startupers = startupers.Where(x=> !allIds.Contains(x.Id)).ToList();
+            }
+            else if (input.Mode.Equals(GuidStartuperMode.UuidStartuperModeOfMe))
+            {
+                startupers = startupers.Where(x => myPatnerIds.Contains(x.Id)).ToList();
+            }
+            else if (input.Mode.Equals(GuidStartuperMode.UuidStartuperModeFromMe))
+            {
+                startupers = startupers.Where(x => fromMeIds.Contains(x.Id)).ToList();
+            }
+            else if (input.Mode.Equals(GuidStartuperMode.UuidStartuperModeToMe))
+            {
+                startupers = startupers.Where(x => fromMeIds.Contains(x.Id)).ToList();
+            }
+            else
+            {
+                var projectUserIds = (await _projectUserRepository.GetListAsync(x=> x.ProjectId.Equals(input.Mode))).Select(x => x.UserId);
+                startupers = startupers.Where(x => !projectUserIds.Contains(x.Id)).ToList();
+            }
 
             var startuperPageds = startupers.Skip(input.SkipCount).Take(input.MaxResultCount).ToList();
             return new PagedResultDto<StartuperDto>()

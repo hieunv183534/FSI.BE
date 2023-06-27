@@ -22,5 +22,7 @@ namespace FSI.Application.Contracts.Startuper.DTO
         public List<int> YearOfExps { get; set; }
 
         public List<int> Areas { get; set; }
+
+        public Guid? Mode { get; set; }
     }
 }

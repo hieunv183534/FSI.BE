@@ -50,6 +50,7 @@ public class FSIDbContext :
     public DbSet<Project> Projects { get; set; }
     public DbSet<ProjectUser> ProjectUsers { get; set; }
     public DbSet<ProjectFile> ProjectFiles { get; set; }
+    public DbSet<Friend> Friends { get; set; }
 
 
     public FSIDbContext(DbContextOptions<FSIDbContext> options)
