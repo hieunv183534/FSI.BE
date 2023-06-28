@@ -1,4 +1,5 @@
-﻿using FSI.Application.Contracts.Startuper.DTO;
+﻿using FSI.Application.Contracts.Project.DTO;
+using FSI.Application.Contracts.Startuper.DTO;
 using FSI.Application.Contracts.User.DTO;
 using System;
 using System.Collections.Generic;
@@ -13,11 +14,7 @@ namespace FSI.Application.Contracts.Startuper.IService
     {
         Task<StartuperDto> InsertStartuperAsync(CreateStartuperDto input);
 
-        Task<List<StartuperDto>> GetListAsync();
-
         Task<PagedResultDto<StartuperDto>> PostToGetListStartuper(GetListStartuperForProjectDto input);
-
-        Task<PagedResultDto<StartuperDto>> GetListFounder(GetListFounderDto input);
 
         Task<bool> GetCheckIsNewProfile();
 
@@ -26,5 +23,7 @@ namespace FSI.Application.Contracts.Startuper.IService
         Task<StartuperDto> GetMyInfoAsync();
 
         Task UpdateBaseInfo(UpdateBaseInfoDto input);
+
+        Task<List<ProjectUserDto>> GetMyProjects();
     }
 }

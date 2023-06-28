@@ -35,6 +35,7 @@ namespace FSI.Application.Startuper
     public class StartuperAppService : ApplicationService, IStartuperAppService
     {
         private readonly IStartuperRepository _startuperRepository;
+        private readonly IProjectRepository _projectRepository;
         private readonly IFileInfomationRepository _fileInfomationRepository;
         private readonly IAccountRepository _accountRepository;
         private readonly IRepository<Friend, Guid> _friendRepository;
@@ -45,7 +46,7 @@ namespace FSI.Application.Startuper
 
         private readonly IRecommendationSystem _recommendationSystem;
 
-        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<Friend, Guid> friendRepository, IRepository<ProjectUser, Guid> projectUserRepository)
+        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<Friend, Guid> friendRepository, IRepository<ProjectUser, Guid> projectUserRepository, IProjectRepository projectRepository)
         {
             _startuperRepository = startuperRepository;
             _httpContextAccessor = httpContextAccessor;
@@ -55,13 +56,7 @@ namespace FSI.Application.Startuper
             _accountRepository = accountRepository;
             _friendRepository = friendRepository;
             _projectUserRepository = projectUserRepository;
-        }
-
-        public async Task<List<StartuperDto>> GetListAsync()
-        {
-            var testrs = await _recommendationSystem.Test(this.currentUserId.ToString());
-            var rs = await _startuperRepository.GetListAsync();
-            return new List<StartuperDto>() { new StartuperDto() { Activity = testrs } };
+            _projectRepository = projectRepository;
         }
 
         public async Task<StartuperDto> InsertStartuperAsync(CreateStartuperDto input)
@@ -83,12 +78,6 @@ namespace FSI.Application.Startuper
             return ObjectMapper.Map<FSI.Domain.Startuper.Startuper, StartuperDto>(rs);
         }
 
-
-        public Task<PagedResultDto<StartuperDto>> GetListFounder(GetListFounderDto input)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<PagedResultDto<StartuperDto>> PostToGetListStartuper(GetListStartuperForProjectDto input)
         {
             var startupers = await _startuperRepository.GetListAsync();
@@ -103,6 +92,7 @@ namespace FSI.Application.Startuper
                                     .WhereIf(input.AvailableTimes.Count != 0, x => input.AvailableTimes.Contains(x.AvailableTime.Value))
                                     .WhereIf(input.Skills.Count != 0, x => x.Skill.Any(y => input.Skills.Contains(y)))
                                     .WhereIf(input.Personalities.Count != 0, x => x.Personality.Any(y => input.Personalities.Contains(y)))
+                                    .Where(x => !x.Id.Equals(currentUserId))
                                     .ToList();
 
             var allPatners = await _friendRepository.GetListAsync(x => x.UserAId.Equals(currentUserId) || x.UserBId.Equals(currentUserId));
@@ -119,7 +109,7 @@ namespace FSI.Application.Startuper
 
             if (input.Mode.Equals(GuidStartuperMode.UuidStartuperModeNew))
             {
-                startupers = startupers.Where(x=> !allIds.Contains(x.Id)).ToList();
+                startupers = startupers.Where(x => !allIds.Contains(x.Id)).ToList();
             }
             else if (input.Mode.Equals(GuidStartuperMode.UuidStartuperModeOfMe))
             {
@@ -135,7 +125,7 @@ namespace FSI.Application.Startuper
             }
             else
             {
-                var projectUserIds = (await _projectUserRepository.GetListAsync(x=> x.ProjectId.Equals(input.Mode))).Select(x => x.UserId);
+                var projectUserIds = (await _projectUserRepository.GetListAsync(x => x.ProjectId.Equals(input.Mode))).Select(x => x.UserId);
                 startupers = startupers.Where(x => !projectUserIds.Contains(x.Id)).ToList();
             }
 
@@ -205,6 +195,13 @@ namespace FSI.Application.Startuper
             acc.PhoneNumber = input.PhoneNumber ?? acc.PhoneNumber;
             await _startuperRepository.UpdateAsync(myUserInfo);
             await _accountRepository.UpdateAsync(acc);
+        }
+
+        public async Task<List<ProjectUserDto>> GetMyProjects()
+        {
+            var projects = await _projectRepository.GetListAsync();
+            var myProjectUsers = await _projectUserRepository.GetListAsync(x => x.IsActive && x.UserId.Equals(currentUserId));
+            return ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(myProjectUsers);
         }
     }
 }
