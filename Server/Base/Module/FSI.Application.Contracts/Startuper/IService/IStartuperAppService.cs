@@ -25,5 +25,11 @@ namespace FSI.Application.Contracts.Startuper.IService
         Task UpdateBaseInfo(UpdateBaseInfoDto input);
 
         Task<List<ProjectUserDto>> GetMyProjects();
+
+        Task RequestFriendToOrtherStartuper(Guid targetId);
+
+        Task AcceptRequestFriendFromOrtherStartuper(Guid targetId);
+
+        Task CancelRequestToOrtherStartuper(Guid targetId);
     }
 }

@@ -203,5 +203,44 @@ namespace FSI.Application.Startuper
             var myProjectUsers = await _projectUserRepository.GetListAsync(x => x.IsActive && x.UserId.Equals(currentUserId));
             return ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(myProjectUsers);
         }
+
+        public async Task RequestFriendToOrtherStartuper(Guid targetId)
+        {
+            var friend = await _friendRepository.FindAsync(x => (x.UserAId.Equals(currentUserId) && x.UserBId.Equals(targetId)) ||
+                                                                (x.UserAId.Equals(targetId) && x.UserBId.Equals(currentUserId)));
+
+            if (friend == null)
+            {
+                await _friendRepository.InsertAsync(new Friend()
+                {
+                    UserAId = currentUserId,
+                    UserBId = targetId,
+                    IsActive = false
+                });
+            }
+            else
+                throw new UserFriendlyException(message: "Đã kết nối hoặc đã gửi lời mời kết nối!");
+        }
+
+        public async Task AcceptRequestFriendFromOrtherStartuper(Guid targetId)
+        {
+            var friend = await _friendRepository.GetAsync(x => x.UserAId.Equals(targetId) && x.UserBId.Equals(currentUserId));
+
+            if(friend.IsActive)
+                throw new UserFriendlyException(message: "Request đã được chấp nhận từ trước!");
+
+            friend.IsActive = true;
+            await _friendRepository.UpdateAsync(friend);
+        }
+
+        public async Task CancelRequestToOrtherStartuper(Guid targetId)
+        {
+            var friend = await _friendRepository.GetAsync(x => x.UserAId.Equals(currentUserId) && x.UserBId.Equals(targetId));
+
+            if(friend.IsActive)
+                throw new UserFriendlyException(message: "Request đã được chấp nhận, không thể hủy bỏ!");
+
+            await _friendRepository.DeleteAsync(friend);
+        }
     }
 }
