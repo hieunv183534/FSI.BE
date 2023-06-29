@@ -100,12 +100,12 @@ namespace FSI.Application.Startuper
             {
                 if (x.UserAId.Equals(currentUserId)) return x.UserBId;
                 else return x.UserAId;
-            });
+            }).ToList();
 
-            var fromMeIds = allPatners.Where(x => x.UserAId.Equals(currentUserId) && !x.IsActive).Select(x => x.UserBId);
-            var toMeIds = allPatners.Where(x => x.UserBId.Equals(currentUserId) && !x.IsActive).Select(x => x.UserAId);
+            var fromMeIds = allPatners.Where(x => x.UserAId.Equals(currentUserId) && !x.IsActive).Select(x => x.UserBId).ToList();
+            var toMeIds = allPatners.Where(x => x.UserBId.Equals(currentUserId) && !x.IsActive).Select(x => x.UserAId).ToList();
 
-            var allIds = myPatnerIds.Concat(fromMeIds).Concat(toMeIds);
+            var allIds = myPatnerIds.Concat(fromMeIds).Concat(toMeIds).ToList();
 
             if (input.Mode.Equals(GuidStartuperMode.UuidStartuperModeNew))
             {
@@ -121,7 +121,7 @@ namespace FSI.Application.Startuper
             }
             else if (input.Mode.Equals(GuidStartuperMode.UuidStartuperModeToMe))
             {
-                startupers = startupers.Where(x => fromMeIds.Contains(x.Id)).ToList();
+                startupers = startupers.Where(x => toMeIds.Contains(x.Id)).ToList();
             }
             else
             {

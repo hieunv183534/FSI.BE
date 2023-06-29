@@ -51,5 +51,9 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task CancelRequestToAProject(Guid projectId);
 
+        Task AcceptMemberToProject(Guid projectId, Guid userId);
+
+        Task RefuseMemberToProject(Guid projectId, Guid userId);
+
     }
 }

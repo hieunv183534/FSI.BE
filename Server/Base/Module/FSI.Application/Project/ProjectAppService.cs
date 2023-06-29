@@ -513,5 +513,34 @@ namespace FSI.Application.Project
                 }
             }
         }
+
+        public async Task AcceptMemberToProject(Guid projectId, Guid userId)
+        {
+            var projectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(userId) && x.ProjectId.Equals(projectId));
+
+            if (projectUser == null)
+                throw new UserFriendlyException(message: "Không tìm thấy request!");
+            if (projectUser.IsActive)
+                throw new UserFriendlyException(message: "Người dùng đã là thành viên dự án!");
+            if(!projectUser.IsFromUser)
+                throw new UserFriendlyException(message: "Request này không đến từ người dùng!");
+
+            projectUser.IsActive = true;
+            await _projectUserRepository.UpdateAsync(projectUser);
+        }
+
+        public async Task RefuseMemberToProject(Guid projectId, Guid userId)
+        {
+            var projectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(userId) && x.ProjectId.Equals(projectId));
+
+            if (projectUser == null)
+                throw new UserFriendlyException(message: "Không tìm thấy request!");
+            if (projectUser.IsActive)
+                throw new UserFriendlyException(message: "Người dùng đã là thành viên dự án!");
+            if (!projectUser.IsFromUser)
+                throw new UserFriendlyException(message: "Request này không đến từ người dùng!");
+
+            await _projectUserRepository.DeleteAsync(projectUser);
+        }
     }
 }
