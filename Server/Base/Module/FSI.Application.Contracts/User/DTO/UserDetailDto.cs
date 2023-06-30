@@ -18,5 +18,7 @@ namespace FSI.Application.Contracts.User.DTO
         public List<ProjectUserDto> ProjectAsStartuper { get; set; }
 
         public List<ProjectUserDto> ProjectAsInvestor { get; set; }
+
+        public int FriendStatus { get; set; }
     }
 }

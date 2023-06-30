@@ -254,12 +254,38 @@ namespace FSI.Application.Startuper
             var projects = await _projectRepository.GetListAsync();
             var projectUsers = await _projectUserRepository.GetListAsync(x => x.UserId.Equals(userId) && x.IsActive);
 
+            var friend = await _friendRepository.FindAsync(x => (x.UserAId.Equals(currentUserId) && x.UserBId.Equals(userId)) ||
+                                                                (x.UserAId.Equals(userId) && x.UserBId.Equals(currentUserId)));
+
+            int friendStatus;
+            if(friend == null)
+                friendStatus = 0;
+            else
+            {
+                if (friend.IsActive)
+                {
+                    friendStatus = 1;
+                }
+                else
+                {
+                    if (friend.UserAId.Equals(currentUserId))
+                    {
+                        friendStatus = 2;
+                    }
+                    else
+                    {
+                        friendStatus = 3;
+                    }
+                }
+            }
+
             return new UserDetailDto()
             {
                 InvestorInfo = ObjectMapper.Map<FSI.Domain.Investor.Investor, InvestorDto>(investorInfo),
                 StartuperInfo = ObjectMapper.Map<FSI.Domain.Startuper.Startuper, StartuperDto>(startuperInfo),
                 ProjectAsInvestor = ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(projectUsers.Where(x => x.Role == RoleInProject.Investor).ToList()),
-                ProjectAsStartuper = ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(projectUsers.Where(x => x.Role != RoleInProject.Investor).ToList())
+                ProjectAsStartuper = ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(projectUsers.Where(x => x.Role != RoleInProject.Investor).ToList()),
+                FriendStatus = friendStatus
             };
         }
     }
