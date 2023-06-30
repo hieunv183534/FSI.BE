@@ -31,5 +31,7 @@ namespace FSI.Application.Contracts.Startuper.IService
         Task AcceptRequestFriendFromOrtherStartuper(Guid targetId);
 
         Task CancelRequestToOrtherStartuper(Guid targetId);
+
+        Task<UserDetailDto> GetUserDetail(Guid userId);
     }
 }

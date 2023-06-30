@@ -1,4 +1,5 @@
-﻿using FSI.Application.Contracts.Project.DTO;
+﻿using FSI.Application.Contracts.Investor.DTO;
+using FSI.Application.Contracts.Project.DTO;
 using FSI.Application.Contracts.Startuper.DTO;
 using FSI.Application.Contracts.Startuper.IService;
 using FSI.Application.Contracts.User.DTO;
@@ -6,6 +7,7 @@ using FSI.Application.Hubs;
 using FSI.Common.Enums;
 using FSI.Domain.Account;
 using FSI.Domain.File;
+using FSI.Domain.Investor;
 using FSI.Domain.Project;
 using FSI.Domain.Startuper;
 using FSI.Domain.Test;
@@ -35,6 +37,7 @@ namespace FSI.Application.Startuper
     public class StartuperAppService : ApplicationService, IStartuperAppService
     {
         private readonly IStartuperRepository _startuperRepository;
+        private readonly IInvestorRepository _investorRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly IFileInfomationRepository _fileInfomationRepository;
         private readonly IAccountRepository _accountRepository;
@@ -46,7 +49,7 @@ namespace FSI.Application.Startuper
 
         private readonly IRecommendationSystem _recommendationSystem;
 
-        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<Friend, Guid> friendRepository, IRepository<ProjectUser, Guid> projectUserRepository, IProjectRepository projectRepository)
+        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<Friend, Guid> friendRepository, IRepository<ProjectUser, Guid> projectUserRepository, IProjectRepository projectRepository, IInvestorRepository investorRepository)
         {
             _startuperRepository = startuperRepository;
             _httpContextAccessor = httpContextAccessor;
@@ -57,6 +60,7 @@ namespace FSI.Application.Startuper
             _friendRepository = friendRepository;
             _projectUserRepository = projectUserRepository;
             _projectRepository = projectRepository;
+            _investorRepository = investorRepository;
         }
 
         public async Task<StartuperDto> InsertStartuperAsync(CreateStartuperDto input)
@@ -226,7 +230,7 @@ namespace FSI.Application.Startuper
         {
             var friend = await _friendRepository.GetAsync(x => x.UserAId.Equals(targetId) && x.UserBId.Equals(currentUserId));
 
-            if(friend.IsActive)
+            if (friend.IsActive)
                 throw new UserFriendlyException(message: "Request đã được chấp nhận từ trước!");
 
             friend.IsActive = true;
@@ -237,10 +241,26 @@ namespace FSI.Application.Startuper
         {
             var friend = await _friendRepository.GetAsync(x => x.UserAId.Equals(currentUserId) && x.UserBId.Equals(targetId));
 
-            if(friend.IsActive)
+            if (friend.IsActive)
                 throw new UserFriendlyException(message: "Request đã được chấp nhận, không thể hủy bỏ!");
 
             await _friendRepository.DeleteAsync(friend);
+        }
+
+        public async Task<UserDetailDto> GetUserDetail(Guid userId)
+        {
+            var startuperInfo = await _startuperRepository.FindAsync(userId);
+            var investorInfo = await _investorRepository.FindAsync(userId);
+            var projects = await _projectRepository.GetListAsync();
+            var projectUsers = await _projectUserRepository.GetListAsync(x => x.UserId.Equals(userId) && x.IsActive);
+
+            return new UserDetailDto()
+            {
+                InvestorInfo = ObjectMapper.Map<FSI.Domain.Investor.Investor, InvestorDto>(investorInfo),
+                StartuperInfo = ObjectMapper.Map<FSI.Domain.Startuper.Startuper, StartuperDto>(startuperInfo),
+                ProjectAsInvestor = ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(projectUsers.Where(x => x.Role == RoleInProject.Investor).ToList()),
+                ProjectAsStartuper = ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(projectUsers.Where(x => x.Role != RoleInProject.Investor).ToList())
+            };
         }
     }
 }
