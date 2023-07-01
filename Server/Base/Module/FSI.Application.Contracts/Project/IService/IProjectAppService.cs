@@ -21,7 +21,6 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task<ProjectDto> GetProjectById(Guid projectId);
 
-        Task UpdateProjectHistory(Guid projectId,List<ProjectHistoryEventDto> input);
 
         Task<PagedResultDto<ProjectDto>> PostToGetListProjectForStartuper(GetListProjectForStartuperDto input);
 
@@ -54,6 +53,10 @@ namespace FSI.Application.Contracts.Project.IService
         Task AcceptMemberToProject(Guid projectId, Guid userId);
 
         Task RefuseMemberToProject(Guid projectId, Guid userId);
+
+        Task AddPostToProject(PostToProjectDto input);
+
+        Task<PagedResultDto<ProjectEventDto>> PostToGetEventsOfProject(GetProjectEventsDto input);
 
     }
 }

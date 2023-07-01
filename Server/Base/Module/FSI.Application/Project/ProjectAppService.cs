@@ -10,6 +10,7 @@ using FSI.Domain.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
@@ -33,6 +34,7 @@ namespace FSI.Application.Project
         private readonly IProjectRepository _projectRepository;
         private readonly IRepository<ProjectUser, Guid> _projectUserRepository;
         private readonly IRepository<ProjectFile, Guid> _projectFileRepository;
+        private readonly IRepository<ProjectEvent, Guid> _projectEventRepository;
         private readonly IUserRootRepository _userRepository;
         private readonly IFileInfomationRepository _fileInfomationRepository;
         private readonly IAccountRepository _accountRepository;
@@ -40,7 +42,7 @@ namespace FSI.Application.Project
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
-        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository)
+        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository)
         {
             _projectRepository = projectRepository;
             _projectUserRepository = projectUserRepository;
@@ -50,6 +52,7 @@ namespace FSI.Application.Project
             _fileInfomationRepository = fileInfomationRepository;
             _accountRepository = accountRepository;
             _projectFileRepository = projectFileRepository;
+            _projectEventRepository = projectEventRepository;
         }
 
         public async Task<ProjectDto> InsertProjectAsync(CreateProjectDto input)
@@ -62,7 +65,6 @@ namespace FSI.Application.Project
                 Description = input.Description,
                 Fb = input.Fb,
                 Fields = input.Fields,
-                History = input.History,
                 Stage = input.Stage,
                 Website = input.Website,
                 FoundedTime = input.FoundedTime,
@@ -72,12 +74,20 @@ namespace FSI.Application.Project
                 FounderId = this.currentUserId
             });
 
+            await _projectEventRepository.InsertAsync(new ProjectEvent()
+            {
+                Type = ProjectEventType.Init,
+                EventTime = input.FoundedTime,
+                ProjectId = project.Id
+            });
+
             var projectUser = await _projectUserRepository.InsertAsync(new ProjectUser()
             {
                 IsActive = true,
                 ProjectId = project.Id,
                 Role = Common.Enums.RoleInProject.Founder,
-                UserId = this.currentUserId
+                UserId = this.currentUserId,
+                JoinTime = DateTime.Now
             });
 
             var rs = ObjectMapper.Map<FSI.Domain.Project.Project, ProjectDto>(project);
@@ -89,13 +99,24 @@ namespace FSI.Application.Project
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(input.Id));
             if (myProjectUser == null)
                 throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
-            if(!myProjectUser.IsActive)
+            if (!myProjectUser.IsActive)
                 throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
 
             if ((int)myProjectUser.Role < 2)
                 throw new UserFriendlyException(message: "Bạn không đủ quyền");
 
             var project = await _projectRepository.GetAsync(input.Id.Value);
+
+            if (project.Stage != input.Stage)
+            {
+                await _projectEventRepository.InsertAsync(new ProjectEvent()
+                {
+                    Type = ProjectEventType.PhaseSwich,
+                    EventTime = DateTime.Now,
+                    Stage = input.Stage,
+                    ProjectId = project.Id
+                });
+            }
 
             project.ProjectName = input.ProjectName;
             project.AvatarUrl = input.AvatarUrl;
@@ -105,7 +126,6 @@ namespace FSI.Application.Project
             project.Fb = input.Fb;
             project.Description = input.Description;
             project.AvatarUrl = input.AvatarUrl;
-            project.History = input.History;
             project.Stage = input.Stage;
             project.Website = input.Website;
             project.IsHireNewMember = input.IsHireNewMember;
@@ -151,7 +171,7 @@ namespace FSI.Application.Project
             rs.SetProperty("totalInvesment", totalInvesment);
             RelationWithProject relationWithProject;
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectId));
-            if (myProjectUser == null) 
+            if (myProjectUser == null)
             {
                 relationWithProject = RelationWithProject.NotMemberOfProject;
             }
@@ -163,7 +183,7 @@ namespace FSI.Application.Project
                 }
                 else
                 {
-                    if(myProjectUser.IsFromUser)
+                    if (myProjectUser.IsFromUser)
                     {
                         relationWithProject = RelationWithProject.RequestToProject;
                     }
@@ -173,24 +193,9 @@ namespace FSI.Application.Project
                     }
                 }
             }
-       
+
             rs.SetProperty("relationWithProject", relationWithProject);
             return rs;
-        }
-
-        public async Task UpdateProjectHistory(Guid projectId, List<ProjectHistoryEventDto> input)
-        {
-            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
-            if (myProjectUser == null)
-                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
-            if (!myProjectUser.IsActive)
-                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
-            if ((int)myProjectUser.Role < 2)
-                throw new UserFriendlyException(message: "Bạn không đủ quyền");
-
-            var project = await _projectRepository.GetAsync(projectId);
-            project.History = ObjectMapper.Map<List<ProjectHistoryEventDto>, List<ProjectHistoryEvent>>(input);
-            await _projectRepository.UpdateAsync(project);
         }
 
         public async Task<PagedResultDto<ProjectDto>> PostToGetListProjectForStartuper(GetListProjectForStartuperDto input)
@@ -198,20 +203,20 @@ namespace FSI.Application.Project
             var projects = await _projectRepository.GetListAsync();
 
             projects = projects.WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.ProjectName.Contains(input.Filter) || x.Description.Contains(input.Filter))
-                                .WhereIf(input.Areas.Count != 0 , x => input.Areas.Contains(x.Area.Value))
+                                .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Area.Value))
                                 .WhereIf(input.Stages.Count != 0, x => input.Stages.Contains(x.Stage.Value))
                                 .WhereIf(input.Fields.Count != 0, x => x.Fields.Any(y => input.Fields.Contains(y)))
                                 .WhereIf(input.AvailableTimes.Count != 0, x => x.AvailableTimeRequire.Any(y => input.AvailableTimes.Contains(y))).ToList();
 
             var myProjectIds = (await _projectUserRepository.GetListAsync(x => x.UserId.Equals(this.currentUserId) && x.IsActive)).Select(x => x.ProjectId).ToList();
-            var projectRequestToMeIds =  (await _projectUserRepository.GetListAsync(x=> x.UserId.Equals(currentUserId) && !x.IsActive && !x.IsFromUser)).Select(x => x.ProjectId).ToList();
+            var projectRequestToMeIds = (await _projectUserRepository.GetListAsync(x => x.UserId.Equals(currentUserId) && !x.IsActive && !x.IsFromUser)).Select(x => x.ProjectId).ToList();
             var projectMeRequestToIds = (await _projectUserRepository.GetListAsync(x => x.UserId.Equals(currentUserId) && !x.IsActive && x.IsFromUser)).Select(x => x.ProjectId).ToList();
-            var projectUserIds = (await _projectUserRepository.GetListAsync(x=> x.UserId.Equals(currentUserId))).Select(x => x.ProjectId).ToList();
+            var projectUserIds = (await _projectUserRepository.GetListAsync(x => x.UserId.Equals(currentUserId))).Select(x => x.ProjectId).ToList();
 
             switch (input.RelationWithProject)
             {
                 case Common.Enums.RelationWithProject.IsMemberOfProject:
-                    projects = projects.Where(x=> myProjectIds.Contains(x.Id)).ToList();
+                    projects = projects.Where(x => myProjectIds.Contains(x.Id)).ToList();
                     break;
                 case Common.Enums.RelationWithProject.NotMemberOfProject:
                     projects = projects.Where(x => !projectUserIds.Contains(x.Id)).ToList();
@@ -322,7 +327,7 @@ namespace FSI.Application.Project
 
             var project = await _projectRepository.GetAsync(projectId.Value);
             project.AvatarUrl = fileUrl;
-             var rs =await _projectRepository.UpdateAsync(project);
+            var rs = await _projectRepository.UpdateAsync(project);
             return rs.AvatarUrl;
         }
 
@@ -427,7 +432,8 @@ namespace FSI.Application.Project
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
             var isOfProject = true;
             if (myProjectUser == null) isOfProject = false;
-            if (!myProjectUser.IsActive) isOfProject = false;
+
+            else if (!myProjectUser.IsActive) isOfProject = false;
 
 
             List<ProjectFile> projectFiles = new List<ProjectFile>();
@@ -437,7 +443,7 @@ namespace FSI.Application.Project
             }
             else // thuộc về dự án
             {
-                if(myProjectUser.Role == Common.Enums.RoleInProject.Investor) // là nhà đầu tư
+                if (myProjectUser.Role == Common.Enums.RoleInProject.Investor) // là nhà đầu tư
                 {
                     projectFiles = await _projectFileRepository.GetListAsync(x => x.ProjectId.Equals(projectId) && x.VisibleForInvestor, includeDetails: true);
                 }
@@ -469,7 +475,7 @@ namespace FSI.Application.Project
         {
             var projectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectId));
 
-            if(projectUser == null)
+            if (projectUser == null)
                 throw new UserFriendlyException(message: "Không tìm thấy request!");
 
             if (projectUser.IsActive)
@@ -484,8 +490,16 @@ namespace FSI.Application.Project
                 }
                 else
                 {
+                    projectUser.JoinTime = DateTime.Now;
                     projectUser.IsActive = true;
                     await _projectUserRepository.UpdateAsync(projectUser);
+                    await _projectEventRepository.InsertAsync(new ProjectEvent()
+                    {
+                        Type = ProjectEventType.NewMember,
+                        EventTime = DateTime.Now,
+                        UserId = currentUserId,
+                        ProjectId = projectId
+                    });
                 }
             }
         }
@@ -522,11 +536,19 @@ namespace FSI.Application.Project
                 throw new UserFriendlyException(message: "Không tìm thấy request!");
             if (projectUser.IsActive)
                 throw new UserFriendlyException(message: "Người dùng đã là thành viên dự án!");
-            if(!projectUser.IsFromUser)
+            if (!projectUser.IsFromUser)
                 throw new UserFriendlyException(message: "Request này không đến từ người dùng!");
 
+            projectUser.JoinTime = DateTime.Now;
             projectUser.IsActive = true;
             await _projectUserRepository.UpdateAsync(projectUser);
+            await _projectEventRepository.InsertAsync(new ProjectEvent()
+            {
+                Type = ProjectEventType.NewMember,
+                EventTime = DateTime.Now,
+                UserId = userId,
+                ProjectId = projectId
+            });
         }
 
         public async Task RefuseMemberToProject(Guid projectId, Guid userId)
@@ -541,6 +563,86 @@ namespace FSI.Application.Project
                 throw new UserFriendlyException(message: "Request này không đến từ người dùng!");
 
             await _projectUserRepository.DeleteAsync(projectUser);
+        }
+
+        public async Task AddPostToProject([FromForm] PostToProjectDto input)
+        {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(input.ProjectId));
+            if (myProjectUser == null || !myProjectUser.IsActive)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+
+            var files = _httpContextAccessor.HttpContext.Request.Form.Files.ToList();
+            var fileInfos = new List<FileInfomation>();
+            files.ForEach(async file =>
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                string filePath = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/images"),
+                fileName);
+                using (Stream fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(fileStream);
+                }
+                var fileUrl = "http://localhost:7777/images/" + fileName;
+                fileInfos.Add(new FileInfomation()
+                {
+                    AuthorId = this.currentUserId,
+                    Url = fileUrl,
+                    Size = (int)file.Length,
+                    ContentType = file.ContentType
+                });
+            });
+
+            await _fileInfomationRepository.InsertManyAsync(fileInfos);
+
+            var images = fileInfos.Select(x => x.Url).ToList();
+
+            await _projectEventRepository.InsertAsync(new ProjectEvent()
+            {
+                PosterId = currentUserId,
+                Content = input.Content,
+                Location = input.Location,
+                EventTime = DateTime.Now,
+                FileIds = JArray.Parse(input.FileIds).ToObject<List<Guid>>(),
+                Images = images,
+                Type = ProjectEventType.PostNotification,
+                ProjectId = input.ProjectId
+            });
+        }
+
+        public async Task<PagedResultDto<ProjectEventDto>> PostToGetEventsOfProject(GetProjectEventsDto input)
+        {
+            var events = await _projectEventRepository.GetListAsync(x => x.ProjectId.Equals(input.ProjectId));
+            events = events.WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.Content.Contains(input.Filter)).ToList();
+
+            switch (input.Type)
+            {
+                case -1:
+                    break;
+                case 0:
+                    events = events.Where(x => x.Type == ProjectEventType.Init).ToList();
+                    break;
+                case 1:
+                    events = events.Where(x => x.Type == ProjectEventType.NewMember || x.Type == ProjectEventType.OutMember).ToList();
+                    break;
+                case 3:
+                    events = events.Where(x => x.Type == ProjectEventType.NewInvestor || x.Type == ProjectEventType.OutInvestor).ToList();
+                    break;
+                case 5:
+                    events = events.Where(x => x.Type == ProjectEventType.PhaseSwich).ToList();
+                    break;
+                case 6:
+                    events = events.Where(x => x.Type == ProjectEventType.GetInvesment).ToList();
+                    break;
+                case 7:
+                    events = events.Where(x => x.Type == ProjectEventType.PostNotification).ToList();
+                    break;
+            }
+
+            return new PagedResultDto<ProjectEventDto>()
+            {
+                Items = ObjectMapper.Map<List<ProjectEvent>, List<ProjectEventDto>>(events.Skip(input.SkipCount).Take(input.MaxResultCount).ToList()),
+                TotalCount = events.Count
+            };
         }
     }
 }

@@ -27,5 +27,7 @@ namespace FSI.Application.Contracts.Project.DTO
         public int TotalExpectedInvestment { get; set; }
 
         public int TotalInvestment { get; set; }
+
+        public DateTime? JoinTime { get; set; }
     }
 }

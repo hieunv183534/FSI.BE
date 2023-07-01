@@ -37,13 +37,33 @@ namespace FSI.HttpApi.Controlles
             var currentUserId = Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var projectFile = await _projectFileRepository.GetAsync(projectFileId, includeDetails: true);
             var files = await _fileInfomationRepository.GetListAsync();
-            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectFile.ProjectId));
-            if (myProjectUser == null)
-                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
 
-            var path = Path.Combine(Directory.GetCurrentDirectory(), @"Docs", projectFile.File.Url);
-            var imageFileStream = System.IO.File.OpenRead(path);
-            return File(imageFileStream, projectFile.File.ContentType);
+            if (projectFile.VisibleForAll)
+            {
+                var path = Path.Combine(Directory.GetCurrentDirectory(), @"Docs", projectFile.File.Url);
+                var imageFileStream = System.IO.File.OpenRead(path);
+                return File(imageFileStream, projectFile.File.ContentType);
+            }
+            else if (projectFile.VisibleForInvestor)
+            {
+                var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectFile.ProjectId));
+                if (myProjectUser == null)
+                    throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải nhà đầu tư/thành viên của dự án này!");
+
+                var path = Path.Combine(Directory.GetCurrentDirectory(), @"Docs", projectFile.File.Url);
+                var imageFileStream = System.IO.File.OpenRead(path);
+                return File(imageFileStream, projectFile.File.ContentType);
+            }
+            else
+            {
+                var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectFile.ProjectId));
+                if (myProjectUser == null || myProjectUser.Role == Common.Enums.RoleInProject.Investor)
+                    throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+
+                var path = Path.Combine(Directory.GetCurrentDirectory(), @"Docs", projectFile.File.Url);
+                var imageFileStream = System.IO.File.OpenRead(path);
+                return File(imageFileStream, projectFile.File.ContentType);
+            }
         }
     }
 }

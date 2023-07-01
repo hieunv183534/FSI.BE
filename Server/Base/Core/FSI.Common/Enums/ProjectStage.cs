@@ -21,8 +21,12 @@ namespace FSI.Common.Enums
     public enum ProjectEventType
     {
         Init,
-        PersonalChange,
+        NewMember,
+        OutMember,
+        NewInvestor,
+        OutInvestor,
         PhaseSwich,
-        GetInvesment
+        GetInvesment,
+        PostNotification
     }
 }

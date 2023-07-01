@@ -28,5 +28,7 @@ namespace FSI.Domain.Project
         public int TotalInvestment { get; set; }
 
         public bool IsFromUser { get; set; }
+
+        public DateTime? JoinTime { get; set; }
     }
 }

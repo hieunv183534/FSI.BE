@@ -30,8 +30,6 @@ namespace FSI.Application.Contracts.Project.DTO
 
         public string? Compliment { get; set; }
 
-        public List<ProjectHistoryEvent>? History { get; set; }
-
         public string? AvatarUrl { get; set; }
 
         public bool? IsHireNewMember { get; set; }

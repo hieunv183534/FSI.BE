@@ -1,10 +1,14 @@
-- Khi người dùng đăng ký tài khoản thì cung cấp luôn thông tin chung
-- Sau đó người đấy chọn vai trò người dùng của mình: người sáng lập/ đồng sáng lập , nhà đầu tư, nhà cung cấp, người tìm kiếm việc làm
-- Hiện tại người đấy chỉ chọn được role là sáng lập/ đồng sáng lập
-- Khi vào thì phải bổ sung thêm thông tin của người founder
-- Có dự án/ ý tưởng hay chưa. Nếu có rồi thì khai báo luôn thông tin dự án => người đó là founder của dự án đấy
-- Nếu chưa có dự án và ý tưởng, mới chỉ muốn tham gia vào 1 dự án startup khác thì hiện chức năng gợi ý các dự án có thể phù hợp với mình. Người dùng tìm và chọn muốn kết nối vào 1 dự án
-- Với người dùng đã có dự án/ ý tưởng thì cũng có thể tìm kiếm ứng viên để kết nối tham gia cùng vào dự án
-- Có các kết nối giữa người dùng - dự án và người dùng - người dùng
-- Kết nối người dùng - người dùng dùng luôn conversation justTwoPeople true
-	
+- Vai trò startuper
+- Vai trò investor
+- Vai trò khách
+
+
+Các entity: account, user, project, projectStage
+
+- Khi người dùng đăng ký tài khoản thành công thì nhập thông tin cá nhân. Sau đó chọn một trong các role: Người khởi nghiệp, nhà đầu tư, người lao động
+- Nếu người đó chọn người khởi nghiệp thì có thể chọn đã/chưa tham gia dự án nào. Nếu chọn đã tham gia thì chọn founder hoặc co-founder. Nếu chọn co-founder thì phải nhập và chọn dự
+án mà đã tham gia, nếu chọn founder thì tạo luôn dự án và nhập thông tin dự án
+- Với người dùng khởi nghiệp thì có các màn hình chính: danh sách các dự án, danh sách các người khởi nghiệp tiêu biểu. Nếu bạn là founder và co-founder của 1 dự án thì khi vào dự án
+còn có thể xem danh sách những người có ý muốn tham gia các dự án mới, những người lao động cần việc làm
+- Với người dùng nhà đầu tư thì có các màn hình: các dự án, các nhà khởi nghiệp tiêu biểu.
+- Với người dùng là lao động tìm việc làm thì hiển thị các công việc
