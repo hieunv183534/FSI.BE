@@ -1,4 +1,5 @@
-﻿using FSI.Domain.User;
+﻿using FSI.Common.Enums;
+using FSI.Domain.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace FSI.Domain.Project
 
         public UserRoot CreatedBy { get; set; }
 
-        public int Type { get; set; }
+        public CalendarEventType Type { get; set; }
 
         public DateTime Start { get; set; }
 
@@ -25,5 +26,7 @@ namespace FSI.Domain.Project
         public bool AllDay { get; set; }
 
         public bool AutoDeleteWhenEnd { get; set; }
+
+        public string? Title { get; set; }
     }
 }

@@ -645,7 +645,7 @@ namespace FSI.Application.Project
 
             return new PagedResultDto<ProjectEventDto>()
             {
-                Items = ObjectMapper.Map<List<ProjectEvent>, List<ProjectEventDto>>(events.Skip(input.SkipCount).Take(input.MaxResultCount).OrderByDescending(x=> x.EventTime).ToList()),
+                Items = ObjectMapper.Map<List<ProjectEvent>, List<ProjectEventDto>>(events.Skip(input.SkipCount).Take(input.MaxResultCount).OrderByDescending(x => x.EventTime).ToList()),
                 TotalCount = events.Count
             };
         }
@@ -655,8 +655,8 @@ namespace FSI.Application.Project
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
             if (myProjectUser == null || !myProjectUser.IsActive)
                 throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
-
-            var rs = await _projectCalendarEventRepository.GetListAsync(x=> x.ProjectId.Equals(projectId));
+            var users = await _userRepository.GetListAsync();
+            var rs = await _projectCalendarEventRepository.GetListAsync(x => x.ProjectId.Equals(projectId));
             return ObjectMapper.Map<List<ProjectCalendarEvent>, List<ProjectCalendarEventDto>>(rs);
         }
 
@@ -665,17 +665,29 @@ namespace FSI.Application.Project
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(input.ProjectId));
             if (myProjectUser == null || !myProjectUser.IsActive)
                 throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
-
+            input.Start = input.Start.AddHours(7);
+            input.End = input.End.AddHours(7);
             await _projectCalendarEventRepository.InsertAsync(new ProjectCalendarEvent()
             {
                 ProjectId = input.ProjectId,
-                AllDay= input.AllDay,
+                AllDay = input.AllDay,
+                AutoDeleteWhenEnd = input.AutoDeleteWhenEnd,
                 Start = input.Start,
-                End = input.End,
+                End = input.Type == CalendarEventType.TimePeriod ? input.End : input.Start.AddMinutes(30),
                 Type = input.Type,
-                CreatedById = currentUserId
+                CreatedById = currentUserId,
+                Title = input.Title
             });
 
+        }
+
+        public async Task DeleteCalendarEvent(Guid calendarEventId)
+        {
+            var calendarEvent = await _projectCalendarEventRepository.GetAsync(calendarEventId);
+            var myProjectUser = await _projectUserRepository.FindAsync(x=> x.UserId.Equals(currentUserId) && x.ProjectId.Equals(calendarEvent.ProjectId));
+            if (myProjectUser == null || !myProjectUser.IsActive)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+            await _projectCalendarEventRepository.DeleteAsync(calendarEventId);
         }
     }
 }

@@ -62,5 +62,7 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task AddCalendarEvent(AddProjectCalendarEventDto input);
 
+        Task DeleteCalendarEvent(Guid calendarEventId);
+
     }
 }
