@@ -35,6 +35,7 @@ namespace FSI.Application.Project
         private readonly IRepository<ProjectUser, Guid> _projectUserRepository;
         private readonly IRepository<ProjectFile, Guid> _projectFileRepository;
         private readonly IRepository<ProjectEvent, Guid> _projectEventRepository;
+        private readonly IRepository<ProjectCalendarEvent, Guid> _projectCalendarEventRepository;
         private readonly IUserRootRepository _userRepository;
         private readonly IFileInfomationRepository _fileInfomationRepository;
         private readonly IAccountRepository _accountRepository;
@@ -42,7 +43,7 @@ namespace FSI.Application.Project
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
-        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository)
+        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository)
         {
             _projectRepository = projectRepository;
             _projectUserRepository = projectUserRepository;
@@ -53,6 +54,7 @@ namespace FSI.Application.Project
             _accountRepository = accountRepository;
             _projectFileRepository = projectFileRepository;
             _projectEventRepository = projectEventRepository;
+            _projectCalendarEventRepository = projectCalendarEventRepository;
         }
 
         public async Task<ProjectDto> InsertProjectAsync(CreateProjectDto input)
@@ -331,7 +333,7 @@ namespace FSI.Application.Project
             return rs.AvatarUrl;
         }
 
-        public async Task UploadFile(Guid? projectId, string fileTitle, string note, bool visibleForInvestor, bool visibleForAll)
+        public async Task<Guid> UploadFile(Guid? projectId, string fileTitle, string note, bool visibleForInvestor, bool visibleForAll)
         {
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
             if (myProjectUser == null)
@@ -357,7 +359,7 @@ namespace FSI.Application.Project
 
             if (visibleForAll) visibleForInvestor = true;
 
-            await _projectFileRepository.InsertAsync(new ProjectFile()
+            var pjFile = await _projectFileRepository.InsertAsync(new ProjectFile()
             {
                 ProjectId = projectId.Value,
                 FileId = fileInfo.Id,
@@ -366,6 +368,7 @@ namespace FSI.Application.Project
                 VisibleForAll = visibleForAll,
                 VisibleForInvestor = visibleForInvestor
             });
+            return pjFile.Id;
         }
 
         public async Task<List<ProjectUserDto>> GetUsersRequestToProject(Guid projectId)
@@ -603,6 +606,7 @@ namespace FSI.Application.Project
                 Location = input.Location,
                 EventTime = DateTime.Now,
                 FileIds = JArray.Parse(input.FileIds).ToObject<List<Guid>>(),
+                Links = JArray.Parse(input.Links).ToObject<List<string>>(),
                 Images = images,
                 Type = ProjectEventType.PostNotification,
                 ProjectId = input.ProjectId
@@ -611,6 +615,7 @@ namespace FSI.Application.Project
 
         public async Task<PagedResultDto<ProjectEventDto>> PostToGetEventsOfProject(GetProjectEventsDto input)
         {
+            var users = await _userRepository.GetListAsync();
             var events = await _projectEventRepository.GetListAsync(x => x.ProjectId.Equals(input.ProjectId));
             events = events.WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.Content.Contains(input.Filter)).ToList();
 
@@ -619,7 +624,7 @@ namespace FSI.Application.Project
                 case -1:
                     break;
                 case 0:
-                    events = events.Where(x => x.Type == ProjectEventType.Init).ToList();
+                    events = events.Where(x => x.Type == ProjectEventType.Init || x.Type == ProjectEventType.PhaseSwich).ToList();
                     break;
                 case 1:
                     events = events.Where(x => x.Type == ProjectEventType.NewMember || x.Type == ProjectEventType.OutMember).ToList();
@@ -627,9 +632,9 @@ namespace FSI.Application.Project
                 case 3:
                     events = events.Where(x => x.Type == ProjectEventType.NewInvestor || x.Type == ProjectEventType.OutInvestor).ToList();
                     break;
-                case 5:
-                    events = events.Where(x => x.Type == ProjectEventType.PhaseSwich).ToList();
-                    break;
+                //case 5:
+                //    events = events.Where(x => x.Type == ProjectEventType.PhaseSwich).ToList();
+                //    break;
                 case 6:
                     events = events.Where(x => x.Type == ProjectEventType.GetInvesment).ToList();
                     break;
@@ -640,9 +645,37 @@ namespace FSI.Application.Project
 
             return new PagedResultDto<ProjectEventDto>()
             {
-                Items = ObjectMapper.Map<List<ProjectEvent>, List<ProjectEventDto>>(events.Skip(input.SkipCount).Take(input.MaxResultCount).ToList()),
+                Items = ObjectMapper.Map<List<ProjectEvent>, List<ProjectEventDto>>(events.Skip(input.SkipCount).Take(input.MaxResultCount).OrderByDescending(x=> x.EventTime).ToList()),
                 TotalCount = events.Count
             };
+        }
+
+        public async Task<List<ProjectCalendarEventDto>> GetProjectCalendarEvents(Guid projectId)
+        {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
+            if (myProjectUser == null || !myProjectUser.IsActive)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+
+            var rs = await _projectCalendarEventRepository.GetListAsync(x=> x.ProjectId.Equals(projectId));
+            return ObjectMapper.Map<List<ProjectCalendarEvent>, List<ProjectCalendarEventDto>>(rs);
+        }
+
+        public async Task AddCalendarEvent(AddProjectCalendarEventDto input)
+        {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(input.ProjectId));
+            if (myProjectUser == null || !myProjectUser.IsActive)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+
+            await _projectCalendarEventRepository.InsertAsync(new ProjectCalendarEvent()
+            {
+                ProjectId = input.ProjectId,
+                AllDay= input.AllDay,
+                Start = input.Start,
+                End = input.End,
+                Type = input.Type,
+                CreatedById = currentUserId
+            });
+
         }
     }
 }

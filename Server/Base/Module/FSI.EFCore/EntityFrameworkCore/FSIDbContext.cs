@@ -51,6 +51,7 @@ public class FSIDbContext :
     public DbSet<ProjectEvent> ProjectEvents { get; set; }
     public DbSet<ProjectUser> ProjectUsers { get; set; }
     public DbSet<ProjectFile> ProjectFiles { get; set; }
+    public DbSet<ProjectCalendarEvent> ProjectCalendarEvents { get; set; }
     public DbSet<Friend> Friends { get; set; }
 
 
@@ -97,6 +98,7 @@ public class FSIDbContext :
         {
             entity.Property(x => x.FileIds).IsJson();
             entity.Property(x => x.Images).IsJson();
+            entity.Property(x => x.Links).IsJson();
         });
 
         builder.Entity<Investor>(entity =>

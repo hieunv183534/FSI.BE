@@ -15,5 +15,7 @@ namespace FSI.Application.Contracts.Project.DTO
         public string? Location { get; set; }
 
         public string? FileIds { get; set; }
+
+        public string? Links { get; set; }
     }
 }

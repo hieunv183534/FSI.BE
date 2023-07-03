@@ -30,7 +30,7 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task<string> UploadAvatar(Guid? projectId);
 
-        Task UploadFile(Guid? projectId, string fileTitle, string note, bool visibleForInvestor, bool visibleForAll);
+        Task<Guid> UploadFile(Guid? projectId, string fileTitle, string note, bool visibleForInvestor, bool visibleForAll);
 
         Task<List<ProjectFileDto>> GetProjectFiles(Guid projectId);
 
@@ -57,6 +57,10 @@ namespace FSI.Application.Contracts.Project.IService
         Task AddPostToProject(PostToProjectDto input);
 
         Task<PagedResultDto<ProjectEventDto>> PostToGetEventsOfProject(GetProjectEventsDto input);
+
+        Task<List<ProjectCalendarEventDto>> GetProjectCalendarEvents(Guid projectId);
+
+        Task AddCalendarEvent(AddProjectCalendarEventDto input);
 
     }
 }

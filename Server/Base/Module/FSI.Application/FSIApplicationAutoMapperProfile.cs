@@ -27,6 +27,8 @@ namespace FSI
             CreateMap<Project, ProjectDto>().ReverseMap();
             CreateMap<ProjectUser, ProjectUserDto>().ReverseMap();
             CreateMap<ProjectFile, ProjectFileDto>().ReverseMap();
+            CreateMap<ProjectEvent, ProjectEventDto>().ReverseMap();
+            CreateMap<ProjectCalendarEvent, ProjectCalendarEventDto>().ReverseMap();
             CreateMap<Startuper, StartuperDto>().ReverseMap();
             CreateMap<FileInfomation, FileInfomationDto>().ReverseMap();
             CreateMap<UserRootDto, FSI.Domain.Startuper.Startuper>().ReverseMap();

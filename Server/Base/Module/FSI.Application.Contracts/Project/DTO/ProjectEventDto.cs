@@ -37,5 +37,7 @@ namespace FSI.Application.Contracts.Project.DTO
         public DateTime? EventTime { get; set; }
 
         public ProjectStage? Stage { get; set; }
+
+        public List<string>? Links { get; set; }
     }
 }

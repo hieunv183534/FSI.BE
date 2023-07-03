@@ -36,5 +36,7 @@ namespace FSI.Domain.Project
         public DateTime? EventTime { get; set; }
 
         public ProjectStage? Stage { get; set; }
+
+        public List<string>? Links { get; set; }
     }
 }
