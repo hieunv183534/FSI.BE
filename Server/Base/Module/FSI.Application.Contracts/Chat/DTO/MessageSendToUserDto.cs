@@ -12,6 +12,6 @@ namespace FSI.Application.Contracts.Chat.DTO
         public MessageType Type { get; set; }
         public string Content { get; set; }
 
-        public Guid TargetId { get; set; }
+        public Guid UserId { get; set; }
     }
 }

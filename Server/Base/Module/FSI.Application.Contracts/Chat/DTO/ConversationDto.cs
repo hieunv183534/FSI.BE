@@ -1,4 +1,6 @@
-﻿using FSI.Domain.User;
+﻿using FSI.Application.Contracts.User.DTO;
+using FSI.Domain.Chat;
+using FSI.Domain.User;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,9 +9,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Entities.Auditing;
 
-namespace FSI.Domain.Chat
+namespace FSI.Application.Contracts.Chat.DTO
 {
-    public class Conversation : FullAuditedAggregateRoot<Guid>
+    public class ConversationDto : FullAuditedAggregateRoot<Guid>
     {
         public bool? JustTwoPeople { get; set; }
 
@@ -23,11 +25,11 @@ namespace FSI.Domain.Chat
 
         public Guid? UserAId { get; set; }
 
-        public UserRoot? UserA { get; set; }
+        public UserRootDto? UserA { get; set; }
 
         public Guid? UserBId { get; set; }
 
-        public UserRoot? UserB { get; set; }
+        public UserRootDto? UserB { get; set; }
 
         public string? ConversationName { get; set; }
 
@@ -39,8 +41,6 @@ namespace FSI.Domain.Chat
 
         public Guid? LastMessageId { get; set; }
 
-        [NotMapped]
-        public Message? LastMessage { get; set; }
-
+        public MessageDto? LastMessage { get; set; }
     }
 }

@@ -21,6 +21,8 @@ namespace FSI.Application.Hubs
         private readonly IUserConversationRepository _userConversationRepository;
         private Guid currentUserId;
 
+        public static List<UserConnection> Connections { get; set; } = new List<UserConnection>();
+
         public ChatHub(IObjectMapper objectMapper, IUnitOfWorkManager unitOfWorkManager, IUserConversationRepository userConversationRepository)
         {
             _objectMapper = objectMapper;
@@ -45,6 +47,13 @@ namespace FSI.Application.Hubs
                 // add connection vào group idUser hiện tại dùng để send cho riêng người dùng này
                 await Groups.AddToGroupAsync(Context.ConnectionId, currentUserId.ToString());
 
+                // thêm userConnection này
+                Connections.Add(new UserConnection()
+                {
+                    ConnectionId = Context.ConnectionId,
+                    UserId = currentUserId,
+                });
+
                 await uow.CompleteAsync();
             }
         }
@@ -63,6 +72,11 @@ namespace FSI.Application.Hubs
 
                 // xóa connection từ group idUser hiện tại dùng để send cho riêng người dùng này
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, currentUserId.ToString());
+
+                //xóa userConnection này
+                var userConnection = Connections.FirstOrDefault(x=> x.ConnectionId == Context.ConnectionId && x.UserId == currentUserId);
+                Connections.Remove(userConnection);
+
                 await uow.CompleteAsync();
             }
         }

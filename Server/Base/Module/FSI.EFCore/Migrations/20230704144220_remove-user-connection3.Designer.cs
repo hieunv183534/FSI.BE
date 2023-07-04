@@ -3,6 +3,7 @@ using System;
 using FSI.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -11,9 +12,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace FSI.EFCore.Migrations
 {
     [DbContext(typeof(FSIDbContext))]
-    partial class FSIDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230704144220_remove-user-connection3")]
+    partial class removeuserconnection3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -126,10 +128,7 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("ExtraProperties");
 
-                    b.Property<bool?>("IsActiveA")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool?>("IsActiveB")
+                    b.Property<bool?>("IsActive")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("IsDeleted")
@@ -137,12 +136,6 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
-
-                    b.Property<bool?>("IsStorageA")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool?>("IsStorageB")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("JoinLink")
                         .HasColumnType("longtext");

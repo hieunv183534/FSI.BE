@@ -3,6 +3,7 @@ using System;
 using FSI.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -11,9 +12,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace FSI.EFCore.Migrations
 {
     [DbContext(typeof(FSIDbContext))]
-    partial class FSIDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230704141458_remove-user-connection")]
+    partial class removeuserconnection
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,9 +103,11 @@ namespace FSI.EFCore.Migrations
                         .HasColumnName("ConcurrencyStamp");
 
                     b.Property<string>("ConversationAvatar")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("ConversationName")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<DateTime>("CreationTime")
@@ -126,10 +130,7 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("ExtraProperties");
 
-                    b.Property<bool?>("IsActiveA")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool?>("IsActiveB")
+                    b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("IsDeleted")
@@ -138,16 +139,14 @@ namespace FSI.EFCore.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
 
-                    b.Property<bool?>("IsStorageA")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool?>("IsStorageB")
+                    b.Property<bool>("IsStorage")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("JoinLink")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<bool?>("JustTwoPeople")
+                    b.Property<bool>("JustTwoPeople")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<Guid?>("LastMessageId")
@@ -162,6 +161,7 @@ namespace FSI.EFCore.Migrations
                         .HasColumnName("LastModifierId");
 
                     b.Property<string>("Tag")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<Guid?>("UserAId")
@@ -191,6 +191,7 @@ namespace FSI.EFCore.Migrations
                         .HasColumnName("ConcurrencyStamp");
 
                     b.Property<string>("Content")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<Guid>("ConversationId")
@@ -216,10 +217,10 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("ExtraProperties");
 
-                    b.Property<Guid?>("FocusToMessageId")
+                    b.Property<Guid>("FocusToMessageId")
                         .HasColumnType("char(36)");
 
-                    b.Property<int?>("Index")
+                    b.Property<int>("Index")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
@@ -239,7 +240,7 @@ namespace FSI.EFCore.Migrations
                     b.Property<Guid>("SenderId")
                         .HasColumnType("char(36)");
 
-                    b.Property<int?>("Type")
+                    b.Property<int>("Type")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -281,14 +282,14 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("DeletionTime");
 
-                    b.Property<bool?>("EnableNotification")
+                    b.Property<bool>("EnableNotification")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("ExtraProperties")
                         .HasColumnType("longtext")
                         .HasColumnName("ExtraProperties");
 
-                    b.Property<bool?>("IsActive")
+                    b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("IsDeleted")
@@ -297,10 +298,10 @@ namespace FSI.EFCore.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
 
-                    b.Property<bool?>("IsStorage")
+                    b.Property<bool>("IsStorage")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<int?>("LastIndexSeen")
+                    b.Property<int>("LastIndexSeen")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("LastModificationTime")
@@ -312,12 +313,13 @@ namespace FSI.EFCore.Migrations
                         .HasColumnName("LastModifierId");
 
                     b.Property<string>("NickName")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime?>("OffNotificationTo")
+                    b.Property<DateTime>("OffNotificationTo")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int?>("RoleInConversation")
+                    b.Property<int>("RoleInConversation")
                         .HasColumnType("int");
 
                     b.Property<Guid>("UserId")

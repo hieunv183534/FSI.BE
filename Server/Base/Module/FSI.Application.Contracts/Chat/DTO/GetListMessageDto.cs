@@ -7,10 +7,8 @@ using Volo.Abp.Application.Dtos;
 
 namespace FSI.Application.Contracts.Chat.DTO
 {
-    public class GetListConversationDto : PagedAndSortedResultRequestDto
+    public class GetListMessageDto : PagedAndSortedResultRequestDto
     {
-        public string? Filter { get; set; }
-
-        public int? Type { get; set; }
+        public Guid ConversationId { get; set; }
     }
 }

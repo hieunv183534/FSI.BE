@@ -8,5 +8,12 @@ namespace FSI.Common.Enums
 {
     public enum MessageType
     {
+        Text,
+        Media,
+        FileDocument,
+        Icon,
+        AddMember,
+        OutMember,
+        ChangeConversationName
     }
 }

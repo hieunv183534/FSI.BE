@@ -8,6 +8,8 @@ namespace FSI.Application.Contracts.Chat.DTO
 {
     public class AddConversationDto
     {
+        public string? AvatarUrl { get; set; }
+
         public string ConversationName { get; set; }
 
         public List<Guid> MemberIds { get; set; }

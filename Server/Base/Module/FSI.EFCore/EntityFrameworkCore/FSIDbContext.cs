@@ -46,7 +46,6 @@ public class FSIDbContext :
     public DbSet<Message> Messages { get; set; }
     public DbSet<Conversation> Conversations { get; set; }
     public DbSet<UserConversation> UserConversations { get; set; }
-    public DbSet<UserConnection> UserConnections { get; set; }
     public DbSet<Project> Projects { get; set; }
     public DbSet<ProjectEvent> ProjectEvents { get; set; }
     public DbSet<ProjectUser> ProjectUsers { get; set; }

@@ -1,24 +1,25 @@
-﻿using FSI.Common.Enums;
+﻿using FSI.Application.Contracts.User.DTO;
+using FSI.Common.Enums;
+using FSI.Domain.Chat;
 using FSI.Domain.User;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Entities.Auditing;
 
-namespace FSI.Domain.Chat
+namespace FSI.Application.Contracts.Chat.DTO
 {
-    public class UserConversation : FullAuditedAggregateRoot<Guid>
+    public class UserConversationDto : FullAuditedAggregateRoot<Guid>
     {
         public Guid ConversationId { get; set; }
 
-        public Conversation Conversation { get; set; }
+        public ConversationDto Conversation { get; set; }
 
         public Guid UserId { get; set; }
 
-        public UserRoot User { get; set; }
+        public UserRootDto User { get; set; }
 
         public UserConversationRole? RoleInConversation { get; set; }
 
@@ -33,6 +34,5 @@ namespace FSI.Domain.Chat
         public DateTime? OffNotificationTo { get; set; }
 
         public bool? IsStorage { get; set; }
-
     }
 }

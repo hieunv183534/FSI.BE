@@ -15,13 +15,13 @@ namespace FSI.Domain.Chat
 
         public UserRoot Sender { get; set; }
 
-        public int Index { get; set; }
+        public int? Index { get; set; }
 
-        public MessageType Type { get; set; }
+        public MessageType? Type { get; set; }
 
-        public string Content { get; set; }
+        public string? Content { get; set; }
 
-        public Guid FocusToMessageId { get; set; }
+        public Guid? FocusToMessageId { get; set; }
 
     }
 }
