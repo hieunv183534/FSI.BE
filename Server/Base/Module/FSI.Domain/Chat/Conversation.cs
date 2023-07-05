@@ -21,6 +21,10 @@ namespace FSI.Domain.Chat
 
         public bool? IsStorageB { get; set; }
 
+        public int? LastIndexSeenA { get; set; }
+
+        public int? LastIndexSeenB { get; set; }
+
         public Guid? UserAId { get; set; }
 
         public UserRoot? UserA { get; set; }

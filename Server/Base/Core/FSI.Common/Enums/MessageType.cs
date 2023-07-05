@@ -11,7 +11,7 @@ namespace FSI.Common.Enums
         Text,
         Media,
         FileDocument,
-        Icon,
+        Sticker,
         AddMember,
         OutMember,
         ChangeConversationName

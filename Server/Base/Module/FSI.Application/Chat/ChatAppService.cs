@@ -48,7 +48,7 @@ namespace FSI.Application.Chat
             _userRepository = userRepository;
         }
 
-        public async Task<PagedResultDto<ConversationDto>> GetListConversation(GetListConversationDto input)
+        public async Task<PagedResultDto<ConversationDto>> PostToGetListConversation(GetListConversationDto input)
         {
             var users = await _userRepository.GetListAsync();
             var conversations = await _conversationRepository.GetQueryableAsync();
@@ -115,6 +115,46 @@ namespace FSI.Application.Chat
                 return x;
             }).ToList();
 
+            var rs = ObjectMapper.Map<List<Conversation>, List<ConversationDto>>(pagedConversations);
+            var userCons = userConversations.ToList();
+            // setConversationName và avatarUrl cho justTwoPeople
+            // set isSeen
+            rs.ForEach(c =>
+            {
+                if (c.JustTwoPeople.Value)
+                {
+                    if (c.UserAId.Equals(currentUserId))
+                    {
+                        c.ConversationName = c.UserB.Name;
+                        c.ConversationAvatar = c.UserB.AvatarUrl;
+                        if (c.LastIndexSeenA == c.LastMessage.Index)
+                        {
+                            c.IsSeen = true;
+                        }
+                        else c.IsSeen = false;
+                    }
+                    else
+                    {
+                        c.ConversationName = c.UserA.Name;
+                        c.ConversationAvatar = c.UserA.AvatarUrl;
+                        if (c.LastIndexSeenB == c.LastMessage.Index)
+                        {
+                            c.IsSeen = true;
+                        }
+                        else c.IsSeen = false;
+                    }
+                }
+                else
+                {
+                    var userConversation = userCons.FirstOrDefault(x => x.ConversationId.Equals(c.Id) && x.UserId.Equals(currentUserId));
+                    if(userConversation?.LastIndexSeen == c.LastMessage.Index)
+                    {
+                        c.IsSeen = true;
+                    }
+                    else c.IsSeen = false;
+                }
+            });
+
             return new PagedResultDto<ConversationDto>()
             {
                 Items = ObjectMapper.Map<List<Conversation>, List<ConversationDto>>(pagedConversations),
@@ -123,7 +163,7 @@ namespace FSI.Application.Chat
 
         }
 
-        public async Task<PagedResultDto<MessageDto>> GetListMessageByConversation(GetListMessageDto input)
+        public async Task<PagedResultDto<MessageDto>> PostToGetListMessageByConversation(GetListMessageDto input)
         {
             var conversation = await _conversationRepository.GetAsync(input.ConversationId);
             if (conversation.JustTwoPeople.Value)
@@ -199,6 +239,18 @@ namespace FSI.Application.Chat
         {
             var conversation = await _conversationRepository.GetAsync(input.ConversationId);
 
+            if (conversation.JustTwoPeople.Value)
+            {
+                if (!conversation.UserAId.Equals(currentUserId) && !conversation.UserBId.Equals(currentUserId))
+                    throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
+            }
+            else
+            {
+                var userConversation = await _userConversationRepository.FindAsync(x => x.ConversationId.Equals(input.ConversationId) && x.UserId.Equals(currentUserId));
+                if (userConversation == null)
+                    throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
+            }
+
             var lastMessage = await _messageRepository.GetAsync(conversation.LastMessageId.Value);
 
             var newMessage = await _messageRepository.InsertAsync(new Message()
@@ -222,6 +274,7 @@ namespace FSI.Application.Chat
         {
             var newConversation = await _conversationRepository.InsertAsync(new Conversation()
             {
+                ConversationAvatar = input.AvatarUrl,
                 ConversationName = input.ConversationName,
                 JustTwoPeople = false,
             });
@@ -268,7 +321,6 @@ namespace FSI.Application.Chat
         public async Task AddUserToConversation(Guid userId, Guid conversationId)
         {
             var userConversation = await _userConversationRepository.GetAsync(x => x.ConversationId.Equals(conversationId) && x.UserId.Equals(currentUserId) && x.IsActive.Value);
-            
             await _userConversationRepository.InsertAsync(new UserConversation()
             {
                 ConversationId = conversationId,
@@ -278,8 +330,70 @@ namespace FSI.Application.Chat
                 RoleInConversation = Common.Enums.UserConversationRole.Member,
                 LastIndexSeen = 0
             });
-
             await _hubContext.Clients.Group(userId.ToString()).SendAsync("BeAddedToAConversation", conversationId);
+        }
+
+        public async Task AcceptPendingConversation(Guid conversationId)
+        {
+            var conversation = await _conversationRepository.GetAsync(conversationId);
+            if (conversation.JustTwoPeople.Value)
+            {
+                if (!conversation.UserAId.Equals(currentUserId) && !conversation.UserBId.Equals(currentUserId))
+                    throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
+                else if ((conversation.UserAId.Equals(currentUserId) && conversation.IsActiveA.Value) || (conversation.UserBId.Equals(currentUserId) && conversation.IsActiveB.Value))
+                    throw new UserFriendlyException(message: "Conversation đã active từ trước");
+
+                if (conversation.UserAId.Equals(currentUserId))
+                {
+                    conversation.IsActiveA = true;
+                }
+                else
+                {
+                    conversation.IsActiveB = true;
+                }
+                await _conversationRepository.UpdateAsync(conversation);
+            }
+            else
+            {
+                var userConversation = await _userConversationRepository.FindAsync(x => x.ConversationId.Equals(conversationId) && x.UserId.Equals(currentUserId));
+                if (userConversation == null)
+                    throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
+                else if (userConversation.IsActive.Value)
+                    throw new UserFriendlyException(message: "Conversation đã active từ trước");
+
+                userConversation.IsActive = true;
+                await _userConversationRepository.UpdateAsync(userConversation);
+            }
+        }
+
+        public async Task SeenConversation(Guid conversationId)
+        {
+            var conversation = await _conversationRepository.GetAsync(conversationId);
+            var lastMessage = await _messageRepository.GetAsync(conversation.LastMessageId.Value);
+            if (conversation.JustTwoPeople.Value)
+            {
+                if (!conversation.UserAId.Equals(currentUserId) && !conversation.UserBId.Equals(currentUserId))
+                    throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
+
+                if (conversation.UserAId.Equals(currentUserId))
+                {
+                    conversation.LastIndexSeenA = lastMessage.Index;
+                }
+                else
+                {
+                    conversation.LastIndexSeenB = lastMessage.Index;
+                }
+                await _conversationRepository.UpdateAsync(conversation);
+            }
+            else
+            {
+                var userConversation = await _userConversationRepository.FindAsync(x => x.ConversationId.Equals(conversationId) && x.UserId.Equals(currentUserId));
+                if (userConversation == null)
+                    throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
+
+                userConversation.LastIndexSeen = lastMessage.Index;
+                await _userConversationRepository.UpdateAsync(userConversation);
+            }
         }
     }
 }

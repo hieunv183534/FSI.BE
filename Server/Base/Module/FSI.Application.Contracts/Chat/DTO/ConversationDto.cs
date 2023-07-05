@@ -23,6 +23,10 @@ namespace FSI.Application.Contracts.Chat.DTO
 
         public bool? IsStorageB { get; set; }
 
+        public int? LastIndexSeenA { get; set; }
+
+        public int? LastIndexSeenB { get; set; }
+
         public Guid? UserAId { get; set; }
 
         public UserRootDto? UserA { get; set; }
@@ -42,5 +46,7 @@ namespace FSI.Application.Contracts.Chat.DTO
         public Guid? LastMessageId { get; set; }
 
         public MessageDto? LastMessage { get; set; }
+
+        public bool? IsSeen { get; set; }
     }
 }
