@@ -274,22 +274,30 @@ namespace FSI.Application.Chat
 
             conversation.LastMessageId = newMessage.Id;
 
-            // cập nhật lastSeenIndex
+            // cập nhật lastSeenIndex 
+            // nếu conversation chưa active thì active
             if (conversation.JustTwoPeople.Value)
             {
                 if (conversation.UserAId.Equals(currentUserId))
                 {
                     conversation.LastIndexSeenA = newMessage.Index;
+                    if(!conversation.IsActiveA.Value)
+                        conversation.IsActiveA = true;
                 }
                 else
                 {
                     conversation.LastIndexSeenB = newMessage.Index;
+                    if (!conversation.IsActiveB.Value)
+                        conversation.IsActiveB = true;
                 }
             }
             else
             {
                 var userConversation = await _userConversationRepository.GetAsync(x => x.ConversationId.Equals(conversation.Id) && x.UserId.Equals(currentUserId));
                 userConversation.LastIndexSeen = newMessage.Index;
+
+                if (!userConversation.IsActive.Value)
+                    userConversation.IsActive = true;
             }
             await _conversationRepository.UpdateAsync(conversation);
 
@@ -382,7 +390,7 @@ namespace FSI.Application.Chat
                 await _conversationRepository.UpdateAsync(conversation);
             }
             else
-            {
+            {   
                 var userConversation = await _userConversationRepository.FindAsync(x => x.ConversationId.Equals(conversationId) && x.UserId.Equals(currentUserId));
                 if (userConversation == null)
                     throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
