@@ -106,14 +106,19 @@ namespace FSI.Application.Chat
             }
 
             var myconversations = conversation1s.Concat(conversation2s).ToList();
-            var pagedConversations = myconversations.Skip(input.SkipCount).Take(input.MaxResultCount).ToList();
 
-            // lấy lastMessage
-            pagedConversations = pagedConversations.Join(messages, x => x.LastMessageId, y => y.Id, (x, y) =>
+            // lấy lastMessage và order theo tin nhắn cuối
+            myconversations = myconversations.Join(messages, x => x.LastMessageId, y => y.Id, (x, y) =>
             {
                 x.LastMessage = y;
                 return x;
-            }).ToList();
+            }).OrderByDescending(x => x.LastMessage.CreationTime).ToList();
+
+
+
+            var pagedConversations = myconversations.Skip(input.SkipCount).Take(input.MaxResultCount).ToList();
+
+
 
             var rs = ObjectMapper.Map<List<Conversation>, List<ConversationDto>>(pagedConversations);
             var userCons = userConversations.ToList();
@@ -147,7 +152,7 @@ namespace FSI.Application.Chat
                 else
                 {
                     var userConversation = userCons.FirstOrDefault(x => x.ConversationId.Equals(c.Id) && x.UserId.Equals(currentUserId));
-                    if(userConversation?.LastIndexSeen == c.LastMessage.Index)
+                    if (userConversation?.LastIndexSeen == c.LastMessage.Index)
                     {
                         c.IsSeen = true;
                     }
@@ -157,7 +162,7 @@ namespace FSI.Application.Chat
 
             return new PagedResultDto<ConversationDto>()
             {
-                Items = ObjectMapper.Map<List<Conversation>, List<ConversationDto>>(pagedConversations),
+                Items = rs,
                 TotalCount = myconversations.Count
             };
 
@@ -193,7 +198,7 @@ namespace FSI.Application.Chat
         /// <param name="input"></param>
         /// <returns></returns>
         /// <exception cref="UserFriendlyException"></exception>
-        public async Task<MessageDto> SendMessageToNewOther(MessageSendToUserDto input)
+        public async Task<SendMessageToNewOtherResultDto> SendMessageToNewOther(MessageSendToUserDto input)
         {
             var oldConversation = await _conversationRepository.FindAsync(x => x.JustTwoPeople.Value &&
             ((x.UserAId.Equals(currentUserId) && x.UserBId.Equals(input.UserId)) || (x.UserBId.Equals(currentUserId) && x.UserAId.Equals(input.UserId))));
@@ -209,7 +214,9 @@ namespace FSI.Application.Chat
                 IsActiveA = true,
                 IsActiveB = false,
                 IsStorageA = false,
-                IsStorageB = false
+                IsStorageB = false,
+                LastIndexSeenA = 0,
+                LastIndexSeenB = -1
             });
 
             var newMessage = await _messageRepository.InsertAsync(new Message()
@@ -222,12 +229,15 @@ namespace FSI.Application.Chat
             });
 
             newConversation.LastMessageId = newMessage.Id;
-            await _conversationRepository.UpdateAsync(newConversation);
 
             // gửi thông báo đến người được nhận tin nhắn request
             await _hubContext.Clients.Group(input.UserId.ToString()).SendAsync("OnNewRequestMessage", newMessage);
 
-            return ObjectMapper.Map<Message, MessageDto>(newMessage);
+            return new SendMessageToNewOtherResultDto()
+            {
+                NewConversation = ObjectMapper.Map<Conversation, ConversationDto>(newConversation),
+                NewMessage = ObjectMapper.Map<Message, MessageDto>(newMessage)
+            };
         }
 
         /// <summary>
@@ -263,6 +273,24 @@ namespace FSI.Application.Chat
             });
 
             conversation.LastMessageId = newMessage.Id;
+
+            // cập nhật lastSeenIndex
+            if (conversation.JustTwoPeople.Value)
+            {
+                if (conversation.UserAId.Equals(currentUserId))
+                {
+                    conversation.LastIndexSeenA = newMessage.Index;
+                }
+                else
+                {
+                    conversation.LastIndexSeenB = newMessage.Index;
+                }
+            }
+            else
+            {
+                var userConversation = await _userConversationRepository.GetAsync(x => x.ConversationId.Equals(conversation.Id) && x.UserId.Equals(currentUserId));
+                userConversation.LastIndexSeen = newMessage.Index;
+            }
             await _conversationRepository.UpdateAsync(conversation);
 
             await _hubContext.Clients.Group(conversation.Id.ToString()).SendAsync("OnMessage", newMessage);
@@ -394,6 +422,38 @@ namespace FSI.Application.Chat
                 userConversation.LastIndexSeen = lastMessage.Index;
                 await _userConversationRepository.UpdateAsync(userConversation);
             }
+        }
+
+        public async Task TestSignalR()
+        {
+            await _hubContext.Clients.Group(currentUserId.ToString()).SendAsync("OnTestHehe", "Nguyễn Văn Hiếu");
+        }
+
+        public async Task<ConversationDto> GetConversationByUserId(Guid userId)
+        {
+            var conversation = await _conversationRepository.FindAsync(x => (x.UserAId.Equals(currentUserId) && x.UserBId.Equals(userId)) ||
+                                                                           (x.UserBId.Equals(currentUserId) && x.UserAId.Equals(userId)));
+
+            var userPatner = await _userRepository.GetAsync(userId);
+
+
+            if (conversation == null)
+            {
+                conversation = new Conversation()
+                {
+                    ConversationName = userPatner.Name,
+                    ConversationAvatar = userPatner.AvatarUrl
+                };
+            }
+            else
+            {
+                conversation.ConversationName = userPatner.Name;
+                conversation.ConversationAvatar = userPatner.AvatarUrl;
+            }
+
+
+            return ObjectMapper.Map<Conversation, ConversationDto>(conversation);
+
         }
     }
 }

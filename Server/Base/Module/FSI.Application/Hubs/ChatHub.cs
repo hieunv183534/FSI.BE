@@ -3,6 +3,7 @@ using FSI.Domain.Chat;
 using FSI.Domain.Test;
 using FSI.Domain.User;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
@@ -16,6 +17,8 @@ namespace FSI.Application.Hubs
     [IgnoreAntiforgeryToken]
     public class ChatHub : Hub
     {
+        protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IObjectMapper _objectMapper;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly IUserConversationRepository _userConversationRepository;
@@ -23,12 +26,13 @@ namespace FSI.Application.Hubs
 
         public static List<UserConnection> Connections { get; set; } = new List<UserConnection>();
 
-        public ChatHub(IObjectMapper objectMapper, IUnitOfWorkManager unitOfWorkManager, IUserConversationRepository userConversationRepository)
+        public ChatHub(IObjectMapper objectMapper, IUnitOfWorkManager unitOfWorkManager, IUserConversationRepository userConversationRepository, IHttpContextAccessor httpContextAccessor)
         {
             _objectMapper = objectMapper;
             _unitOfWorkManager = unitOfWorkManager;
             _userConversationRepository = userConversationRepository;
-            this.currentUserId = Guid.Parse(Context.GetHttpContext().User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            _httpContextAccessor = httpContextAccessor;
+            this.currentUserId = Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
         }
 
         public override async Task OnConnectedAsync()

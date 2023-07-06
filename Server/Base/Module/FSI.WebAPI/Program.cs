@@ -1,6 +1,7 @@
 ﻿using Serilog;
 using Serilog.Events;
 using FSI;
+using System.Text.Json.Serialization;
 
 Log.Logger = new LoggerConfiguration()
 #if DEBUG
@@ -25,6 +26,11 @@ try
         .UseAutofac()
         .UseSerilog();
     await builder.AddApplicationAsync<FSIHttpApiHostModule>();
+    builder.Services.AddControllers().AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
     var app = builder.Build();
     await app.InitializeApplicationAsync();
     await app.RunAsync();

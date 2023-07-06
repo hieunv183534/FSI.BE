@@ -19,12 +19,16 @@ namespace FSI.Application.Contracts.Chat.IService
 
         Task<PagedResultDto<MessageDto>> PostToGetListMessageByConversation(GetListMessageDto input);
 
-        Task<MessageDto> SendMessageToNewOther(MessageSendToUserDto input);
+        Task<SendMessageToNewOtherResultDto> SendMessageToNewOther(MessageSendToUserDto input);
 
         Task<MessageDto> SendMessageToConversation(MessageSendToConversationDto message);
 
         Task AcceptPendingConversation(Guid conversationId);
 
         Task SeenConversation(Guid conversationId);
+
+        Task TestSignalR();
+
+        Task<ConversationDto> GetConversationByUserId(Guid userId);
     }
 }

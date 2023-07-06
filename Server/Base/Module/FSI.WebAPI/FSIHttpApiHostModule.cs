@@ -20,6 +20,7 @@ using System.Text;
 using Volo.Abp.AspNetCore.SignalR;
 using FSI.Application.Hubs;
 using Microsoft.AspNetCore.Http.Features;
+using System.Text.Json.Serialization;
 
 namespace FSI
 {
