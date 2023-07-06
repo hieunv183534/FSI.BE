@@ -28,5 +28,7 @@ namespace FSI.Application.Contracts.Chat.DTO
         public string? Content { get; set; }
 
         public Guid? FocusToMessageId { get; set; }
+
+        public bool? IsMine { get; set; }
     }
 }

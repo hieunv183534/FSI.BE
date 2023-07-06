@@ -17,6 +17,7 @@ public class FSIDbContextFactory : IDesignTimeDbContextFactory<FSIDbContext>
         var sqlVersion = configuration["MySqlVersion"].Split(",");
         var serverVersion = new MySqlServerVersion(new Version(Int32.Parse(sqlVersion[0]), Int32.Parse(sqlVersion[1]), Int32.Parse(sqlVersion[2])));
         var builder = new DbContextOptionsBuilder<FSIDbContext>().UseMySql(configuration.GetConnectionString("DefaultConnection"), serverVersion);
+        //var builder = new DbContextOptionsBuilder<FSIDbContext>().UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
 
         return new FSIDbContext(builder.Options);
     }

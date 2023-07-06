@@ -185,9 +185,14 @@ namespace FSI.Application.Chat
             var users = await _userRepository.GetListAsync();
             var messages = await _messageRepository.GetListAsync(x => x.ConversationId.Equals(input.ConversationId));
 
+            var rs = ObjectMapper.Map<List<Message>, List<MessageDto>>(messages.Skip(input.SkipCount).Take(input.MaxResultCount).OrderByDescending(x => x.CreationTime).ToList());
+            rs.ForEach(x =>
+            {
+                x.IsMine = x.Sender.Id.Equals(currentUserId);
+            });
             return new PagedResultDto<MessageDto>()
             {
-                Items = ObjectMapper.Map<List<Message>, List<MessageDto>>(messages.Skip(input.SkipCount).Take(input.MaxResultCount).OrderByDescending(x => x.CreationTime).ToList()),
+                Items = rs,
                 TotalCount = messages.Count
             };
         }
