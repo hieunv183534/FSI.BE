@@ -22,27 +22,40 @@ namespace FSI.Application.Hubs
         private readonly IObjectMapper _objectMapper;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly IUserConversationRepository _userConversationRepository;
+        private readonly IConversationRepository _conversationRepository;
         private Guid currentUserId;
 
         public static List<UserConnection> Connections { get; set; } = new List<UserConnection>();
 
-        public ChatHub(IObjectMapper objectMapper, IUnitOfWorkManager unitOfWorkManager, IUserConversationRepository userConversationRepository, IHttpContextAccessor httpContextAccessor)
+        public ChatHub(IObjectMapper objectMapper, IUnitOfWorkManager unitOfWorkManager, IUserConversationRepository userConversationRepository, IHttpContextAccessor httpContextAccessor, IConversationRepository conversationRepository)
         {
             _objectMapper = objectMapper;
             _unitOfWorkManager = unitOfWorkManager;
             _userConversationRepository = userConversationRepository;
             _httpContextAccessor = httpContextAccessor;
             this.currentUserId = Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            _conversationRepository = conversationRepository;
         }
 
         public override async Task OnConnectedAsync()
         {
             using (var uow = _unitOfWorkManager.Begin(requiresNew: true, isTransactional: true))
             {
+                var conversations = await _conversationRepository.GetQueryableAsync();
+                var userConversations = await _userConversationRepository.GetQueryableAsync();
+                // lấy ra tất cả conversation thuộc về người dùng
+                // lấy các conversation hai người
+                var conversation1s = conversations.Where(c => c.JustTwoPeople.Value && ( c.UserAId.Equals(currentUserId) || c.UserBId.Equals(currentUserId) )).ToList();
 
-                // lấy ra tất cả conversation thuộc về người dùng rồi add người dùng vào tất cả groupConversation đấy
-                var conversationsOfUser = await _userConversationRepository.GetListAsync(uc => uc.UserId.Equals(currentUserId));
-                conversationsOfUser.ForEach(c =>
+                // lấy các conversation còn lại
+                var conversation2s = (from c in conversations
+                                  join uc in userConversations
+                                  on c.Id equals uc.ConversationId
+                                  where uc.UserId.Equals(currentUserId)
+                                  select c).ToList();
+
+
+                conversation1s.Concat(conversation2s).ToList().ForEach(c =>
                 {
                     Groups.AddToGroupAsync(Context.ConnectionId, c.Id.ToString());
                 });
@@ -67,9 +80,20 @@ namespace FSI.Application.Hubs
         {
             using (var uow = _unitOfWorkManager.Begin(requiresNew: true, isTransactional: true))
             {
+                var conversations = await _conversationRepository.GetQueryableAsync();
+                var userConversations = await _userConversationRepository.GetQueryableAsync();
                 // lấy ra tất cả conversation thuộc về người dùng rồi xóa connection từ tất cả groupConversation đấy
-                var conversationsOfUser = await _userConversationRepository.GetListAsync(uc => uc.UserId.Equals(currentUserId));
-                conversationsOfUser.ForEach(c =>
+                // lấy các conversation hai người
+                var conversation1s = conversations.Where(c => c.JustTwoPeople.Value && (c.UserAId.Equals(currentUserId) || c.UserBId.Equals(currentUserId))).ToList();
+
+                // lấy các conversation còn lại
+                var conversation2s = (from c in conversations
+                                      join uc in userConversations
+                                      on c.Id equals uc.ConversationId
+                                      where uc.UserId.Equals(currentUserId)
+                                      select c).ToList();
+
+                conversation1s.Concat(conversation2s).ToList().ForEach(c =>
                 {
                     Groups.RemoveFromGroupAsync(Context.ConnectionId, c.Id.ToString());
                 });
