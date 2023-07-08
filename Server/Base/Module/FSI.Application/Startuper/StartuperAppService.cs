@@ -43,13 +43,14 @@ namespace FSI.Application.Startuper
         private readonly IAccountRepository _accountRepository;
         private readonly IRepository<Friend, Guid> _friendRepository;
         private readonly IRepository<ProjectUser, Guid> _projectUserRepository;
+        private readonly IUserRootRepository _userRepository;
         protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
         private readonly IRecommendationSystem _recommendationSystem;
 
-        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<Friend, Guid> friendRepository, IRepository<ProjectUser, Guid> projectUserRepository, IProjectRepository projectRepository, IInvestorRepository investorRepository)
+        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<Friend, Guid> friendRepository, IRepository<ProjectUser, Guid> projectUserRepository, IProjectRepository projectRepository, IInvestorRepository investorRepository, IUserRootRepository userRepository)
         {
             _startuperRepository = startuperRepository;
             _httpContextAccessor = httpContextAccessor;
@@ -61,6 +62,7 @@ namespace FSI.Application.Startuper
             _projectUserRepository = projectUserRepository;
             _projectRepository = projectRepository;
             _investorRepository = investorRepository;
+            _userRepository = userRepository;
         }
 
         public async Task<StartuperDto> InsertStartuperAsync(CreateStartuperDto input)
@@ -287,6 +289,15 @@ namespace FSI.Application.Startuper
                 ProjectAsStartuper = ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(projectUsers.Where(x => x.Role != RoleInProject.Investor).ToList()),
                 FriendStatus = friendStatus
             };
+        }
+
+        public async Task<UserRootDto> GetUserByUsername(string username)
+        {
+            var acc = await _accountRepository.GetAsync(x=> x.PhoneNumber.Equals(username) || x.Email.Equals(username));
+
+            var user = await _userRepository.GetAsync(x => x.AccountId.Equals(acc.Id));
+
+            return ObjectMapper.Map<UserRoot, UserRootDto>(user);
         }
     }
 }

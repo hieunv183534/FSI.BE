@@ -33,5 +33,7 @@ namespace FSI.Application.Contracts.Startuper.IService
         Task CancelRequestToOrtherStartuper(Guid targetId);
 
         Task<UserDetailDto> GetUserDetail(Guid userId);
+
+        Task<UserRootDto> GetUserByUsername(string username);
     }
 }

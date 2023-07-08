@@ -3,12 +3,14 @@ using FSI.Application.Contracts.Chat.IService;
 using FSI.Application.Contracts.CommonDto;
 using FSI.Application.Hubs;
 using FSI.Domain.Chat;
+using FSI.Domain.File;
 using FSI.Domain.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Connections.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,10 +36,11 @@ namespace FSI.Application.Chat
         private readonly IUserRootRepository _userRepository;
         private readonly IUserConversationRepository _userConversationRepository;
         private readonly IMessageRepository _messageRepository;
+        private readonly IFileInfomationRepository _fileInfomationRepository;
         private readonly IHubContext<ChatHub> _hubContext;
         private readonly Guid currentUserId;
 
-        public ChatAppService(IConversationRepository conversationRepository, IUserConversationRepository userConversationRepository, IMessageRepository messageRepository, IHubContext<ChatHub> hubContext, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository)
+        public ChatAppService(IConversationRepository conversationRepository, IUserConversationRepository userConversationRepository, IMessageRepository messageRepository, IHubContext<ChatHub> hubContext, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository)
         {
             _conversationRepository = conversationRepository;
             _userConversationRepository = userConversationRepository;
@@ -46,6 +49,7 @@ namespace FSI.Application.Chat
             _httpContextAccessor = httpContextAccessor;
             this.currentUserId = Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
             _userRepository = userRepository;
+            _fileInfomationRepository = fileInfomationRepository;
         }
 
         public async Task<PagedResultDto<ConversationDto>> PostToGetListConversation(GetListConversationDto input)
@@ -311,14 +315,50 @@ namespace FSI.Application.Chat
             return ObjectMapper.Map<Message, MessageDto>(newMessage);
         }
 
-        public async Task<ConversationDto> AddConversation(AddConversationDto input)
+        public async Task<ConversationDto> AddConversation([FromForm] AddConversationDto input)
         {
+            if (String.IsNullOrEmpty(input.AvatarUrl))
+            {
+                var file = _httpContextAccessor.HttpContext.Request.Form.Files[0];
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                string filePath = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/images"),
+                    fileName);
+
+                using (Stream fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(fileStream);
+                }
+
+                var fileUrl = "http://localhost:7777/images/" + fileName;
+
+                await _fileInfomationRepository.InsertAsync(new FileInfomation()
+                {
+                    AuthorId = this.currentUserId,
+                    Url = fileUrl,
+                    Size = (int)file.Length,
+                    ContentType = file.ContentType
+                });
+
+                input.AvatarUrl= fileUrl;
+            }
+
             var newConversation = await _conversationRepository.InsertAsync(new Conversation()
             {
                 ConversationAvatar = input.AvatarUrl,
                 ConversationName = input.ConversationName,
                 JustTwoPeople = false,
             });
+
+            var newMessage = await _messageRepository.InsertAsync(new Message()
+            {
+                Content = "Tạo cuộc trò chuyện",
+                Type = Common.Enums.MessageType.Text,
+                Index = 0,
+                SenderId = this.currentUserId,
+                ConversationId = newConversation.Id,
+            });
+
+            newConversation.LastMessageId = newMessage.Id;
 
             var userConversations = new List<UserConversation>()
                     {
@@ -335,7 +375,11 @@ namespace FSI.Application.Chat
                         }
                     };
 
-            input.MemberIds.ForEach(userId =>
+            var memberIds = JArray.Parse(input.MemberIds).ToObject<List<Guid>>();
+
+            memberIds.Remove(currentUserId);
+
+            memberIds.ForEach(userId =>
             {
                 userConversations.Add(new UserConversation()
                 {
@@ -344,7 +388,7 @@ namespace FSI.Application.Chat
                     IsActive = false,
                     IsStorage = false,
                     IsDeleted = false,
-                    LastIndexSeen = 0,
+                    LastIndexSeen = -1,
                     EnableNotification = true,
                     RoleInConversation = Common.Enums.UserConversationRole.Member
                 });
@@ -353,15 +397,74 @@ namespace FSI.Application.Chat
             await _userConversationRepository.InsertManyAsync(userConversations);
 
             // gửi thông báo đến tất cả những người được thêm
-            await _hubContext.Clients.Groups(input.MemberIds.Select(x => x.ToString()).ToList()).SendAsync("BeAddedToAConversation", newConversation);
+            await _hubContext.Clients.Groups(memberIds.Select(x => x.ToString()).ToList()).SendAsync("BeAddedToAConversation", newConversation);
 
             return ObjectMapper.Map<Conversation, ConversationDto>(newConversation);
 
         }
 
+        public async Task<ConversationDto> UpdateConversation([FromForm] UpdateConversationDto input)
+        {
+            var conversation = await _conversationRepository.GetAsync(input.ConversationId);
+
+            if (String.IsNullOrEmpty(input.AvatarUrl))
+            {
+                var file = _httpContextAccessor.HttpContext.Request.Form.Files[0];
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                string filePath = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/images"),
+                    fileName);
+
+                using (Stream fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(fileStream);
+                }
+
+                var fileUrl = "http://localhost:7777/images/" + fileName;
+
+                await _fileInfomationRepository.InsertAsync(new FileInfomation()
+                {
+                    AuthorId = this.currentUserId,
+                    Url = fileUrl,
+                    Size = (int)file.Length,
+                    ContentType = file.ContentType
+                });
+
+                input.AvatarUrl = fileUrl;
+            }
+
+            conversation.ConversationAvatar = input.AvatarUrl;
+            conversation.ConversationName = input.ConversationName;
+
+            var lastMessage = await _messageRepository.GetAsync(conversation.LastMessageId.Value);
+
+            var newMessage = await _messageRepository.InsertAsync(new Message()
+            {
+                Content = "Thay đổi tên/avatar cuộc trò chuyện",
+                ConversationId = conversation.Id,
+                SenderId = currentUserId,
+                Type = Common.Enums.MessageType.Text,
+                Index = lastMessage.Index + 1
+            });
+
+            conversation.LastMessageId = newMessage.Id;
+            var userConversation = await _userConversationRepository.GetAsync(x => x.ConversationId.Equals(conversation.Id) && x.UserId.Equals(currentUserId));
+            userConversation.LastIndexSeen = newMessage.Index;
+
+            await _hubContext.Clients.Group(conversation.Id.ToString()).SendAsync("OnMessage", newMessage);
+
+            return ObjectMapper.Map<Conversation, ConversationDto>(conversation);
+        }
+
         public async Task AddUserToConversation(Guid userId, Guid conversationId)
         {
             var userConversation = await _userConversationRepository.GetAsync(x => x.ConversationId.Equals(conversationId) && x.UserId.Equals(currentUserId) && x.IsActive.Value);
+
+            if(userConversation == null)
+            {
+                throw new UserFriendlyException(message: "Bạn không có quyền thêm thành viên cho đoạn chat");
+            }
+
+
             await _userConversationRepository.InsertAsync(new UserConversation()
             {
                 ConversationId = conversationId,
@@ -369,9 +472,56 @@ namespace FSI.Application.Chat
                 EnableNotification = false,
                 IsActive = false,
                 RoleInConversation = Common.Enums.UserConversationRole.Member,
-                LastIndexSeen = 0
+                LastIndexSeen = -1
             });
+
+            var conversation = await _conversationRepository.GetAsync(conversationId);
+            var lastMessage = await _messageRepository.GetAsync(conversation.LastMessageId.Value);
+            var user = await _userRepository.GetAsync(userId);
+            var newMessage = await _messageRepository.InsertAsync(new Message()
+            {
+                Content = $"Thêm {user.Name} vào cuộc hội thoại",
+                ConversationId = conversation.Id,
+                SenderId = currentUserId,
+                Type = Common.Enums.MessageType.Text,
+                Index = lastMessage.Index + 1
+            });
+            conversation.LastMessageId = newMessage.Id;
+            userConversation.LastIndexSeen = newMessage.Index;
+
             await _hubContext.Clients.Group(userId.ToString()).SendAsync("BeAddedToAConversation", conversationId);
+            await _hubContext.Clients.Group(conversation.Id.ToString()).SendAsync("OnMessage", newMessage);
+        }
+
+        public async Task RemoveUserFromConversation(Guid userId, Guid conversationId)
+        {
+            var userConversation = await _userConversationRepository.GetAsync(x => x.ConversationId.Equals(conversationId) && x.UserId.Equals(currentUserId) && x.IsActive.Value);
+
+            if (userConversation == null)
+            {
+                throw new UserFriendlyException(message: "Bạn không có quyền xóa thành viên khỏi đoạn chat");
+            }
+
+            var _userConversation = await _userConversationRepository.GetAsync(x => x.ConversationId.Equals(conversationId) && x.UserId.Equals(userId));
+            if(userConversation.RoleInConversation > _userConversation.RoleInConversation)
+                throw new UserFriendlyException(message: "Bạn không có quyền xóa thành viên khỏi đoạn chat");
+
+            await _userConversationRepository.DeleteAsync(_userConversation);
+
+            var conversation = await _conversationRepository.GetAsync(conversationId);
+            var lastMessage = await _messageRepository.GetAsync(conversation.LastMessageId.Value);
+            var user = await _userRepository.GetAsync(userId);
+            var newMessage = await _messageRepository.InsertAsync(new Message()
+            {
+                Content = $"Xóa {user.Name} khỏi cuộc hội thoại",
+                ConversationId = conversation.Id,
+                SenderId = currentUserId,
+                Type = Common.Enums.MessageType.Text,
+                Index = lastMessage.Index + 1
+            });
+            conversation.LastMessageId = newMessage.Id;
+            userConversation.LastIndexSeen = newMessage.Index;
+            await _hubContext.Clients.Group(conversation.Id.ToString()).SendAsync("OnMessage", newMessage);
         }
 
         public async Task AcceptPendingConversation(Guid conversationId)
@@ -467,6 +617,13 @@ namespace FSI.Application.Chat
 
             return ObjectMapper.Map<Conversation, ConversationDto>(conversation);
 
+        }
+
+        public async Task<List<UserConversationDto>> GetUsersByConversation(Guid conversationId)
+        {
+            var users = await _userRepository.GetListAsync();
+            var userConversations = await _userConversationRepository.GetListAsync(x => x.ConversationId.Equals(conversationId));
+            return ObjectMapper.Map<List<UserConversation>, List<UserConversationDto>>(userConversations);
         }
     }
 }

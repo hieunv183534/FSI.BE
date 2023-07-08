@@ -13,7 +13,11 @@ namespace FSI.Application.Contracts.Chat.IService
     {
         Task AddUserToConversation(Guid userId, Guid conversationId);
 
+        Task RemoveUserFromConversation(Guid userId, Guid conversationId);
+
         Task<ConversationDto> AddConversation(AddConversationDto input);
+
+        Task<ConversationDto> UpdateConversation(UpdateConversationDto input);
 
         Task<PagedResultDto<ConversationDto>> PostToGetListConversation(GetListConversationDto input);
 
@@ -30,5 +34,7 @@ namespace FSI.Application.Contracts.Chat.IService
         Task TestSignalR();
 
         Task<ConversationDto> GetConversationByUserId(Guid userId);
+
+        Task<List<UserConversationDto>> GetUsersByConversation(Guid conversationId);
     }
 }
