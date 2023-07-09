@@ -35,6 +35,7 @@ namespace FSI.Application.Project
         private readonly IRepository<ProjectUser, Guid> _projectUserRepository;
         private readonly IRepository<ProjectFile, Guid> _projectFileRepository;
         private readonly IRepository<ProjectEvent, Guid> _projectEventRepository;
+        private readonly IRepository<ProjectWork, Guid> _projectWorkRepository;
         private readonly IRepository<ProjectCalendarEvent, Guid> _projectCalendarEventRepository;
         private readonly IUserRootRepository _userRepository;
         private readonly IFileInfomationRepository _fileInfomationRepository;
@@ -43,7 +44,7 @@ namespace FSI.Application.Project
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
-        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository)
+        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository)
         {
             _projectRepository = projectRepository;
             _projectUserRepository = projectUserRepository;
@@ -55,6 +56,7 @@ namespace FSI.Application.Project
             _projectFileRepository = projectFileRepository;
             _projectEventRepository = projectEventRepository;
             _projectCalendarEventRepository = projectCalendarEventRepository;
+            _projectWorkRepository = projectWorkRepository;
         }
 
         public async Task<ProjectDto> InsertProjectAsync(CreateProjectDto input)
@@ -317,7 +319,7 @@ namespace FSI.Application.Project
                 await file.CopyToAsync(fileStream);
             }
 
-            var fileUrl = "http://localhost:7777/images/" + fileName;
+            var fileUrl = "https://fsiconnected.tech/images/" + fileName;
 
             await _fileInfomationRepository.InsertAsync(new FileInfomation()
             {
@@ -585,7 +587,7 @@ namespace FSI.Application.Project
                 {
                     await file.CopyToAsync(fileStream);
                 }
-                var fileUrl = "http://localhost:7777/images/" + fileName;
+                var fileUrl = "https://fsiconnected.tech/images/" + fileName;
                 fileInfos.Add(new FileInfomation()
                 {
                     AuthorId = this.currentUserId,
@@ -688,6 +690,49 @@ namespace FSI.Application.Project
             if (myProjectUser == null || !myProjectUser.IsActive)
                 throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
             await _projectCalendarEventRepository.DeleteAsync(calendarEventId);
+        }
+
+        public async Task<ProjectWorkDto> AddWork(AddProjectWorkDto input)
+        {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(input.ProjectId));
+            if (myProjectUser == null || !myProjectUser.IsActive)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+
+            var work = await _projectWorkRepository.InsertAsync(new ProjectWork()
+            {
+                ProjectId = input.ProjectId,
+                AssigneeId = input.AssigneeId,
+                AssignorId = currentUserId,
+                Title = input.Title,
+                Description= input.Description,
+                Deadline = input.Deadline,
+                FileIds= input.FileIds,
+                Status = WorkStatus.New
+            });
+
+            return ObjectMapper.Map<ProjectWork, ProjectWorkDto>(work);
+        }
+
+        public async Task ChangeWorkStatus(Guid workId, WorkStatus newStatus)
+        {
+            var work = await _projectWorkRepository.GetAsync(workId);
+            if(!work.AssigneeId.Equals(currentUserId) && !work.AssignorId.Equals(currentUserId))
+                throw new UserFriendlyException(message: "Bạn không thể thay đổi trạng thái cho công việc này!");
+
+            work.Status = newStatus;
+            await _projectWorkRepository.UpdateAsync(work);
+        }
+
+        public async Task<List<ProjectWorkDto>> GetProjectWorks(Guid projectId)
+        {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
+            if (myProjectUser == null || !myProjectUser.IsActive)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+            var users = await _userRepository.GetListAsync();
+
+            var works = await _projectWorkRepository.GetListAsync(x => x.ProjectId.Equals(projectId));
+
+            return ObjectMapper.Map<List<ProjectWork>, List<ProjectWorkDto>>(works);
         }
     }
 }

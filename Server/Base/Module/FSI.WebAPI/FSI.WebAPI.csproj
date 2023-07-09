@@ -17,17 +17,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="Docs\525a6015-6ee2-4d33-a924-e586ec53c308.png" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Content Include="Docs\525a6015-6ee2-4d33-a924-e586ec53c308.png">
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-	  </Content>
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.8">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

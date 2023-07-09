@@ -2,6 +2,7 @@
 using FSI.Application.Contracts.Project.DTO;
 using FSI.Application.Contracts.Startuper.DTO;
 using FSI.Application.Contracts.User.DTO;
+using FSI.Common.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,5 +65,10 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task DeleteCalendarEvent(Guid calendarEventId);
 
+        Task<ProjectWorkDto> AddWork(AddProjectWorkDto input);
+
+        Task ChangeWorkStatus(Guid workId, WorkStatus newStatus);
+
+        Task<List<ProjectWorkDto>> GetProjectWorks(Guid projectId);
     }
 }

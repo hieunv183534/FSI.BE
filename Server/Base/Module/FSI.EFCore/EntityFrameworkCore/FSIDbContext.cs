@@ -48,6 +48,7 @@ public class FSIDbContext :
     public DbSet<UserConversation> UserConversations { get; set; }
     public DbSet<Project> Projects { get; set; }
     public DbSet<ProjectEvent> ProjectEvents { get; set; }
+    public DbSet<ProjectWork> ProjectWorks { get; set; }
     public DbSet<ProjectUser> ProjectUsers { get; set; }
     public DbSet<ProjectFile> ProjectFiles { get; set; }
     public DbSet<ProjectCalendarEvent> ProjectCalendarEvents { get; set; }
@@ -98,6 +99,11 @@ public class FSIDbContext :
             entity.Property(x => x.FileIds).IsJson();
             entity.Property(x => x.Images).IsJson();
             entity.Property(x => x.Links).IsJson();
+        });
+
+        builder.Entity<ProjectWork>(entity =>
+        {
+            entity.Property(x => x.FileIds).IsJson();
         });
 
         builder.Entity<Investor>(entity =>
