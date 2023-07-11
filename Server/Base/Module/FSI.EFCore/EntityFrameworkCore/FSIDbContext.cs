@@ -11,6 +11,7 @@ using Volo.Abp.Domain.Entities;
 using Volo.Abp.EntityFrameworkCore;
 using FSI.Domain.Project;
 using FSI.Domain.Investor;
+using FSI.Domain.Admin;
 
 namespace FSI.EntityFrameworkCore;
 
@@ -39,6 +40,7 @@ public class FSIDbContext :
 
     public DbSet<Test> Tests { get; set; }
     public DbSet<UserRoot> UserRoots { get; set; }
+    public DbSet<Admin> Admins { get; set; }
     public DbSet<Account> Accounts { get; set; }
     public DbSet<Startuper> Startupers { get; set; }
     public DbSet<Investor> Investors { get; set; }
@@ -81,6 +83,8 @@ public class FSIDbContext :
 
         builder.Entity<Account>().HasIndex(x=> x.Email).IsUnique();
         builder.Entity<Account>().HasIndex(x=> x.PhoneNumber).IsUnique();
+        builder.Entity<Admin>().HasIndex(x=> x.Phone).IsUnique();
+        builder.Entity<Admin>().HasIndex(x=> x.Email).IsUnique();
 
         builder.Entity<Project>(entity =>
         {

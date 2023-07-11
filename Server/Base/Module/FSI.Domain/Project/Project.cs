@@ -39,5 +39,7 @@ namespace FSI.Domain.Project
 
         public List<int>? AvailableTimeRequire { get; set; }
 
+        public bool? IsActive { get; set; }
+
     }
 }

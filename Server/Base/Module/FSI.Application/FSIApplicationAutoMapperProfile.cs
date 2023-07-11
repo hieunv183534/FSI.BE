@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FSI.Application.Contracts.Admin.DTO;
 using FSI.Application.Contracts.Auth.DTO;
 using FSI.Application.Contracts.Chat.DTO;
 using FSI.Application.Contracts.File;
@@ -7,6 +8,7 @@ using FSI.Application.Contracts.Startuper.DTO;
 using FSI.Application.Contracts.Test.DTO;
 using FSI.Application.Contracts.User.DTO;
 using FSI.Domain.Account;
+using FSI.Domain.Admin;
 using FSI.Domain.Chat;
 using FSI.Domain.File;
 using FSI.Domain.Project;
@@ -26,6 +28,7 @@ namespace FSI
             CreateMap<Test, TestDto>().ReverseMap();
             CreateMap<Test, CreateTestDto>().ReverseMap();
             CreateMap<Account, AccountDto>().ReverseMap();
+            CreateMap<Admin, AdminDto>().ReverseMap();
             CreateMap<Project, ProjectDto>().ReverseMap();
             CreateMap<ProjectUser, ProjectUserDto>().ReverseMap();
             CreateMap<ProjectFile, ProjectFileDto>().ReverseMap();

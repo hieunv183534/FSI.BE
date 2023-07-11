@@ -9,6 +9,7 @@ namespace FSI.Common.Enums
     public enum FsiRole
     {
         Startuper,
-        Investor
+        Investor,
+        Admin
     }
 }
