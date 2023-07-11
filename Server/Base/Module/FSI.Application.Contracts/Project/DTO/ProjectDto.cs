@@ -41,5 +41,7 @@ namespace FSI.Application.Contracts.Project.DTO
         public bool? IsHireNewMember { get; set; }
 
         public List<int>? AvailableTimeRequire { get; set; }
+
+        public bool? IsActive { get; set; }
     }
 }

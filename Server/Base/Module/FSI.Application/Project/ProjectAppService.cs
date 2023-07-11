@@ -75,7 +75,8 @@ namespace FSI.Application.Project
                 ProjectName = input.ProjectName,
                 IsHireNewMember = input.IsHireNewMember,
                 AvailableTimeRequire = input.AvailableTimeRequire,
-                FounderId = this.currentUserId
+                FounderId = this.currentUserId,
+                IsActive = false
             });
 
             await _projectEventRepository.InsertAsync(new ProjectEvent()

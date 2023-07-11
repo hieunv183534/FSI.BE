@@ -24,5 +24,9 @@ namespace FSI.Application.Contracts.Admin.IService
 
 
         Task<PagedResultDto<ProjectDto>> PostToGetListProjectForAdmin(GetListProjectForAdminDto input);
+
+        Task AcceptProject(Guid projectId);
+
+        Task DeleteProject(Guid projectId);
     }
 }

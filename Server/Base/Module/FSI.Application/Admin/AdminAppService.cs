@@ -36,8 +36,6 @@ namespace FSI.Application.Admin
         {
             _adminRepository = adminRepository;
             _httpContextAccessor = httpContextAccessor;
-            this.currentUserId = Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            this.currentAdminPhone = HttpContext.User.FindFirst("phoneNumber").Value;
             _projectRepository = projectRepository;
         }
 
@@ -53,6 +51,7 @@ namespace FSI.Application.Admin
 
         public async Task DeleteAdmin(Guid adminId)
         {
+            this.currentUserId = Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var myAdmin = await _adminRepository.GetAsync(currentUserId);
             var admin = await _adminRepository.GetAsync(adminId);
             if (myAdmin.Phone.Equals("0971883025"))
@@ -74,6 +73,7 @@ namespace FSI.Application.Admin
 
         public async Task<PagedResultDto<AdminDto>> GetListAdmin(bool isActive, string? filter, int skipCount, int maxResultCount)
         {
+            this.currentAdminPhone = HttpContext.User.FindFirst("phoneNumber").Value;
             var admins = await _adminRepository.GetQueryableAsync();
             admins = admins.WhereIf(!String.IsNullOrEmpty(filter), x => x.Email.Contains(filter) || x.Phone.Contains(filter) || x.Name.Contains(filter))
                             .Where(x => x.IsActive == isActive && !x.Phone.Equals("0971883025") && !x.Phone.Equals(currentAdminPhone));
@@ -157,6 +157,18 @@ namespace FSI.Application.Admin
                 Items = ObjectMapper.Map<List<FSI.Domain.Project.Project>, List<ProjectDto>>(projectPageds),
                 TotalCount = projects.Count
             };
+        }
+
+        public async Task AcceptProject(Guid projectId)
+        {
+            var project = await _projectRepository.GetAsync(projectId);
+            project.IsActive = true;
+            await _projectRepository.UpdateAsync(project);
+        }
+
+        public async Task DeleteProject(Guid projectId)
+        {
+            await _projectRepository.DeleteAsync(projectId);
         }
     }
 }
