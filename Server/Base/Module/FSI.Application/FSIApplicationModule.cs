@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp;
 using Volo.Abp.AutoMapper;
+using Volo.Abp.EventBus.RabbitMq;
 using Volo.Abp.Modularity;
 
 namespace FSI
@@ -9,7 +10,8 @@ namespace FSI
     [DependsOn(
     typeof(FSIDomainModule),
     typeof(FSIApplicationContractsModule),
-    typeof(AbpAutoMapperModule)
+    typeof(AbpAutoMapperModule),
+    typeof(AbpEventBusRabbitMqModule)
     )]
     public class FSIApplicationModule : AbpModule
     {

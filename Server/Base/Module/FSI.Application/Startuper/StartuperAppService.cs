@@ -5,6 +5,7 @@ using FSI.Application.Contracts.Startuper.IService;
 using FSI.Application.Contracts.User.DTO;
 using FSI.Application.Hubs;
 using FSI.Common.Enums;
+using FSI.Common.ETO;
 using FSI.Domain.Account;
 using FSI.Domain.File;
 using FSI.Domain.Investor;
@@ -28,6 +29,7 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Data;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.EventBus.Distributed;
 using Volo.Abp.ObjectMapping;
 
 namespace FSI.Application.Startuper
@@ -48,9 +50,11 @@ namespace FSI.Application.Startuper
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
+        private readonly IDistributedEventBus _distributedEventBus;
+
         private readonly IRecommendationSystem _recommendationSystem;
 
-        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<Friend, Guid> friendRepository, IRepository<ProjectUser, Guid> projectUserRepository, IProjectRepository projectRepository, IInvestorRepository investorRepository, IUserRootRepository userRepository)
+        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<Friend, Guid> friendRepository, IRepository<ProjectUser, Guid> projectUserRepository, IProjectRepository projectRepository, IInvestorRepository investorRepository, IUserRootRepository userRepository, IDistributedEventBus distributedEventBus)
         {
             _startuperRepository = startuperRepository;
             _httpContextAccessor = httpContextAccessor;
@@ -63,6 +67,7 @@ namespace FSI.Application.Startuper
             _projectRepository = projectRepository;
             _investorRepository = investorRepository;
             _userRepository = userRepository;
+            _distributedEventBus = distributedEventBus;
         }
 
         public async Task<StartuperDto> InsertStartuperAsync(CreateStartuperDto input)
@@ -81,6 +86,11 @@ namespace FSI.Application.Startuper
             thisStartuper.WorkingExperience = input.WorkingExperience;
             thisStartuper.IsNewProfile = false;
             var rs = await _startuperRepository.UpdateAsync(thisStartuper);
+
+            await _distributedEventBus.PublishAsync(new UpdateStartuperInfoEto()
+            {
+                StartuperId = rs.Id
+            });
             return ObjectMapper.Map<FSI.Domain.Startuper.Startuper, StartuperDto>(rs);
         }
 
@@ -201,6 +211,11 @@ namespace FSI.Application.Startuper
             acc.PhoneNumber = input.PhoneNumber ?? acc.PhoneNumber;
             await _startuperRepository.UpdateAsync(myUserInfo);
             await _accountRepository.UpdateAsync(acc);
+
+            await _distributedEventBus.PublishAsync(new UpdateStartuperInfoEto()
+            {
+                StartuperId = currentUserId
+            });
         }
 
         public async Task<List<ProjectUserDto>> GetMyProjects()
