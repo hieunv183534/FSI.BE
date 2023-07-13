@@ -1,5 +1,6 @@
 ﻿using FSI.Application.Contracts.Admin.DTO;
 using FSI.Application.Contracts.Project.DTO;
+using FSI.Application.Contracts.Startuper.DTO;
 using FSI.Domain.Admin;
 using System;
 using System.Collections.Generic;
@@ -28,5 +29,10 @@ namespace FSI.Application.Contracts.Admin.IService
         Task AcceptProject(Guid projectId);
 
         Task DeleteProject(Guid projectId);
+
+
+        Task<PagedResultDto<StartuperDto>> PostToGetListStartuperForAdmin(GetListStartuperForAdminDto input);
+
+        Task DeleteStartuper(Guid startuperId);
     }
 }

@@ -7,7 +7,7 @@ using Volo.Abp.Application.Dtos;
 
 namespace FSI.Application.Contracts.Startuper.DTO
 {
-    public class GetListStartuperForProjectDto : PagedAndSortedResultRequestDto
+    public class GetListStartuperForStartuperDto : PagedAndSortedResultRequestDto
     {
         public string? Filter { get; set; }
 

@@ -2,9 +2,11 @@
 using FSI.Application.Contracts.Admin.IService;
 using FSI.Application.Contracts.Auth.DTO;
 using FSI.Application.Contracts.Project.DTO;
+using FSI.Application.Contracts.Startuper.DTO;
 using FSI.Common.Enums;
 using FSI.Domain.Admin;
 using FSI.Domain.Project;
+using FSI.Domain.Startuper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
@@ -28,15 +30,17 @@ namespace FSI.Application.Admin
     {
         private readonly IRepository<Domain.Admin.Admin, Guid> _adminRepository;
         private readonly IProjectRepository _projectRepository;
+        private readonly IStartuperRepository _startuperRepository;
         protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
         private string currentAdminPhone;
-        public AdminAppService(IRepository<Domain.Admin.Admin, Guid> adminRepository, IHttpContextAccessor httpContextAccessor, IProjectRepository projectRepository)
+        public AdminAppService(IRepository<Domain.Admin.Admin, Guid> adminRepository, IHttpContextAccessor httpContextAccessor, IProjectRepository projectRepository, IStartuperRepository startuperRepository)
         {
             _adminRepository = adminRepository;
             _httpContextAccessor = httpContextAccessor;
             _projectRepository = projectRepository;
+            _startuperRepository = startuperRepository;
         }
 
         public async Task AcceptAdmin(Guid adminId)
@@ -169,6 +173,31 @@ namespace FSI.Application.Admin
         public async Task DeleteProject(Guid projectId)
         {
             await _projectRepository.DeleteAsync(projectId);
+        }
+
+        public async Task<PagedResultDto<StartuperDto>> PostToGetListStartuperForAdmin(GetListStartuperForAdminDto input)
+        {
+            var startupersQrb = await _startuperRepository.GetQueryableAsync();
+            var startupers = startupersQrb.WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.Phone.Equals(input.Filter) ||
+                                                                                            x.Name.Contains(input.Filter) ||
+                                                                                            x.Describe.Contains(input.Filter) ||
+                                                                                            x.Activity.Contains(input.Filter) ||
+                                                                                            x.WorkingExperience.Contains(input.Filter))
+                                    .WhereIf(input.Fields.Count != 0, x => input.Fields.Contains(x.Field.Value))
+                                    .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Location.Value))
+                                    .ToList();
+
+            var startuperPageds = startupers.Skip(input.SkipCount).Take(input.MaxResultCount).ToList();
+            return new PagedResultDto<StartuperDto>()
+            {
+                Items = ObjectMapper.Map<List<FSI.Domain.Startuper.Startuper>, List<StartuperDto>>(startuperPageds),
+                TotalCount = startupers.Count
+            };
+        }
+
+        public async Task DeleteStartuper(Guid startuperId)
+        {
+            await _startuperRepository.DeleteAsync(startuperId);
         }
     }
 }

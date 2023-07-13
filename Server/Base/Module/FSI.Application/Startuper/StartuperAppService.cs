@@ -84,7 +84,7 @@ namespace FSI.Application.Startuper
             return ObjectMapper.Map<FSI.Domain.Startuper.Startuper, StartuperDto>(rs);
         }
 
-        public async Task<PagedResultDto<StartuperDto>> PostToGetListStartuper(GetListStartuperForProjectDto input)
+        public async Task<PagedResultDto<StartuperDto>> PostToGetListStartuper(GetListStartuperForStartuperDto input)
         {
             var startupers = await _startuperRepository.GetListAsync();
             startupers = startupers.WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.Phone.Equals(input.Filter) ||
@@ -260,8 +260,14 @@ namespace FSI.Application.Startuper
                                                                 (x.UserAId.Equals(userId) && x.UserBId.Equals(currentUserId)));
 
             int friendStatus;
-            if(friend == null)
-                friendStatus = 0;
+            if (friend == null)
+            {
+                var role = HttpContext.User.FindFirst(ClaimTypes.Role).Value;
+                if (role == "Admin")
+                    friendStatus = -1;
+                else
+                    friendStatus = 0;
+            }
             else
             {
                 if (friend.IsActive)
@@ -293,7 +299,7 @@ namespace FSI.Application.Startuper
 
         public async Task<UserRootDto> GetUserByUsername(string username)
         {
-            var acc = await _accountRepository.GetAsync(x=> x.PhoneNumber.Equals(username) || x.Email.Equals(username));
+            var acc = await _accountRepository.GetAsync(x => x.PhoneNumber.Equals(username) || x.Email.Equals(username));
 
             var user = await _userRepository.GetAsync(x => x.AccountId.Equals(acc.Id));
 

@@ -14,7 +14,7 @@ namespace FSI.Application.Contracts.Startuper.IService
     {
         Task<StartuperDto> InsertStartuperAsync(CreateStartuperDto input);
 
-        Task<PagedResultDto<StartuperDto>> PostToGetListStartuper(GetListStartuperForProjectDto input);
+        Task<PagedResultDto<StartuperDto>> PostToGetListStartuper(GetListStartuperForStartuperDto input);
 
         Task<bool> GetCheckIsNewProfile();
 
