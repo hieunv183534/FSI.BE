@@ -5,6 +5,15 @@ services:
   fsidb:
     image: mysql:8.0.29
 
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+
+  fsi.api:
+    image: ${DOCKER_REGISTRY-}fsi-api:${PLATFORM:-linux}-${TAG:-latest}
+    build:
+      context: ./Server
+      dockerfile: Dockerfile
+
 #network section
 networks:
   default:
@@ -15,3 +24,5 @@ networks:
 volumes:
   fsi_mysql_data:
     name: fsi_mysql_data
+  rabbitmq_data:
+    name: rabbitmq_data

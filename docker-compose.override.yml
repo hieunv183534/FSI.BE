@@ -7,9 +7,32 @@ services:
   fsidb:
     container_name: fsidb
     environment:
-      MYSQL_ROOT_PASSWORD: "Passw0rd!"
+      MYSQL_ROOT_PASSWORD: "Vnvd3534"
     restart: always
     volumes:
       - fsi_mysql_data:/var/lib/mysql
     ports:
       - "3308:3306"
+
+
+  rabbitmq:
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    hostname: rabbitmq
+
+
+  fsi.api:
+    container_name: fsi.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+    depends_on: 
+      - fsidb
+    ports:
+      - "7777:80"
+    restart: always
