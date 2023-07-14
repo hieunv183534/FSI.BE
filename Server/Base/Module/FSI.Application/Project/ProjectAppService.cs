@@ -2,6 +2,7 @@
 using FSI.Application.Contracts.Project.IService;
 using FSI.Application.Contracts.User.DTO;
 using FSI.Common.Enums;
+using FSI.Common.ETO;
 using FSI.Domain.Account;
 using FSI.Domain.File;
 using FSI.Domain.Project;
@@ -23,6 +24,7 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Data;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.EventBus.Distributed;
 using Volo.Abp.ObjectMapping;
 
 namespace FSI.Application.Project
@@ -40,11 +42,13 @@ namespace FSI.Application.Project
         private readonly IUserRootRepository _userRepository;
         private readonly IFileInfomationRepository _fileInfomationRepository;
         private readonly IAccountRepository _accountRepository;
+
+        private readonly IDistributedEventBus _distributedEventBus;
         protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
-        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository)
+        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository, IDistributedEventBus distributedEventBus)
         {
             _projectRepository = projectRepository;
             _projectUserRepository = projectUserRepository;
@@ -57,6 +61,7 @@ namespace FSI.Application.Project
             _projectEventRepository = projectEventRepository;
             _projectCalendarEventRepository = projectCalendarEventRepository;
             _projectWorkRepository = projectWorkRepository;
+            _distributedEventBus = distributedEventBus;
         }
 
         public async Task<ProjectDto> InsertProjectAsync(CreateProjectDto input)
@@ -93,6 +98,11 @@ namespace FSI.Application.Project
                 Role = Common.Enums.RoleInProject.Founder,
                 UserId = this.currentUserId,
                 JoinTime = DateTime.Now
+            });
+
+            await _distributedEventBus.PublishAsync(new UpdateProjectInfoEto()
+            {
+                ProjectId = project.Id
             });
 
             var rs = ObjectMapper.Map<FSI.Domain.Project.Project, ProjectDto>(project);
@@ -135,6 +145,12 @@ namespace FSI.Application.Project
             project.Website = input.Website;
             project.IsHireNewMember = input.IsHireNewMember;
             project.AvailableTimeRequire = input.AvailableTimeRequire;
+            project.Fields = input.Fields;
+
+            await _distributedEventBus.PublishAsync(new UpdateProjectInfoEto()
+            {
+                ProjectId = project.Id
+            });
 
             var rs = await _projectRepository.UpdateAsync(project);
             return ObjectMapper.Map<FSI.Domain.Project.Project, ProjectDto>(rs);
@@ -207,7 +223,8 @@ namespace FSI.Application.Project
         {
             var projects = await _projectRepository.GetListAsync();
 
-            projects = projects.WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.ProjectName.Contains(input.Filter) || x.Description.Contains(input.Filter))
+            projects = projects.Where(x=> x.IsActive.Value)
+                                .WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.ProjectName.Contains(input.Filter) || x.Description.Contains(input.Filter))
                                 .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Area.Value))
                                 .WhereIf(input.Stages.Count != 0, x => input.Stages.Contains(x.Stage.Value))
                                 .WhereIf(input.Fields.Count != 0, x => x.Fields.Any(y => input.Fields.Contains(y)))

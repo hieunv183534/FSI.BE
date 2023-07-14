@@ -23,5 +23,9 @@ namespace FSI.Domain.User
         public string? AvatarUrl { get; set; }
 
         public bool? IsNewProfile { get; set; }
+
+        public int? Job { get; set; }
+
+        public bool? Gender { get; set; }
     }
 }

@@ -44,5 +44,7 @@ namespace FSI.Domain.Startuper
         // thời gian khả dụng ( giờ/ tuần)
         public int? AvailableTime { get; set; }
 
+        public string? StartuperEnglishText { get; set; }
+
     }
 }

@@ -41,5 +41,7 @@ namespace FSI.Domain.Project
 
         public bool? IsActive { get; set; }
 
+        public string? ProjectEnglishText { get; set; }
+
     }
 }

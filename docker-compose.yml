@@ -11,7 +11,7 @@ services:
   fsi.api:
     image: ${DOCKER_REGISTRY-}fsi-api:${PLATFORM:-linux}-${TAG:-latest}
     build:
-      context: ./Server
+      context: Server
       dockerfile: Dockerfile
 
 #network section

@@ -21,5 +21,9 @@ namespace FSI.Application.Contracts.User.DTO
         public int? Location { get; set; }
 
         public string? WorkingPlace { get; set; }
+
+        public int? Job { get; set; }
+
+        public bool? Gender { get; set; }
     }
 }

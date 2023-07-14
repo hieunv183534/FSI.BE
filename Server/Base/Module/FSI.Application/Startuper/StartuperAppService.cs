@@ -206,6 +206,8 @@ namespace FSI.Application.Startuper
             myUserInfo.IdentityCard = input.IdentityCard;
             myUserInfo.Location = input.Location;
             myUserInfo.WorkingPlace = input.WorkingPlace;
+            myUserInfo.Gender = input.Gender;
+            myUserInfo.Job = input.Job;
 
             acc.Email = input.Email ?? acc.Email;
             acc.PhoneNumber = input.PhoneNumber ?? acc.PhoneNumber;

@@ -43,12 +43,14 @@ public class FSIDbContext :
     public DbSet<Admin> Admins { get; set; }
     public DbSet<Account> Accounts { get; set; }
     public DbSet<Startuper> Startupers { get; set; }
+    public DbSet<StartuperSimilarity> StartuperSimilarities { get; set; }
     public DbSet<Investor> Investors { get; set; }
     public DbSet<FileInfomation> Files { get; set; }
     public DbSet<Message> Messages { get; set; }
     public DbSet<Conversation> Conversations { get; set; }
     public DbSet<UserConversation> UserConversations { get; set; }
     public DbSet<Project> Projects { get; set; }
+    public DbSet<ProjectSimilarity> ProjectSimilarities { get; set; }
     public DbSet<ProjectEvent> ProjectEvents { get; set; }
     public DbSet<ProjectWork> ProjectWorks { get; set; }
     public DbSet<ProjectUser> ProjectUsers { get; set; }
