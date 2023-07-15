@@ -22,6 +22,8 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task<ProjectDto> GetProjectById(Guid projectId);
 
+        Task<List<ProjectDto>> GetTopProjectSimilarByProjectId(Guid projectId);
+
         Task<PagedResultDto<ProjectDto>> PostToGetListProjectForStartuper(GetListProjectForStartuperDto input);
 
         Task<PagedResultDto<ProjectDto>> PostToGetListProjectForInvestor(GetListProjectForInvestorDto input);

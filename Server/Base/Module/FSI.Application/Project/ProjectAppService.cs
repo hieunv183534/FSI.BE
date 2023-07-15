@@ -34,6 +34,7 @@ namespace FSI.Application.Project
     public class ProjectAppService : ApplicationService, IProjectAppService
     {
         private readonly IProjectRepository _projectRepository;
+        private readonly IRepository<ProjectSimilarity, Guid> _projectSimilarityRepository;
         private readonly IRepository<ProjectUser, Guid> _projectUserRepository;
         private readonly IRepository<ProjectFile, Guid> _projectFileRepository;
         private readonly IRepository<ProjectEvent, Guid> _projectEventRepository;
@@ -48,7 +49,7 @@ namespace FSI.Application.Project
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
-        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository, IDistributedEventBus distributedEventBus)
+        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository, IDistributedEventBus distributedEventBus, IRepository<ProjectSimilarity, Guid> projectSimilarityRepository)
         {
             _projectRepository = projectRepository;
             _projectUserRepository = projectUserRepository;
@@ -62,6 +63,7 @@ namespace FSI.Application.Project
             _projectCalendarEventRepository = projectCalendarEventRepository;
             _projectWorkRepository = projectWorkRepository;
             _distributedEventBus = distributedEventBus;
+            _projectSimilarityRepository = projectSimilarityRepository;
         }
 
         public async Task<ProjectDto> InsertProjectAsync(CreateProjectDto input)
@@ -217,6 +219,41 @@ namespace FSI.Application.Project
 
             rs.SetProperty("relationWithProject", relationWithProject);
             return rs;
+        }
+
+        public async Task<List<ProjectDto>> GetTopProjectSimilarByProjectId(Guid projectId)
+        {
+            var projects = await _projectRepository.GetListAsync(x => !x.Id.Equals(projectId) && x.IsActive.Value);
+
+            var projectOfMes = await _projectUserRepository.GetListAsync(x => x.User.Equals(currentUserId) && x.ProjectId.Equals(projectId));
+            var projectOfMeIds = projectOfMes.Select(x => x.Id);
+
+            projects = projects.Where(x => !projectOfMeIds.Contains(x.Id)).ToList();
+
+            var projectSimilarities = await _projectSimilarityRepository.GetListAsync(x => x.ProjectId.Equals(projectId));
+
+            var query = from project in projects
+                        join similarity in projectSimilarities
+                        on project.Id equals similarity.ProjectTargetId
+                        into gj
+                        from subSimilarity in gj.DefaultIfEmpty()
+                        select new
+                        {
+                            Project = project,
+                            Similarity = subSimilarity?.Similarity ?? 1
+                        };
+
+            var projectsIncludeSimilarity = query.ToList();
+            projectsIncludeSimilarity = projectsIncludeSimilarity.OrderByDescending(x => x.Similarity).ToList();
+
+            var projectsOrderBySimilarity = projectsIncludeSimilarity.Select(x =>
+            {
+                x.Project.SetProperty("similarity", x.Similarity);
+                return x.Project;
+            }).Skip(0).Take(10).ToList();
+
+            return ObjectMapper.Map<List<FSI.Domain.Project.Project>, List<ProjectDto>>(projectsOrderBySimilarity);
+
         }
 
         public async Task<PagedResultDto<ProjectDto>> PostToGetListProjectForStartuper(GetListProjectForStartuperDto input)
@@ -752,5 +789,6 @@ namespace FSI.Application.Project
 
             return ObjectMapper.Map<List<ProjectWork>, List<ProjectWorkDto>>(works);
         }
+
     }
 }
