@@ -255,7 +255,7 @@ namespace FSI.Application.Project
         {
             var projects = await _projectRepository.GetListAsync(x => !x.Id.Equals(projectId) && x.IsActive.Value);
 
-            var projectOfMes = await _projectUserRepository.GetListAsync(x => x.User.Equals(currentUserId) && x.ProjectId.Equals(projectId));
+            var projectOfMes = await _projectUserRepository.GetListAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectId));
             var projectOfMeIds = projectOfMes.Select(x => x.Id);
 
             projects = projects.Where(x => !projectOfMeIds.Contains(x.Id)).ToList();
