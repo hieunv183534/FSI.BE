@@ -12,6 +12,7 @@ using Volo.Abp.EntityFrameworkCore;
 using FSI.Domain.Project;
 using FSI.Domain.Investor;
 using FSI.Domain.Admin;
+using FSI.Domain.MatrixRating;
 
 namespace FSI.EntityFrameworkCore;
 
@@ -57,6 +58,8 @@ public class FSIDbContext :
     public DbSet<ProjectFile> ProjectFiles { get; set; }
     public DbSet<ProjectCalendarEvent> ProjectCalendarEvents { get; set; }
     public DbSet<Friend> Friends { get; set; }
+    public DbSet<UserProjectRating> UserProjectRatings { get; set; }
+    public DbSet<ProjectUserRating> ProjectUserRatings { get; set; }
 
 
     public FSIDbContext(DbContextOptions<FSIDbContext> options)

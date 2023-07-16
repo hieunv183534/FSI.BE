@@ -88,7 +88,7 @@ namespace FSI.Application.EventHandle
                     {
                         var tartgetId = projects[i].Id;
                         var targetFeatures = features.ElementAt(i).Features;
-                        var cosineSimilarity = CalculateCosineSimilarity(myFeatures, targetFeatures);
+                        var cosineSimilarity = SimilarityUtil.CalculateCosineSimilarity(myFeatures, targetFeatures);
                         var similar1 = projectSimilarities.Find(x => x.ProjectId.Equals(eventData.ProjectId) && x.ProjectTargetId.Equals(tartgetId));
                         var similar2 = projectSimilarities.Find(x => x.ProjectTargetId.Equals(eventData.ProjectId) && x.ProjectId.Equals(tartgetId));
                         if (similar1 == null)
@@ -128,35 +128,6 @@ namespace FSI.Application.EventHandle
 
                 await uow.CompleteAsync();
             }
-        }
-
-        public class SentenceData
-        {
-            public string Sentence { get; set; }
-        }
-
-        public class FeatureData
-        {
-            public float[] Features { get; set; }
-        }
-
-        public static double CalculateCosineSimilarity(float[] vector1, float[] vector2)
-        {
-            double dotProduct = 0.0;
-            double magnitude1 = 0.0;
-            double magnitude2 = 0.0;
-            for (int i = 0; i < vector1.Length; i++)
-            {
-                dotProduct += vector1[i] * vector2[i];
-                magnitude1 += Math.Pow(vector1[i], 2);
-                magnitude2 += Math.Pow(vector2[i], 2);
-            }
-            magnitude1 = Math.Sqrt(magnitude1);
-            magnitude2 = Math.Sqrt(magnitude2);
-            if (magnitude1 == 0.0 || magnitude2 == 0.0)
-                return 0.0;
-            else
-                return dotProduct / (magnitude1 * magnitude2);
         }
     }
 }

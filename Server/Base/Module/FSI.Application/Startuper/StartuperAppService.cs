@@ -3,12 +3,14 @@ using FSI.Application.Contracts.Project.DTO;
 using FSI.Application.Contracts.Startuper.DTO;
 using FSI.Application.Contracts.Startuper.IService;
 using FSI.Application.Contracts.User.DTO;
+using FSI.Application.EventHandle;
 using FSI.Application.Hubs;
 using FSI.Common.Enums;
 using FSI.Common.ETO;
 using FSI.Domain.Account;
 using FSI.Domain.File;
 using FSI.Domain.Investor;
+using FSI.Domain.MatrixRating;
 using FSI.Domain.Project;
 using FSI.Domain.Startuper;
 using FSI.Domain.Test;
@@ -348,5 +350,6 @@ namespace FSI.Application.Startuper
 
             return ObjectMapper.Map<UserRoot, UserRootDto>(user);
         }
+
     }
 }

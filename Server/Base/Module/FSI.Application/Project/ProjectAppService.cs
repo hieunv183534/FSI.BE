@@ -1,10 +1,12 @@
 ﻿using FSI.Application.Contracts.Project.DTO;
 using FSI.Application.Contracts.Project.IService;
 using FSI.Application.Contracts.User.DTO;
+using FSI.Application.EventHandle;
 using FSI.Common.Enums;
 using FSI.Common.ETO;
 using FSI.Domain.Account;
 using FSI.Domain.File;
+using FSI.Domain.MatrixRating;
 using FSI.Domain.Project;
 using FSI.Domain.Startuper;
 using FSI.Domain.User;
@@ -35,6 +37,7 @@ namespace FSI.Application.Project
     {
         private readonly IProjectRepository _projectRepository;
         private readonly IRepository<ProjectSimilarity, Guid> _projectSimilarityRepository;
+        private readonly IRepository<StartuperSimilarity, Guid> _startuperSimilarityRepository;
         private readonly IRepository<ProjectUser, Guid> _projectUserRepository;
         private readonly IRepository<ProjectFile, Guid> _projectFileRepository;
         private readonly IRepository<ProjectEvent, Guid> _projectEventRepository;
@@ -43,13 +46,14 @@ namespace FSI.Application.Project
         private readonly IUserRootRepository _userRepository;
         private readonly IFileInfomationRepository _fileInfomationRepository;
         private readonly IAccountRepository _accountRepository;
+        private readonly IRepository<UserProjectRating, Guid> _userProjectRatingRepository;
 
         private readonly IDistributedEventBus _distributedEventBus;
         protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
-        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository, IDistributedEventBus distributedEventBus, IRepository<ProjectSimilarity, Guid> projectSimilarityRepository)
+        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository, IDistributedEventBus distributedEventBus, IRepository<ProjectSimilarity, Guid> projectSimilarityRepository, IRepository<UserProjectRating, Guid> userProjectRatingRepository, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository)
         {
             _projectRepository = projectRepository;
             _projectUserRepository = projectUserRepository;
@@ -64,6 +68,8 @@ namespace FSI.Application.Project
             _projectWorkRepository = projectWorkRepository;
             _distributedEventBus = distributedEventBus;
             _projectSimilarityRepository = projectSimilarityRepository;
+            _userProjectRatingRepository = userProjectRatingRepository;
+            _startuperSimilarityRepository = startuperSimilarityRepository;
         }
 
         public async Task<ProjectDto> InsertProjectAsync(CreateProjectDto input)
@@ -108,6 +114,14 @@ namespace FSI.Application.Project
             });
 
             var rs = ObjectMapper.Map<FSI.Domain.Project.Project, ProjectDto>(project);
+
+            await _userProjectRatingRepository.InsertAsync(new UserProjectRating()
+            {
+                UserId = currentUserId,
+                ProjectId = rs.Id,
+                Rating = 3
+            });
+
             return rs;
         }
 
@@ -216,8 +230,24 @@ namespace FSI.Application.Project
                     }
                 }
             }
-
             rs.SetProperty("relationWithProject", relationWithProject);
+
+            var rating = await _userProjectRatingRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectId));
+            if (rating == null)
+            {
+                await _userProjectRatingRepository.InsertAsync(new UserProjectRating()
+                {
+                    UserId = currentUserId,
+                    ProjectId = projectId,
+                    Rating = 1
+                });
+            }
+            else
+            {
+                rating.Rating = 1;
+                await _userProjectRatingRepository.UpdateAsync(rating);
+            }
+
             return rs;
         }
 
@@ -260,7 +290,7 @@ namespace FSI.Application.Project
         {
             var projects = await _projectRepository.GetListAsync();
 
-            projects = projects.Where(x=> x.IsActive.Value)
+            projects = projects.Where(x => x.IsActive.Value)
                                 .WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.ProjectName.Contains(input.Filter) || x.Description.Contains(input.Filter))
                                 .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Area.Value))
                                 .WhereIf(input.Stages.Count != 0, x => input.Stages.Contains(x.Stage.Value))
@@ -286,6 +316,25 @@ namespace FSI.Application.Project
                 case Common.Enums.RelationWithProject.RequestToProject:
                     projects = projects.Where(x => projectMeRequestToIds.Contains(x.Id)).ToList();
                     break;
+            }
+
+            if (input.RelationWithProject == RelationWithProject.NotMemberOfProject)
+            {
+                var allUserRating = await _userProjectRatingRepository.GetListAsync();
+                var mySimilars = await _startuperSimilarityRepository.GetListAsync(x => x.UserId.Equals(currentUserId));
+                var projectIds = projects.Select(x => x.Id).ToList();
+                var ratings = RatingPredictClass.PredictRating(allUserRating, mySimilars, projectIds, 10);
+
+                projects = projects.Join(ratings, x => x.Id, y => y.ProjectId, (x, y) =>
+                {
+
+                    x.SetProperty("predictRating", y.PredictRating);
+                    return new
+                    {
+                        Project = x,
+                        Rating = y.PredictRating
+                    };
+                }).OrderByDescending(x => x.Rating).Select(x => x.Project).ToList();
             }
 
             var projectPageds = projects.Skip(input.SkipCount).Take(input.MaxResultCount).ToList();
@@ -529,6 +578,22 @@ namespace FSI.Application.Project
                 IsFromUser = true,
                 Role = Common.Enums.RoleInProject.CoFounder
             });
+
+            var rating = await _userProjectRatingRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectId));
+            if (rating == null)
+            {
+                await _userProjectRatingRepository.InsertAsync(new UserProjectRating()
+                {
+                    UserId = currentUserId,
+                    ProjectId = projectId,
+                    Rating = 2
+                });
+            }
+            else
+            {
+                rating.Rating = 2;
+                await _userProjectRatingRepository.UpdateAsync(rating);
+            }
         }
 
         public async Task AcceptRequestFromAProject(Guid projectId)
@@ -560,6 +625,22 @@ namespace FSI.Application.Project
                         UserId = currentUserId,
                         ProjectId = projectId
                     });
+
+                    var rating = await _userProjectRatingRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectId));
+                    if (rating == null)
+                    {
+                        await _userProjectRatingRepository.InsertAsync(new UserProjectRating()
+                        {
+                            UserId = currentUserId,
+                            ProjectId = projectId,
+                            Rating = 3
+                        });
+                    }
+                    else
+                    {
+                        rating.Rating = 3;
+                        await _userProjectRatingRepository.UpdateAsync(rating);
+                    }
                 }
             }
         }
@@ -609,6 +690,22 @@ namespace FSI.Application.Project
                 UserId = userId,
                 ProjectId = projectId
             });
+
+            var rating = await _userProjectRatingRepository.FindAsync(x => x.UserId.Equals(userId) && x.ProjectId.Equals(projectId));
+            if (rating == null)
+            {
+                await _userProjectRatingRepository.InsertAsync(new UserProjectRating()
+                {
+                    UserId = userId,
+                    ProjectId = projectId,
+                    Rating = 3
+                });
+            }
+            else
+            {
+                rating.Rating = 3;
+                await _userProjectRatingRepository.UpdateAsync(rating);
+            }
         }
 
         public async Task RefuseMemberToProject(Guid projectId, Guid userId)
@@ -741,7 +838,7 @@ namespace FSI.Application.Project
         public async Task DeleteCalendarEvent(Guid calendarEventId)
         {
             var calendarEvent = await _projectCalendarEventRepository.GetAsync(calendarEventId);
-            var myProjectUser = await _projectUserRepository.FindAsync(x=> x.UserId.Equals(currentUserId) && x.ProjectId.Equals(calendarEvent.ProjectId));
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(calendarEvent.ProjectId));
             if (myProjectUser == null || !myProjectUser.IsActive)
                 throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
             await _projectCalendarEventRepository.DeleteAsync(calendarEventId);
@@ -759,9 +856,9 @@ namespace FSI.Application.Project
                 AssigneeId = input.AssigneeId,
                 AssignorId = currentUserId,
                 Title = input.Title,
-                Description= input.Description,
+                Description = input.Description,
                 Deadline = input.Deadline,
-                FileIds= input.FileIds,
+                FileIds = input.FileIds,
                 Status = WorkStatus.New
             });
 
@@ -771,7 +868,7 @@ namespace FSI.Application.Project
         public async Task ChangeWorkStatus(Guid workId, WorkStatus newStatus)
         {
             var work = await _projectWorkRepository.GetAsync(workId);
-            if(!work.AssigneeId.Equals(currentUserId) && !work.AssignorId.Equals(currentUserId))
+            if (!work.AssigneeId.Equals(currentUserId) && !work.AssignorId.Equals(currentUserId))
                 throw new UserFriendlyException(message: "Bạn không thể thay đổi trạng thái cho công việc này!");
 
             work.Status = newStatus;
