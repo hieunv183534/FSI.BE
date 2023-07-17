@@ -17,11 +17,11 @@ namespace FSI.Application.Contracts.User.DTO
 
         public DateTime DateOfBirth { get; set; }
 
-        public string IdentityCard { get; set; }
+        public string? IdentityCard { get; set; }
 
         public int? Location { get; set; }
 
-        public string WorkingPlace { get; set; }
+        public string? WorkingPlace { get; set; }
 
         public string? AvatarUrl { get; set; }
 

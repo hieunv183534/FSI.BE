@@ -60,6 +60,7 @@ public class FSIDbContext :
     public DbSet<Friend> Friends { get; set; }
     public DbSet<UserProjectRating> UserProjectRatings { get; set; }
     public DbSet<ProjectUserRating> ProjectUserRatings { get; set; }
+    public DbSet<ProjectRequestStartuperInfo> ProjectRequestStartuperInfos { get; set; }
 
 
     public FSIDbContext(DbContextOptions<FSIDbContext> options)
@@ -74,6 +75,8 @@ public class FSIDbContext :
 
         //builder.Model.SetMaxIdentifierLength(30);
         /* Include modules to your migration db context */
+
+        builder.Ignore<ProjectSimilarStartuper>();
 
 
         /* Configure your own tables/entities inside here */
@@ -108,6 +111,18 @@ public class FSIDbContext :
             entity.Property(x => x.FileIds).IsJson();
             entity.Property(x => x.Images).IsJson();
             entity.Property(x => x.Links).IsJson();
+        });
+
+        builder.Entity<ProjectRequestStartuperInfo>(entity =>
+        {
+            entity.Property(x => x.Locations).IsJson();
+            entity.Property(x => x.Jobs).IsJson();
+            entity.Property(x => x.Fields).IsJson();
+            entity.Property(x => x.Personalities).IsJson();
+            entity.Property(x => x.Skills).IsJson();
+            entity.Property(x => x.YearOfExps).IsJson();
+            entity.Property(x => x.AvailableTimes).IsJson();
+            entity.Property(x => x.Similarities).IsJson();
         });
 
         builder.Entity<ProjectWork>(entity =>

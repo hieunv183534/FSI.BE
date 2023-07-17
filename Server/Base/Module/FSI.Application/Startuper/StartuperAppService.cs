@@ -49,6 +49,7 @@ namespace FSI.Application.Startuper
         private readonly IRepository<Friend, Guid> _friendRepository;
         private readonly IRepository<ProjectUser, Guid> _projectUserRepository;
         private readonly IUserRootRepository _userRepository;
+        private readonly IRepository<ProjectRequestStartuperInfo, Guid> _projectRequestStartuperInfoRepository;
         protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
@@ -57,7 +58,7 @@ namespace FSI.Application.Startuper
 
         private readonly IRecommendationSystem _recommendationSystem;
 
-        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<Friend, Guid> friendRepository, IRepository<ProjectUser, Guid> projectUserRepository, IProjectRepository projectRepository, IInvestorRepository investorRepository, IUserRootRepository userRepository, IDistributedEventBus distributedEventBus, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository)
+        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<Friend, Guid> friendRepository, IRepository<ProjectUser, Guid> projectUserRepository, IProjectRepository projectRepository, IInvestorRepository investorRepository, IUserRootRepository userRepository, IDistributedEventBus distributedEventBus, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository)
         {
             _startuperRepository = startuperRepository;
             _httpContextAccessor = httpContextAccessor;
@@ -72,6 +73,7 @@ namespace FSI.Application.Startuper
             _userRepository = userRepository;
             _distributedEventBus = distributedEventBus;
             _startuperSimilarityRepository = startuperSimilarityRepository;
+            _projectRequestStartuperInfoRepository = projectRequestStartuperInfoRepository;
         }
 
         public async Task<StartuperDto> InsertStartuperAsync(CreateStartuperDto input)
@@ -147,6 +149,20 @@ namespace FSI.Application.Startuper
             {
                 var projectUserIds = (await _projectUserRepository.GetListAsync(x => x.ProjectId.Equals(input.Mode))).Select(x => x.UserId);
                 startupers = startupers.Where(x => !projectUserIds.Contains(x.Id)).ToList();
+
+                var rq = await _projectRequestStartuperInfoRepository.FindAsync(x => x.ProjectId.Equals(input.Mode));
+                var similarities = rq?.Similarities;
+                if(similarities != null && similarities.Count > 0)
+                {
+                    startupers = startupers.Join(similarities, x => x.Id, y => y.StartuperId, (x, y) =>
+                    {
+                        return new
+                        {
+                            Startuper = x,
+                            Similar = y.Similarity
+                        };
+                    }).OrderByDescending(x=> x.Similar).Select(x=> x.Startuper).ToList();
+                }
             }
 
             // join với startuperSililarity để order theo similarity với người dùng hiện tại

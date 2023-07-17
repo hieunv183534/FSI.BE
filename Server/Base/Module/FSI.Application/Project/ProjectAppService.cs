@@ -43,6 +43,7 @@ namespace FSI.Application.Project
         private readonly IRepository<ProjectEvent, Guid> _projectEventRepository;
         private readonly IRepository<ProjectWork, Guid> _projectWorkRepository;
         private readonly IRepository<ProjectCalendarEvent, Guid> _projectCalendarEventRepository;
+        private readonly IRepository<ProjectRequestStartuperInfo, Guid> _projectRequestStartuperInfoRepository;
         private readonly IUserRootRepository _userRepository;
         private readonly IFileInfomationRepository _fileInfomationRepository;
         private readonly IAccountRepository _accountRepository;
@@ -53,7 +54,7 @@ namespace FSI.Application.Project
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
-        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository, IDistributedEventBus distributedEventBus, IRepository<ProjectSimilarity, Guid> projectSimilarityRepository, IRepository<UserProjectRating, Guid> userProjectRatingRepository, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository)
+        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository, IDistributedEventBus distributedEventBus, IRepository<ProjectSimilarity, Guid> projectSimilarityRepository, IRepository<UserProjectRating, Guid> userProjectRatingRepository, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository)
         {
             _projectRepository = projectRepository;
             _projectUserRepository = projectUserRepository;
@@ -70,6 +71,7 @@ namespace FSI.Application.Project
             _projectSimilarityRepository = projectSimilarityRepository;
             _userProjectRatingRepository = userProjectRatingRepository;
             _startuperSimilarityRepository = startuperSimilarityRepository;
+            _projectRequestStartuperInfoRepository = projectRequestStartuperInfoRepository;
         }
 
         public async Task<ProjectDto> InsertProjectAsync(CreateProjectDto input)
@@ -255,8 +257,8 @@ namespace FSI.Application.Project
         {
             var projects = await _projectRepository.GetListAsync(x => !x.Id.Equals(projectId) && x.IsActive.Value);
 
-            var projectOfMes = await _projectUserRepository.GetListAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectId));
-            var projectOfMeIds = projectOfMes.Select(x => x.Id);
+            var projectOfMes = await _projectUserRepository.GetListAsync(x => x.UserId.Equals(currentUserId));
+            var projectOfMeIds = projectOfMes.Select(x => x.ProjectId);
 
             projects = projects.Where(x => !projectOfMeIds.Contains(x.Id)).ToList();
 
@@ -887,5 +889,42 @@ namespace FSI.Application.Project
             return ObjectMapper.Map<List<ProjectWork>, List<ProjectWorkDto>>(works);
         }
 
+        public async Task<ProjectRequestStartuperInfoDto> GetProjectRequestStartuperInfo(Guid projectId)
+        {
+            var rs = await _projectRequestStartuperInfoRepository.FindAsync(x => x.ProjectId.Equals(projectId));
+            if (rs == null)
+                return null;
+            else return ObjectMapper.Map<ProjectRequestStartuperInfo, ProjectRequestStartuperInfoDto>(rs);
+        }
+
+        public async Task UpdateProjectRequestStartuperInfo(ProjectRequestStartuperInfoDto input)
+        {
+            var rqInfo = await _projectRequestStartuperInfoRepository.FindAsync(x => x.ProjectId.Equals(input.ProjectId));
+            if(rqInfo == null)
+            {
+                await _projectRequestStartuperInfoRepository.InsertAsync(ObjectMapper.Map<ProjectRequestStartuperInfoDto, ProjectRequestStartuperInfo>(input));
+            }
+            else
+            {
+                rqInfo.Describe = input.Describe;
+                rqInfo.Locations = input.Locations;
+                rqInfo.Fields = input.Fields;
+                rqInfo.Jobs = input.Jobs;
+                rqInfo.Personalities = input.Personalities;
+                rqInfo.Skills = input.Skills;
+                rqInfo.Activity = input.Activity;
+                rqInfo.AvailableTimes = input.AvailableTimes;
+                rqInfo.YearOfExps= input.YearOfExps;
+                rqInfo.WorkingPlace = input.WorkingPlace;
+                rqInfo.WorkingExperience = input.WorkingExperience;
+                rqInfo.Speciality = input.Speciality;
+                rqInfo.CertificateAndAward= input.CertificateAndAward;
+            }
+
+            await _distributedEventBus.PublishAsync(new UpdateProjectRequestStartuperInfoEto()
+            {
+                ProjectId = input.ProjectId,
+            });
+        }
     }
 }

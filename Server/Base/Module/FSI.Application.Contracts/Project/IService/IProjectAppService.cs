@@ -71,5 +71,9 @@ namespace FSI.Application.Contracts.Project.IService
         Task ChangeWorkStatus(Guid workId, WorkStatus newStatus);
 
         Task<List<ProjectWorkDto>> GetProjectWorks(Guid projectId);
+
+        Task<ProjectRequestStartuperInfoDto> GetProjectRequestStartuperInfo(Guid projectId);
+
+        Task UpdateProjectRequestStartuperInfo(ProjectRequestStartuperInfoDto input);
     }
 }

@@ -3,6 +3,7 @@ using System;
 using FSI.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -11,9 +12,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace FSI.EFCore.Migrations
 {
     [DbContext(typeof(FSIDbContext))]
-    partial class FSIDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230717053225_ProjectRequestStartuperInfo")]
+    partial class ProjectRequestStartuperInfo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -928,10 +930,6 @@ namespace FSI.EFCore.Migrations
 
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("char(36)");
-
-                    b.Property<string>("Similarities")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<string>("Skills")
                         .HasColumnType("longtext");
