@@ -349,7 +349,7 @@ namespace FSI.Application.Project
                             select new
                             {
                                 Project = project,
-                                Rating = subRating.PredictRating
+                                Rating = subRating?.PredictRating ?? 0f
                             };
 
                 projects = query.OrderByDescending(x => x.Rating).Select(x =>
