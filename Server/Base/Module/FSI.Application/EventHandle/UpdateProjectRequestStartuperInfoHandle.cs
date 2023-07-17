@@ -4,6 +4,7 @@ using FSI.Domain.Project;
 using FSI.Domain.Startuper;
 using Google.Api.Gax;
 using Google.Cloud.Translation.V2;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.ML;
 using Microsoft.ML.Transforms.Text;
 using NPOI.SS.Formula.Functions;
@@ -13,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Volo.Abp.Caching;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.EventBus.Distributed;
@@ -28,13 +30,15 @@ namespace FSI.Application.EventHandle
         private readonly IRepository<ProjectRequestStartuperInfo, Guid> _projectRequestStartuperInfoRepository;
         private readonly IStartuperRepository _startuperRepository;
         private readonly IRepository<ProjectUser, Guid> _projectUserRepository;
+        private readonly IDistributedCache<List<ProjectSimilarStartuper>> _projectSimilarStartuperCache;
 
-        public UpdateProjectRequestStartuperInfoHandle(IUnitOfWorkManager unitOfWorkManager, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository, IRepository<ProjectUser, Guid> projectUserRepository, IStartuperRepository startuperRepository)
+        public UpdateProjectRequestStartuperInfoHandle(IUnitOfWorkManager unitOfWorkManager, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository, IRepository<ProjectUser, Guid> projectUserRepository, IStartuperRepository startuperRepository, IDistributedCache<List<ProjectSimilarStartuper>> projectSimilarStartuperCache)
         {
             _unitOfWorkManager = unitOfWorkManager;
             _projectRequestStartuperInfoRepository = projectRequestStartuperInfoRepository;
             _projectUserRepository = projectUserRepository;
             _startuperRepository = startuperRepository;
+            _projectSimilarStartuperCache = projectSimilarStartuperCache;
         }
 
         [UnitOfWork]
@@ -106,6 +110,12 @@ namespace FSI.Application.EventHandle
                 }
                 pjRqInfo.Similarities = similarities;
                 await _projectRequestStartuperInfoRepository.UpdateAsync(pjRqInfo);
+
+                // lưu mảng startuperSimilar của project vào cache với key là projectId
+                await _projectSimilarStartuperCache.SetAsync(eventData.ProjectId.ToString(), similarities, new DistributedCacheEntryOptions()
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
+                });
 
                 await uow.CompleteAsync();
             }

@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
+using Volo.Abp.Caching;
 using Volo.Abp.Data;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.EventBus.Distributed;
@@ -50,6 +51,7 @@ namespace FSI.Application.Startuper
         private readonly IRepository<ProjectUser, Guid> _projectUserRepository;
         private readonly IUserRootRepository _userRepository;
         private readonly IRepository<ProjectRequestStartuperInfo, Guid> _projectRequestStartuperInfoRepository;
+        private readonly IDistributedCache<List<ProjectSimilarStartuper>> _projectSimilarStartuperCache;
         protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
@@ -58,7 +60,7 @@ namespace FSI.Application.Startuper
 
         private readonly IRecommendationSystem _recommendationSystem;
 
-        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<Friend, Guid> friendRepository, IRepository<ProjectUser, Guid> projectUserRepository, IProjectRepository projectRepository, IInvestorRepository investorRepository, IUserRootRepository userRepository, IDistributedEventBus distributedEventBus, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository)
+        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<Friend, Guid> friendRepository, IRepository<ProjectUser, Guid> projectUserRepository, IProjectRepository projectRepository, IInvestorRepository investorRepository, IUserRootRepository userRepository, IDistributedEventBus distributedEventBus, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository, IDistributedCache<List<ProjectSimilarStartuper>> projectSimilarStartuperCache)
         {
             _startuperRepository = startuperRepository;
             _httpContextAccessor = httpContextAccessor;
@@ -74,6 +76,7 @@ namespace FSI.Application.Startuper
             _distributedEventBus = distributedEventBus;
             _startuperSimilarityRepository = startuperSimilarityRepository;
             _projectRequestStartuperInfoRepository = projectRequestStartuperInfoRepository;
+            _projectSimilarStartuperCache = projectSimilarStartuperCache;
         }
 
         public async Task<StartuperDto> InsertStartuperAsync(CreateStartuperDto input)
@@ -150,50 +153,72 @@ namespace FSI.Application.Startuper
                 var projectUserIds = (await _projectUserRepository.GetListAsync(x => x.ProjectId.Equals(input.Mode))).Select(x => x.UserId);
                 startupers = startupers.Where(x => !projectUserIds.Contains(x.Id)).ToList();
 
-                var rq = await _projectRequestStartuperInfoRepository.FindAsync(x => x.ProjectId.Equals(input.Mode));
-                var similarities = rq?.Similarities;
-                if(similarities != null && similarities.Count > 0)
+                var similarities = await _projectSimilarStartuperCache.GetAsync(input.Mode.ToString());
+
+                if (similarities == null)
                 {
-                    startupers = startupers.Join(similarities, x => x.Id, y => y.StartuperId, (x, y) =>
+                    await _distributedEventBus.PublishAsync(new UpdateProjectRequestStartuperInfoEto()
                     {
-                        return new
-                        {
-                            Startuper = x,
-                            Similar = y.Similarity
-                        };
-                    }).OrderByDescending(x=> x.Similar).Select(x=> x.Startuper).ToList();
+                        ProjectId = input.Mode.Value
+                    });
+
+                    var rq = await _projectRequestStartuperInfoRepository.FindAsync(x => x.ProjectId.Equals(input.Mode));
+                    similarities = rq?.Similarities;
+                }
+
+                if (similarities != null)
+                {
+                    var query = from startuper in startupers
+                                join similarity in similarities
+                                on startuper.Id equals similarity.StartuperId
+                                into gj
+                                from subSimilarity in gj.DefaultIfEmpty()
+                                select new
+                                {
+                                    Startuper = startuper,
+                                    Similarity = subSimilarity?.Similarity ?? 0
+                                };
+
+                    var startupersIncludeSimilarity = query.OrderByDescending(x => x.Similarity).ToList();
+                    startupers = startupersIncludeSimilarity.Select(x =>
+                    {
+                        x.Startuper.SetProperty("similarity", x.Similarity);
+                        return x.Startuper;
+                    }).ToList();
                 }
             }
 
             // join với startuperSililarity để order theo similarity với người dùng hiện tại
-
-            var startuperSimilarities = await _startuperSimilarityRepository.GetListAsync(x => x.UserId.Equals(currentUserId));
-
-            var query = from startuper in startupers
-                        join similarity in startuperSimilarities
-                        on startuper.Id equals similarity.TargetId
-                        into gj
-                        from subSimilarity in gj.DefaultIfEmpty()
-                        select new
-                        {
-                            Startuper = startuper,
-                            Similarity = subSimilarity?.Similarity ?? 1
-                        };
-
-            var startupersIncludeSimilarity = query.ToList();
-            startupersIncludeSimilarity = startupersIncludeSimilarity.OrderByDescending(x=> x.Similarity).ToList();
-
-            var startupersOrderBySimilarity = startupersIncludeSimilarity.Select(x =>
+            if (input.Mode.Equals(GuidStartuperMode.UuidStartuperModeNew) ||
+                input.Mode.Equals(GuidStartuperMode.UuidStartuperModeNew) ||
+                input.Mode.Equals(GuidStartuperMode.UuidStartuperModeNew) ||
+                input.Mode.Equals(GuidStartuperMode.UuidStartuperModeNew))
             {
-                x.Startuper.SetProperty("similarity", x.Similarity);
-                return x.Startuper;
-            }).ToList();
+                var startuperSimilarities = await _startuperSimilarityRepository.GetListAsync(x => x.UserId.Equals(currentUserId));
+                var query = from startuper in startupers
+                            join similarity in startuperSimilarities
+                            on startuper.Id equals similarity.TargetId
+                            into gj
+                            from subSimilarity in gj.DefaultIfEmpty()
+                            select new
+                            {
+                                Startuper = startuper,
+                                Similarity = subSimilarity?.Similarity ?? 0
+                            };
 
-            var startuperPageds = startupersOrderBySimilarity.Skip(input.SkipCount).Take(input.MaxResultCount).ToList();
+                var startupersIncludeSimilarity = query.OrderByDescending(x => x.Similarity).ToList();
+                startupers = startupersIncludeSimilarity.Select(x =>
+                {
+                    x.Startuper.SetProperty("similarity", x.Similarity);
+                    return x.Startuper;
+                }).ToList();
+            }
+
+            var startuperPageds = startupers.Skip(input.SkipCount).Take(input.MaxResultCount).ToList();
             return new PagedResultDto<StartuperDto>()
             {
                 Items = ObjectMapper.Map<List<FSI.Domain.Startuper.Startuper>, List<StartuperDto>>(startuperPageds),
-                TotalCount = startupersOrderBySimilarity.Count
+                TotalCount = startupers.Count
             };
         }
 

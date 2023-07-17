@@ -13,6 +13,7 @@ using FSI.Domain.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json.Linq;
 using NPOI.SS.Formula.Functions;
 using System;
@@ -24,6 +25,7 @@ using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
+using Volo.Abp.Caching;
 using Volo.Abp.Data;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.EventBus.Distributed;
@@ -48,13 +50,14 @@ namespace FSI.Application.Project
         private readonly IFileInfomationRepository _fileInfomationRepository;
         private readonly IAccountRepository _accountRepository;
         private readonly IRepository<UserProjectRating, Guid> _userProjectRatingRepository;
+        private readonly IDistributedCache<List<PredictRatingProject>> _predictRatingProjectForStartuperIdCache;
 
         private readonly IDistributedEventBus _distributedEventBus;
         protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
-        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository, IDistributedEventBus distributedEventBus, IRepository<ProjectSimilarity, Guid> projectSimilarityRepository, IRepository<UserProjectRating, Guid> userProjectRatingRepository, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository)
+        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository, IDistributedEventBus distributedEventBus, IRepository<ProjectSimilarity, Guid> projectSimilarityRepository, IRepository<UserProjectRating, Guid> userProjectRatingRepository, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository, IDistributedCache<List<PredictRatingProject>> predictRatingProjectForStartuperIdCache)
         {
             _projectRepository = projectRepository;
             _projectUserRepository = projectUserRepository;
@@ -72,6 +75,7 @@ namespace FSI.Application.Project
             _userProjectRatingRepository = userProjectRatingRepository;
             _startuperSimilarityRepository = startuperSimilarityRepository;
             _projectRequestStartuperInfoRepository = projectRequestStartuperInfoRepository;
+            _predictRatingProjectForStartuperIdCache = predictRatingProjectForStartuperIdCache;
         }
 
         public async Task<ProjectDto> InsertProjectAsync(CreateProjectDto input)
@@ -322,21 +326,37 @@ namespace FSI.Application.Project
 
             if (input.RelationWithProject == RelationWithProject.NotMemberOfProject)
             {
-                var allUserRating = await _userProjectRatingRepository.GetListAsync();
-                var mySimilars = await _startuperSimilarityRepository.GetListAsync(x => x.UserId.Equals(currentUserId));
-                var projectIds = projects.Select(x => x.Id).ToList();
-                var ratings = RatingPredictClass.PredictRating(allUserRating, mySimilars, projectIds, 10);
 
-                projects = projects.Join(ratings, x => x.Id, y => y.ProjectId, (x, y) =>
+                var ratings = await _predictRatingProjectForStartuperIdCache.GetAsync(currentUserId.ToString());
+
+                if (ratings == null)
                 {
-
-                    x.SetProperty("predictRating", y.PredictRating);
-                    return new
+                    var allUserRating = await _userProjectRatingRepository.GetListAsync();
+                    var mySimilars = await _startuperSimilarityRepository.GetListAsync(x => x.UserId.Equals(currentUserId));
+                    var projectIds = projects.Select(x => x.Id).ToList();
+                    ratings = RatingPredictClass.PredictRating(allUserRating, mySimilars, projectIds, 10);
+                    await _predictRatingProjectForStartuperIdCache.SetAsync(currentUserId.ToString(), ratings, new DistributedCacheEntryOptions()
                     {
-                        Project = x,
-                        Rating = y.PredictRating
-                    };
-                }).OrderByDescending(x => x.Rating).Select(x => x.Project).ToList();
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
+                    });
+                }
+
+                var query = from project in projects
+                            join rating in ratings
+                            on project.Id equals rating.ProjectId
+                            into gj
+                            from subRating in gj.DefaultIfEmpty()
+                            select new
+                            {
+                                Project = project,
+                                Rating = subRating.PredictRating
+                            };
+
+                projects = query.OrderByDescending(x => x.Rating).Select(x =>
+                {
+                    x.Project.SetProperty("predictRating", x.Rating);
+                    return x.Project;
+                }).ToList();
             }
 
             var projectPageds = projects.Skip(input.SkipCount).Take(input.MaxResultCount).ToList();
@@ -900,7 +920,7 @@ namespace FSI.Application.Project
         public async Task UpdateProjectRequestStartuperInfo(ProjectRequestStartuperInfoDto input)
         {
             var rqInfo = await _projectRequestStartuperInfoRepository.FindAsync(x => x.ProjectId.Equals(input.ProjectId));
-            if(rqInfo == null)
+            if (rqInfo == null)
             {
                 await _projectRequestStartuperInfoRepository.InsertAsync(ObjectMapper.Map<ProjectRequestStartuperInfoDto, ProjectRequestStartuperInfo>(input));
             }
@@ -914,11 +934,11 @@ namespace FSI.Application.Project
                 rqInfo.Skills = input.Skills;
                 rqInfo.Activity = input.Activity;
                 rqInfo.AvailableTimes = input.AvailableTimes;
-                rqInfo.YearOfExps= input.YearOfExps;
+                rqInfo.YearOfExps = input.YearOfExps;
                 rqInfo.WorkingPlace = input.WorkingPlace;
                 rqInfo.WorkingExperience = input.WorkingExperience;
                 rqInfo.Speciality = input.Speciality;
-                rqInfo.CertificateAndAward= input.CertificateAndAward;
+                rqInfo.CertificateAndAward = input.CertificateAndAward;
             }
 
             await _distributedEventBus.PublishAsync(new UpdateProjectRequestStartuperInfoEto()
