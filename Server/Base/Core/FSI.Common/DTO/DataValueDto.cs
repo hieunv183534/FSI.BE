@@ -167,10 +167,9 @@ namespace FSI.Common.DTO
             new DataPointDto("Tự lập", 38, "Independent"),
             new DataPointDto("Tự tin", 39, "Confident"),
             new DataPointDto("Tốt bụng", 40, "Kind-hearted"),
-            new DataPointDto("Trác nhiệm", 41, "Responsible"),
-            new DataPointDto("Trạng tâm", 42, "Committed"),
-            new DataPointDto("Trung thực", 43, "Honest"),
-            new DataPointDto("Tập trung", 44, "Focused")
+            new DataPointDto("Trách nhiệm", 41, "Responsible"),
+            new DataPointDto("Trung thực", 42, "Honest"),
+            new DataPointDto("Tập trung", 43, "Focused")
         };
 
         public static List<DataPointDto> Skills = new List<DataPointDto> {

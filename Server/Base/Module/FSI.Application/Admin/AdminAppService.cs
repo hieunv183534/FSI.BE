@@ -9,6 +9,7 @@ using FSI.Domain.Project;
 using FSI.Domain.Startuper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,7 @@ using Volo.Abp.Domain.Repositories;
 namespace FSI.Application.Admin
 {
     [Authorize]
+    [IgnoreAntiforgeryToken]
     public class AdminAppService : ApplicationService, IAdminAppSevice
     {
         private readonly IRepository<Domain.Admin.Admin, Guid> _adminRepository;

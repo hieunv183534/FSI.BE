@@ -41,11 +41,4 @@
 	  <Folder Include="wwwroot\images\" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <None Include="wwwroot\assets\font\notosans-bold.3ede5aff.woff2" />
-	  <None Include="wwwroot\assets\font\notosans-italic.1c1aaac9.woff2" />
-	  <None Include="wwwroot\assets\font\notosans-regular.2cb88a13.woff2" />
-	  <None Include="wwwroot\assets\font\notosans-semibold.df3e6dc4.woff2" />
-	</ItemGroup>
-
 </Project>
