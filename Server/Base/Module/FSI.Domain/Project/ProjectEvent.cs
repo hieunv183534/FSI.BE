@@ -13,6 +13,8 @@ namespace FSI.Domain.Project
     {
         public Guid ProjectId { get; set; }
 
+        public Project Project { get; set; }
+
         public Guid? PosterId { get; set; }
 
         public UserRoot? Poster { get; set; }
