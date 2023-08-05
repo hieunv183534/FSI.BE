@@ -55,5 +55,5 @@ jobs:
         with:
           app-name: fsiconnected
           slot-name: production
-          publish-profile: ${{ secrets.AzureAppService_PublishProfile_1234 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_64A42122DD4849DFAD26760C60C08595 }}
           package: ./Server/Base/Module/FSI.WebAPI/FSI.WebAPI.csproj
