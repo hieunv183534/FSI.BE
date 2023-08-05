@@ -53,5 +53,5 @@ jobs:
         with:
           app-name: 'fsiconnected'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1640C804D70943D88A3705553CFD8E75 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_64A42122DD4849DFAD26760C60C08595 }}
           package: .
