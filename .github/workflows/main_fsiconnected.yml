@@ -23,10 +23,10 @@ jobs:
           include-prerelease: true
 
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build --configuration Release ./Server/Base/Module/FSI.WebAPI/FSI.WebAPI.csproj
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp ./Server/Base/Module/FSI.WebAPI/FSI.WebAPI.csproj
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
@@ -54,4 +54,4 @@ jobs:
           app-name: 'fsiconnected'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_79239DFA4DEB4CC6AA4F8A7325634C0A }}
-          package: .
+          package: ./Server/Base/Module/FSI.WebAPI/FSI.WebAPI.csproj
