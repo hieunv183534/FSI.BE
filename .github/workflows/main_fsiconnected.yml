@@ -44,11 +44,16 @@ jobs:
         with:
           name: .net-app
 
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'fsiconnected'
-          slot-name: 'production'
+          app-name: fsiconnected
+          slot-name: production
           publish-profile: ${{ secrets.AzureAppService_PublishProfile_1234 }}
           package: ./Server/Base/Module/FSI.WebAPI/FSI.WebAPI.csproj
