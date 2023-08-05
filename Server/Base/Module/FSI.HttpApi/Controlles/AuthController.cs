@@ -47,6 +47,13 @@ namespace FSI.HttpApi.Controlles
         }
 
         [AllowAnonymous]
+        [HttpPost("testcicd")]
+        public async Task<IActionResult> ABC()
+        {
+            return Ok("hahahaa");
+        }
+
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto account)
         {
