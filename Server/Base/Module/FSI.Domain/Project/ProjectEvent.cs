@@ -40,5 +40,7 @@ namespace FSI.Domain.Project
         public ProjectStage? Stage { get; set; }
 
         public List<string>? Links { get; set; }
+
+        public bool? IsPublic { get; set; }
     }
 }

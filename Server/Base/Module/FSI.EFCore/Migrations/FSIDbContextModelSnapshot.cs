@@ -663,6 +663,9 @@ namespace FSI.EFCore.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
 
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("LastModificationTime");
@@ -743,6 +746,9 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
+
+                    b.Property<bool?>("IsPublic")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime(6)")
@@ -934,7 +940,6 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Similarities")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Skills")

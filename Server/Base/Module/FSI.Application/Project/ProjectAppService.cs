@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json.Linq;
 using NPOI.SS.Formula.Functions;
+using Pipelines.Sockets.Unofficial.Arenas;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,13 +52,14 @@ namespace FSI.Application.Project
         private readonly IAccountRepository _accountRepository;
         private readonly IRepository<UserProjectRating, Guid> _userProjectRatingRepository;
         private readonly IDistributedCache<List<PredictRatingProject>> _predictRatingProjectForStartuperIdCache;
+        private readonly IDistributedCache<string> _testCache;
 
         private readonly IDistributedEventBus _distributedEventBus;
         protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
-        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository, IDistributedEventBus distributedEventBus, IRepository<ProjectSimilarity, Guid> projectSimilarityRepository, IRepository<UserProjectRating, Guid> userProjectRatingRepository, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository, IDistributedCache<List<PredictRatingProject>> predictRatingProjectForStartuperIdCache)
+        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository, IDistributedEventBus distributedEventBus, IRepository<ProjectSimilarity, Guid> projectSimilarityRepository, IRepository<UserProjectRating, Guid> userProjectRatingRepository, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository, IDistributedCache<List<PredictRatingProject>> predictRatingProjectForStartuperIdCache, IDistributedCache<string> testCache)
         {
             _projectRepository = projectRepository;
             _projectUserRepository = projectUserRepository;
@@ -76,6 +78,7 @@ namespace FSI.Application.Project
             _startuperSimilarityRepository = startuperSimilarityRepository;
             _projectRequestStartuperInfoRepository = projectRequestStartuperInfoRepository;
             _predictRatingProjectForStartuperIdCache = predictRatingProjectForStartuperIdCache;
+            _testCache = testCache;
         }
 
         public async Task<ProjectDto> InsertProjectAsync(CreateProjectDto input)
@@ -131,7 +134,7 @@ namespace FSI.Application.Project
             return rs;
         }
 
-        public async Task<ProjectDto> UpdateProjectAsync(CreateProjectDto input)
+        public async Task<ProjectDto> PostUpdateProjectAsync(CreateProjectDto input)
         {
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(input.Id));
             if (myProjectUser == null)
@@ -785,7 +788,8 @@ namespace FSI.Application.Project
                 Links = JArray.Parse(input.Links).ToObject<List<string>>(),
                 Images = images,
                 Type = ProjectEventType.PostNotification,
-                ProjectId = input.ProjectId
+                ProjectId = input.ProjectId,
+                IsPublic = input.IsPublic
             });
         }
 
@@ -793,7 +797,17 @@ namespace FSI.Application.Project
         {
             var users = await _userRepository.GetListAsync();
             var events = await _projectEventRepository.GetListAsync(x => x.ProjectId.Equals(input.ProjectId));
-            events = events.WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.Content.Contains(input.Filter)).ToList();
+
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(input.ProjectId));
+            if(myProjectUser == null || !myProjectUser.IsActive)
+            {
+                events = events.WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.Content.Contains(input.Filter))
+                                .Where(x => x.Type != ProjectEventType.PostNotification || x.IsPublic.Value).ToList();
+            }
+            else
+            {
+                events = events.WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.Content.Contains(input.Filter)).ToList();
+            }
 
             switch (input.Type)
             {
@@ -830,10 +844,17 @@ namespace FSI.Application.Project
         {
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
             if (myProjectUser == null || !myProjectUser.IsActive)
-                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
-            var users = await _userRepository.GetListAsync();
-            var rs = await _projectCalendarEventRepository.GetListAsync(x => x.ProjectId.Equals(projectId));
-            return ObjectMapper.Map<List<ProjectCalendarEvent>, List<ProjectCalendarEventDto>>(rs);
+            {
+                var users = await _userRepository.GetListAsync();
+                var rs = await _projectCalendarEventRepository.GetListAsync(x => x.ProjectId.Equals(projectId) && x.IsPublic);
+                return ObjectMapper.Map<List<ProjectCalendarEvent>, List<ProjectCalendarEventDto>>(rs);
+            }
+            else
+            {
+                var users = await _userRepository.GetListAsync();
+                var rs = await _projectCalendarEventRepository.GetListAsync(x => x.ProjectId.Equals(projectId));
+                return ObjectMapper.Map<List<ProjectCalendarEvent>, List<ProjectCalendarEventDto>>(rs);
+            }
         }
 
         public async Task AddCalendarEvent(AddProjectCalendarEventDto input)
@@ -852,7 +873,8 @@ namespace FSI.Application.Project
                 End = input.Type == CalendarEventType.TimePeriod ? input.End : input.Start.AddMinutes(30),
                 Type = input.Type,
                 CreatedById = currentUserId,
-                Title = input.Title
+                Title = input.Title,
+                IsPublic = input.IsPublic
             });
 
         }
@@ -917,7 +939,7 @@ namespace FSI.Application.Project
             else return ObjectMapper.Map<ProjectRequestStartuperInfo, ProjectRequestStartuperInfoDto>(rs);
         }
 
-        public async Task UpdateProjectRequestStartuperInfo(ProjectRequestStartuperInfoDto input)
+        public async Task PostUpdateProjectRequestStartuperInfo(ProjectRequestStartuperInfoDto input)
         {
             var rqInfo = await _projectRequestStartuperInfoRepository.FindAsync(x => x.ProjectId.Equals(input.ProjectId));
             if (rqInfo == null)
@@ -944,6 +966,14 @@ namespace FSI.Application.Project
             await _distributedEventBus.PublishAsync(new UpdateProjectRequestStartuperInfoEto()
             {
                 ProjectId = input.ProjectId,
+            });
+        }
+
+        public async Task TestAzureRedis(string value)
+        {
+            await _testCache.SetAsync("adu", value, new DistributedCacheEntryOptions()
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
             });
         }
     }

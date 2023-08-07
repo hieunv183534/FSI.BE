@@ -17,7 +17,7 @@ namespace FSI.Application.Contracts.Chat.IService
 
         Task<ConversationDto> AddConversation(AddConversationDto input);
 
-        Task<ConversationDto> UpdateConversation(UpdateConversationDto input);
+        Task<ConversationDto> PostUpdateConversation(UpdateConversationDto input);
 
         Task<PagedResultDto<ConversationDto>> PostToGetListConversation(GetListConversationDto input);
 

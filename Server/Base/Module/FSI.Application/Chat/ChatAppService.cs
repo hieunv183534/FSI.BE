@@ -403,7 +403,7 @@ namespace FSI.Application.Chat
 
         }
 
-        public async Task<ConversationDto> UpdateConversation([FromForm] UpdateConversationDto input)
+        public async Task<ConversationDto> PostUpdateConversation([FromForm] UpdateConversationDto input)
         {
             var conversation = await _conversationRepository.GetAsync(input.ConversationId);
 

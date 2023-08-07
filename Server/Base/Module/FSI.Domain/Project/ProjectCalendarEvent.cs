@@ -30,5 +30,7 @@ namespace FSI.Domain.Project
         public bool AutoDeleteWhenEnd { get; set; }
 
         public string? Title { get; set; }
+
+        public bool IsPublic { get; set; }
     }
 }

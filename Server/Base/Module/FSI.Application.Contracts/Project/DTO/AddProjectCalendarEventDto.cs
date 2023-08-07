@@ -23,5 +23,7 @@ namespace FSI.Application.Contracts.Project.DTO
         public bool AutoDeleteWhenEnd { get; set; }
 
         public string? Title { get; set; }
+
+        public bool IsPublic { get; set; }
     }
 }

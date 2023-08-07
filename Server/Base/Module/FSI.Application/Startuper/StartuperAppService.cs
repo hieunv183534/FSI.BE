@@ -264,7 +264,7 @@ namespace FSI.Application.Startuper
             return ObjectMapper.Map<Domain.Startuper.Startuper, StartuperDto>(myInfo);
         }
 
-        public async Task UpdateBaseInfo(UpdateBaseInfoDto input)
+        public async Task PostUpdateBaseInfo(UpdateBaseInfoDto input)
         {
             var myUserInfo = await _startuperRepository.GetAsync(currentUserId);
             var acc = await _accountRepository.GetAsync(myUserInfo.AccountId);

@@ -17,6 +17,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Include="wwwroot\assets\font\notosans-bold.3ede5aff.woff2" />
+	  <None Include="wwwroot\assets\font\notosans-italic.1c1aaac9.woff2" />
+	  <None Include="wwwroot\assets\font\notosans-regular.2cb88a13.woff2" />
+	  <None Include="wwwroot\assets\font\notosans-semibold.df3e6dc4.woff2" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.8">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -35,17 +42,6 @@
 		<ProjectReference Include="..\FSI.Application\FSI.Application.csproj" />
 		<ProjectReference Include="..\FSI.EFCore\FSI.EFCore.csproj" />
 		<ProjectReference Include="..\FSI.HttpApi\FSI.HttpApi.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="wwwroot\images\" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="wwwroot\assets\font\notosans-bold.3ede5aff.woff2" />
-	  <None Include="wwwroot\assets\font\notosans-italic.1c1aaac9.woff2" />
-	  <None Include="wwwroot\assets\font\notosans-regular.2cb88a13.woff2" />
-	  <None Include="wwwroot\assets\font\notosans-semibold.df3e6dc4.woff2" />
 	</ItemGroup>
 
 </Project>

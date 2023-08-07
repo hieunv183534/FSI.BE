@@ -22,7 +22,7 @@ namespace FSI.Application.Contracts.Startuper.IService
 
         Task<StartuperDto> GetMyInfoAsync();
 
-        Task UpdateBaseInfo(UpdateBaseInfoDto input);
+        Task PostUpdateBaseInfo(UpdateBaseInfoDto input);
 
         Task<List<ProjectUserDto>> GetMyProjects();
 

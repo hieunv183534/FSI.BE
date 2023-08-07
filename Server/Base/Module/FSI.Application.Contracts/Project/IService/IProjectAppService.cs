@@ -14,9 +14,11 @@ namespace FSI.Application.Contracts.Project.IService
 {
     public interface IProjectAppService
     {
+        Task TestAzureRedis(string value);
+
         Task<ProjectDto> InsertProjectAsync(CreateProjectDto input);
 
-        Task<ProjectDto> UpdateProjectAsync(CreateProjectDto input);
+        Task<ProjectDto> PostUpdateProjectAsync(CreateProjectDto input);
 
         Task AddUserToProject(AddUserToProjectDto input);
 
@@ -74,6 +76,6 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task<ProjectRequestStartuperInfoDto> GetProjectRequestStartuperInfo(Guid projectId);
 
-        Task UpdateProjectRequestStartuperInfo(ProjectRequestStartuperInfoDto input);
+        Task PostUpdateProjectRequestStartuperInfo(ProjectRequestStartuperInfoDto input);
     }
 }

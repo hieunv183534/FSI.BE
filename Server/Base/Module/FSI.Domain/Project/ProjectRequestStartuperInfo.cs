@@ -39,7 +39,7 @@ namespace FSI.Domain.Project
 
         public List<int>? AvailableTimes { get; set; }
 
-        public List<ProjectSimilarStartuper> Similarities { get; set; }
+        public List<ProjectSimilarStartuper>? Similarities { get; set; }
     }
 
     public class ProjectSimilarStartuper
