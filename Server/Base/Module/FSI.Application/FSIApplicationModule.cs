@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp;
 using Volo.Abp.AutoMapper;
+using Volo.Abp.BackgroundJobs.RabbitMQ;
 using Volo.Abp.Caching.StackExchangeRedis;
 using Volo.Abp.EventBus.RabbitMq;
 using Volo.Abp.Modularity;
@@ -13,6 +14,7 @@ namespace FSI
     typeof(FSIApplicationContractsModule),
     typeof(AbpAutoMapperModule),
     typeof(AbpEventBusRabbitMqModule),
+    typeof(AbpBackgroundJobsRabbitMqModule),
     typeof(AbpCachingStackExchangeRedisModule)
     )]
     public class FSIApplicationModule : AbpModule

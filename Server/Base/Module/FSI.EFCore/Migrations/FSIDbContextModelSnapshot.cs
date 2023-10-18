@@ -86,7 +86,7 @@ namespace FSI.EFCore.Migrations
                     b.HasIndex("PhoneNumber")
                         .IsUnique();
 
-                    b.ToTable("Accounts");
+                    b.ToTable("Accounts", (string)null);
                 });
 
             modelBuilder.Entity("FSI.Domain.Admin.Admin", b =>
@@ -161,7 +161,7 @@ namespace FSI.EFCore.Migrations
                     b.HasIndex("Phone")
                         .IsUnique();
 
-                    b.ToTable("Admins");
+                    b.ToTable("Admins", (string)null);
                 });
 
             modelBuilder.Entity("FSI.Domain.Chat.Conversation", b =>
@@ -257,7 +257,7 @@ namespace FSI.EFCore.Migrations
 
                     b.HasIndex("UserBId");
 
-                    b.ToTable("Conversations");
+                    b.ToTable("Conversations", (string)null);
                 });
 
             modelBuilder.Entity("FSI.Domain.Chat.Message", b =>
@@ -329,7 +329,7 @@ namespace FSI.EFCore.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("Messages");
+                    b.ToTable("Messages", (string)null);
                 });
 
             modelBuilder.Entity("FSI.Domain.Chat.UserConversation", b =>
@@ -410,7 +410,7 @@ namespace FSI.EFCore.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserConversations");
+                    b.ToTable("UserConversations", (string)null);
                 });
 
             modelBuilder.Entity("FSI.Domain.File.FileInfomation", b =>
@@ -476,7 +476,44 @@ namespace FSI.EFCore.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("Files");
+                    b.ToTable("Files", (string)null);
+                });
+
+            modelBuilder.Entity("FSI.Domain.MagicBook.MagicBook", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Author")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("BookName")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("ImageCover")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Pages")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Tag")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookName")
+                        .IsUnique();
+
+                    b.ToTable("MagicBooks", (string)null);
                 });
 
             modelBuilder.Entity("FSI.Domain.MatrixRating.ProjectUserRating", b =>
@@ -495,7 +532,7 @@ namespace FSI.EFCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProjectUserRatings");
+                    b.ToTable("ProjectUserRatings", (string)null);
                 });
 
             modelBuilder.Entity("FSI.Domain.MatrixRating.UserProjectRating", b =>
@@ -514,7 +551,7 @@ namespace FSI.EFCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserProjectRatings");
+                    b.ToTable("UserProjectRatings", (string)null);
                 });
 
             modelBuilder.Entity("FSI.Domain.Project.Project", b =>
@@ -611,7 +648,7 @@ namespace FSI.EFCore.Migrations
 
                     b.HasIndex("FounderId");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
                 });
 
             modelBuilder.Entity("FSI.Domain.Project.ProjectCalendarEvent", b =>
@@ -692,7 +729,7 @@ namespace FSI.EFCore.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectCalendarEvents");
+                    b.ToTable("ProjectCalendarEvents", (string)null);
                 });
 
             modelBuilder.Entity("FSI.Domain.Project.ProjectEvent", b =>
@@ -787,7 +824,7 @@ namespace FSI.EFCore.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ProjectEvents");
+                    b.ToTable("ProjectEvents", (string)null);
                 });
 
             modelBuilder.Entity("FSI.Domain.Project.ProjectFile", b =>
@@ -861,7 +898,7 @@ namespace FSI.EFCore.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectFiles");
+                    b.ToTable("ProjectFiles", (string)null);
                 });
 
             modelBuilder.Entity("FSI.Domain.Project.ProjectRequestStartuperInfo", b =>
@@ -959,7 +996,7 @@ namespace FSI.EFCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProjectRequestStartuperInfos");
+                    b.ToTable("ProjectRequestStartuperInfos", (string)null);
                 });
 
             modelBuilder.Entity("FSI.Domain.Project.ProjectSimilarity", b =>
@@ -1018,7 +1055,7 @@ namespace FSI.EFCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProjectSimilarities");
+                    b.ToTable("ProjectSimilarities", (string)null);
                 });
 
             modelBuilder.Entity("FSI.Domain.Project.ProjectUser", b =>
@@ -1096,7 +1133,7 @@ namespace FSI.EFCore.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ProjectUsers");
+                    b.ToTable("ProjectUsers", (string)null);
                 });
 
             modelBuilder.Entity("FSI.Domain.Project.ProjectWork", b =>
@@ -1176,7 +1213,7 @@ namespace FSI.EFCore.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectWorks");
+                    b.ToTable("ProjectWorks", (string)null);
                 });
 
             modelBuilder.Entity("FSI.Domain.Startuper.StartuperSimilarity", b =>
@@ -1235,7 +1272,7 @@ namespace FSI.EFCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("StartuperSimilarities");
+                    b.ToTable("StartuperSimilarities", (string)null);
                 });
 
             modelBuilder.Entity("FSI.Domain.Test.Test", b =>
@@ -1364,7 +1401,7 @@ namespace FSI.EFCore.Migrations
 
                     b.HasIndex("UserBId");
 
-                    b.ToTable("Friends");
+                    b.ToTable("Friends", (string)null);
                 });
 
             modelBuilder.Entity("FSI.Domain.User.UserRoot", b =>
@@ -1455,7 +1492,7 @@ namespace FSI.EFCore.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.ToTable("UserRoots");
+                    b.ToTable("UserRoots", (string)null);
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("UserRoot");
                 });

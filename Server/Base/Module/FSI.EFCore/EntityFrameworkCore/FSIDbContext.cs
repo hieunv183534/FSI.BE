@@ -13,6 +13,7 @@ using FSI.Domain.Project;
 using FSI.Domain.Investor;
 using FSI.Domain.Admin;
 using FSI.Domain.MatrixRating;
+using FSI.Domain.MagicBook;
 
 namespace FSI.EntityFrameworkCore;
 
@@ -61,6 +62,7 @@ public class FSIDbContext :
     public DbSet<UserProjectRating> UserProjectRatings { get; set; }
     public DbSet<ProjectUserRating> ProjectUserRatings { get; set; }
     public DbSet<ProjectRequestStartuperInfo> ProjectRequestStartuperInfos { get; set; }
+    public DbSet<MagicBook> MagicBooks { get; set; }
 
 
     public FSIDbContext(DbContextOptions<FSIDbContext> options)
@@ -77,6 +79,7 @@ public class FSIDbContext :
         /* Include modules to your migration db context */
 
         builder.Ignore<ProjectSimilarStartuper>();
+        builder.Ignore<MagicPage>();
 
 
         /* Configure your own tables/entities inside here */
@@ -93,6 +96,7 @@ public class FSIDbContext :
         builder.Entity<Account>().HasIndex(x=> x.PhoneNumber).IsUnique();
         builder.Entity<Admin>().HasIndex(x=> x.Phone).IsUnique();
         builder.Entity<Admin>().HasIndex(x=> x.Email).IsUnique();
+        builder.Entity<MagicBook>().HasIndex(x=> x.BookName).IsUnique();
 
         builder.Entity<Project>(entity =>
         {
@@ -133,6 +137,11 @@ public class FSIDbContext :
         builder.Entity<Investor>(entity =>
         {
             entity.Property(x => x.InvestFields).IsJson();
+        });
+
+        builder.Entity<MagicBook>(entity =>
+        {
+            entity.Property(x => x.Pages).IsJson();
         });
 
     }

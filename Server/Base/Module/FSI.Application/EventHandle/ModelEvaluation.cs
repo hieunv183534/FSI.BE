@@ -8,7 +8,7 @@ namespace FSI.Application.EventHandle
 {
     public class ModelEvaluation
     {
-        public static double CalculatePrecision(double[] actualRatings, double[] predictedRatings, int k)
+        public static double CalculatePrecision(double[] actualRatings, double[] predictedRatings, int k, double threshold = 2.0)
         {
             // Kiểm tra số lượng phần tử của hai mảng dữ liệu
             if (actualRatings.Length != predictedRatings.Length)
@@ -28,7 +28,7 @@ namespace FSI.Application.EventHandle
             int correctPredictions = 0;
             foreach (int index in topKIndices)
             {
-                if (predictedRatings[index] >= 4.0 && actualRatings[index] >= 4.0)
+                if (predictedRatings[index] >= threshold && actualRatings[index] >= threshold)
                 {
                     correctPredictions++;
                 }
@@ -39,7 +39,7 @@ namespace FSI.Application.EventHandle
             return precision;
         }
 
-        public static double CalculateRecall(double[] actualRatings, double[] predictedRatings, int k)
+        public static double CalculateRecall(double[] actualRatings, double[] predictedRatings, int k, double threshold = 2.0)
         {
             // Kiểm tra số lượng phần tử của hai mảng dữ liệu
             if (actualRatings.Length != predictedRatings.Length)
@@ -60,14 +60,14 @@ namespace FSI.Application.EventHandle
             for (int i = 0; i < k; i++)
             {
                 int index = topKIndices[i];
-                if (predictedRatings[index] >= 4.0 && actualRatings[index] >= 4.0)
+                if (predictedRatings[index] >= threshold && actualRatings[index] >= threshold)
                 {
                     truePositives++;
                 }
             }
 
             // Tính recall
-            int totalPositive = actualRatings.Count(rating => rating >= 4.0);
+            int totalPositive = actualRatings.Count(rating => rating >= threshold);
             double recall = (double)truePositives / totalPositive;
             return recall;
         }

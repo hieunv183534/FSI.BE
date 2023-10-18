@@ -1,5 +1,4 @@
 ﻿using Localization.Resources.AbpUi;
-using Microsoft.Extensions.DependencyInjection;
 using FSI.Localization;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.Localization;
