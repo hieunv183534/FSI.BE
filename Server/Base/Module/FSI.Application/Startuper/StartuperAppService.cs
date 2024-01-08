@@ -110,7 +110,8 @@ namespace FSI.Application.Startuper
                                                                                             x.Name.Contains(input.Filter) ||
                                                                                             x.Describe.Contains(input.Filter) ||
                                                                                             x.Activity.Contains(input.Filter) ||
-                                                                                            x.WorkingExperience.Contains(input.Filter))
+                                                                                            x.WorkingExperience.Contains(input.Filter) ||
+                                                                                            x.StudentId.Equals(input.Filter))
                                     .WhereIf(input.Fields.Count != 0, x => input.Fields.Contains(x.Field.Value))
                                     .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Location.Value))
                                     .WhereIf(input.YearOfExps.Count != 0, x => input.YearOfExps.Contains(x.YearOfExp.Value))
@@ -119,6 +120,15 @@ namespace FSI.Application.Startuper
                                     .WhereIf(input.Personalities.Count != 0, x => x.Personality.Any(y => input.Personalities.Contains(y)))
                                     .Where(x => !x.Id.Equals(currentUserId))
                                     .ToList();
+
+            if (input.IsStudent.Value)
+            {
+                startupers = startupers.Where(x=> x.Job == 1)
+                                        .WhereIf(!String.IsNullOrEmpty(input.University), x=> x.University != null && x.University.Equals(input.University))
+                                        .WhereIf(!String.IsNullOrEmpty(input.UniversitySpecialized), x => x.UniversitySpecialized != null && x.UniversitySpecialized.Equals(input.UniversitySpecialized))
+                                        .WhereIf(!String.IsNullOrEmpty(input.StudentId), x=> x.StudentId != null && x.StudentId.Contains(input.StudentId))
+                            .ToList();  
+            }
 
             var allPatners = await _friendRepository.GetListAsync(x => x.UserAId.Equals(currentUserId) || x.UserBId.Equals(currentUserId));
             var myPatnerIds = allPatners.Where(x => x.IsActive).Select(x =>
@@ -240,7 +250,7 @@ namespace FSI.Application.Startuper
                 await file.CopyToAsync(fileStream);
             }
 
-            var fileUrl = "https://fsiconnected.tech/images/" + fileName;
+            var fileUrl = "https://fsiconnected.cloud/images/" + fileName;
 
             await _fileInfomationRepository.InsertAsync(new FileInfomation()
             {
@@ -277,6 +287,9 @@ namespace FSI.Application.Startuper
             myUserInfo.WorkingPlace = input.WorkingPlace;
             myUserInfo.Gender = input.Gender;
             myUserInfo.Job = input.Job;
+            myUserInfo.University = input.University;
+            myUserInfo.UniversitySpecialized = input.UniversitySpecialized;
+            myUserInfo.StudentId = input.StudentId;
 
             acc.Email = input.Email ?? acc.Email;
             acc.PhoneNumber = input.PhoneNumber ?? acc.PhoneNumber;

@@ -448,7 +448,7 @@ namespace FSI.Application.Project
                 await file.CopyToAsync(fileStream);
             }
 
-            var fileUrl = "https://fsiconnected.tech/images/" + fileName;
+            var fileUrl = "https://fsiconnected.cloud/images/" + fileName;
 
             await _fileInfomationRepository.InsertAsync(new FileInfomation()
             {
@@ -764,7 +764,7 @@ namespace FSI.Application.Project
                 {
                     await file.CopyToAsync(fileStream);
                 }
-                var fileUrl = "https://fsiconnected.tech/images/" + fileName;
+                var fileUrl = "https://fsiconnected.cloud/images/" + fileName;
                 fileInfos.Add(new FileInfomation()
                 {
                     AuthorId = this.currentUserId,

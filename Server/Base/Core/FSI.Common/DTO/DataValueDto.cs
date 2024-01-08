@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NPOI.SS.Formula.Functions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -245,6 +246,39 @@ namespace FSI.Common.DTO
             new DataPointDto("Tăng trưởng 2",6),
             new DataPointDto("Tăng trưởng 3",7),
             new DataPointDto("Tăng trưởng 4",8)
+        };
+
+
+        public static List<UniversitySpecialized> UniversitySpecializeds = new List<UniversitySpecialized>()
+        {
+            new UniversitySpecialized("Trường Đại học Kinh tế - Kỹ thuật Công nghiệp UNETI",
+                new List<string>()
+                {
+                    "Ngôn ngữ Anh",
+                    "Quản trị kinh doanh",
+                    "Marketing",
+                    "Kinh doanh thương mại",
+                    "Tài chính - Ngân hàng",
+                    "Bảo hiểm",
+                    "Kế toán",
+                    "Kiểm toán",
+                    "Khoa học dữ liệu",
+                    "Mạng máy tính và truyền thông dữ liệu",
+                    "Công nghệ kỹ thuật máy tính",
+                    "Công nghệ thông tin",
+                    "Công nghệ kỹ thuật cơ khí",
+                    "Công nghệ kỹ thuật cơ điện tử",
+                    "Công nghệ kỹ thuật Ô tô",
+                    "Công nghệ kỹ thuật điện, điện tử",
+                    "Công nghệ kỹ thuật điện tử - viễn thông",
+                    "CNKT điều khiển và tự động hoá",
+                    "Logistics và Quản lý chuỗi cung ứng",
+                    "Công nghệ dệt, may",
+                    "Công nghệ sợi, dệt",
+                    "Công nghệ thực phẩm",
+                    "Quản trị dịch vụ du lịch và lữ hành",
+                    "Quản trị khách sạn"
+                })
         };
 
     }

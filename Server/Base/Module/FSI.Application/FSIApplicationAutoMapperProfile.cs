@@ -3,7 +3,6 @@ using FSI.Application.Contracts.Admin.DTO;
 using FSI.Application.Contracts.Auth.DTO;
 using FSI.Application.Contracts.Chat.DTO;
 using FSI.Application.Contracts.File;
-using FSI.Application.Contracts.MagicBook;
 using FSI.Application.Contracts.Project.DTO;
 using FSI.Application.Contracts.Startuper.DTO;
 using FSI.Application.Contracts.Test.DTO;
@@ -12,7 +11,6 @@ using FSI.Domain.Account;
 using FSI.Domain.Admin;
 using FSI.Domain.Chat;
 using FSI.Domain.File;
-using FSI.Domain.MagicBook;
 using FSI.Domain.Project;
 using FSI.Domain.Startuper;
 using FSI.Domain.Test;
@@ -28,8 +26,6 @@ namespace FSI
              * Alternatively, you can split your mapping configurations
              * into multiple profile classes for a better organization. */
             CreateMap<Test, TestDto>().ReverseMap();
-            CreateMap<MagicBook, MagicBookDto>().ReverseMap();
-            CreateMap<MagicPage, MagicPageDto>().ReverseMap();
             CreateMap<Test, CreateTestDto>().ReverseMap();
             CreateMap<Account, AccountDto>().ReverseMap();
             CreateMap<Admin, AdminDto>().ReverseMap();

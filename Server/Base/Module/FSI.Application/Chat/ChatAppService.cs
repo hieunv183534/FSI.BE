@@ -329,7 +329,7 @@ namespace FSI.Application.Chat
                     await file.CopyToAsync(fileStream);
                 }
 
-                var fileUrl = "https://fsiconnected.tech/images/" + fileName;
+                var fileUrl = "https://fsiconnected.cloud/images/" + fileName;
 
                 await _fileInfomationRepository.InsertAsync(new FileInfomation()
                 {
@@ -419,7 +419,7 @@ namespace FSI.Application.Chat
                     await file.CopyToAsync(fileStream);
                 }
 
-                var fileUrl = "https://fsiconnected.tech/images/" + fileName;
+                var fileUrl = "https://fsiconnected.cloud/images/" + fileName;
 
                 await _fileInfomationRepository.InsertAsync(new FileInfomation()
                 {
