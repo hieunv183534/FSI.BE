@@ -186,7 +186,7 @@ namespace FSI.Application.Admin
                                                                                             x.Activity.Contains(input.Filter) ||
                                                                                             x.WorkingExperience.Contains(input.Filter))
                                     .WhereIf(input.Fields.Count != 0, x => input.Fields.Contains(x.Field.Value))
-                                    .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Location.Value))
+                                    .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Location))
                                     .ToList();
 
             var startuperPageds = startupers.Skip(input.SkipCount).Take(input.MaxResultCount).ToList();

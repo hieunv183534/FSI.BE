@@ -45,8 +45,8 @@ namespace FSI.Application.EventHandle
                 var myStartuper = startupers.FirstOrDefault(x => x.Id.Equals(eventData.StartuperId));
 
                 var age = (int)((DateTime.Now - myStartuper.DateOfBirth).TotalDays / 365.242199) + " years old ";
-                var job = DataPointDto.GetSingleEnglish(FsiDataValue.Jobs, myStartuper.Job.Value);
-                var location = DataPointDto.GetSingleEnglish(FsiDataValue.Areas, myStartuper.Location.Value);
+                var job = DataPointDto.GetSingleEnglish(FsiDataValue.Jobs, myStartuper.Job);
+                var location = DataPointDto.GetSingleEnglish(FsiDataValue.Areas, myStartuper.Location);
                 var workingPlace = client.TranslateText(myStartuper.WorkingPlace ?? "", LanguageCodes.English, LanguageCodes.Vietnamese, TranslationModel.NeuralMachineTranslation).TranslatedText;
                 var field = DataPointDto.GetSingleEnglish(FsiDataValue.Fields, myStartuper.Field.Value);
                 var speciality = client.TranslateText(myStartuper.Speciality ?? "", LanguageCodes.English, LanguageCodes.Vietnamese, TranslationModel.NeuralMachineTranslation).TranslatedText;
