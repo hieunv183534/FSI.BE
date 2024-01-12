@@ -12,26 +12,26 @@ namespace FSI.Domain.User
 
         public string? IdentityCard { get; set; }
 
-        public int? Location { get; set; }
+        public int Location { get; set; }
 
-        public string? WorkingPlace { get; set; }
+        public string ?WorkingPlace { get; set; }
 
         public Guid AccountId { get; set; }
 
         public Account.Account Account { get; set; }
 
-        public string? AvatarUrl { get; set; }
+        public string AvatarUrl { get; set; }
 
-        public bool? IsNewProfile { get; set; }
+        public bool IsNewProfile { get; set; }
 
-        public int? Job { get; set; }
+        public int Job { get; set; }
 
         public bool Gender { get; set; }
 
-        public string? University { get; set; }
+        public string ?University { get; set; }
 
-        public string? UniversitySpecialized { get; set; }
+        public string ?UniversitySpecialized { get; set; }
 
-        public string? StudentId { get; set; }
+        public string StudentId { get; set; }
     }
 }
