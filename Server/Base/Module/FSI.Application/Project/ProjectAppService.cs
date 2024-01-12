@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using NPOI.SS.Formula.Functions;
 using Pipelines.Sockets.Unofficial.Arenas;
@@ -53,13 +54,14 @@ namespace FSI.Application.Project
         private readonly IRepository<UserProjectRating, Guid> _userProjectRatingRepository;
         private readonly IDistributedCache<List<PredictRatingProject>> _predictRatingProjectForStartuperIdCache;
         private readonly IDistributedCache<string> _testCache;
+        private readonly IConfiguration Configuration;
 
         private readonly IDistributedEventBus _distributedEventBus;
         protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
-        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository, IDistributedEventBus distributedEventBus, IRepository<ProjectSimilarity, Guid> projectSimilarityRepository, IRepository<UserProjectRating, Guid> userProjectRatingRepository, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository, IDistributedCache<List<PredictRatingProject>> predictRatingProjectForStartuperIdCache, IDistributedCache<string> testCache)
+        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository, IDistributedEventBus distributedEventBus, IRepository<ProjectSimilarity, Guid> projectSimilarityRepository, IRepository<UserProjectRating, Guid> userProjectRatingRepository, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository, IDistributedCache<List<PredictRatingProject>> predictRatingProjectForStartuperIdCache, IDistributedCache<string> testCache, IConfiguration configuration)
         {
             _projectRepository = projectRepository;
             _projectUserRepository = projectUserRepository;
@@ -79,6 +81,7 @@ namespace FSI.Application.Project
             _projectRequestStartuperInfoRepository = projectRequestStartuperInfoRepository;
             _predictRatingProjectForStartuperIdCache = predictRatingProjectForStartuperIdCache;
             _testCache = testCache;
+            Configuration = configuration;
         }
 
         public async Task<ProjectDto> InsertProjectAsync(CreateProjectDto input)
@@ -448,7 +451,7 @@ namespace FSI.Application.Project
                 await file.CopyToAsync(fileStream);
             }
 
-            var fileUrl = "https://fsiconnected.cloud/images/" + fileName;
+            var fileUrl = $"{Configuration["App:ServerUrl"]}/images/" + fileName;
 
             await _fileInfomationRepository.InsertAsync(new FileInfomation()
             {
@@ -764,7 +767,7 @@ namespace FSI.Application.Project
                 {
                     await file.CopyToAsync(fileStream);
                 }
-                var fileUrl = "https://fsiconnected.cloud/images/" + fileName;
+                var fileUrl = $"{Configuration["App:ServerUrl"]}/images/" + fileName;
                 fileInfos.Add(new FileInfomation()
                 {
                     AuthorId = this.currentUserId,

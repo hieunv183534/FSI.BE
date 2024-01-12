@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,11 +57,13 @@ namespace FSI.Application.Startuper
         private readonly IHttpContextAccessor _httpContextAccessor;
         private Guid currentUserId;
 
+        private readonly IConfiguration Configuration;
+
         private readonly IDistributedEventBus _distributedEventBus;
 
         private readonly IRecommendationSystem _recommendationSystem;
 
-        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<Friend, Guid> friendRepository, IRepository<ProjectUser, Guid> projectUserRepository, IProjectRepository projectRepository, IInvestorRepository investorRepository, IUserRootRepository userRepository, IDistributedEventBus distributedEventBus, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository, IDistributedCache<List<ProjectSimilarStartuper>> projectSimilarStartuperCache)
+        public StartuperAppService(IStartuperRepository startuperRepository, IHttpContextAccessor httpContextAccessor, IRecommendationSystem recommendationSystem, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<Friend, Guid> friendRepository, IRepository<ProjectUser, Guid> projectUserRepository, IProjectRepository projectRepository, IInvestorRepository investorRepository, IUserRootRepository userRepository, IDistributedEventBus distributedEventBus, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository, IDistributedCache<List<ProjectSimilarStartuper>> projectSimilarStartuperCache, IConfiguration configuration)
         {
             _startuperRepository = startuperRepository;
             _httpContextAccessor = httpContextAccessor;
@@ -77,6 +80,7 @@ namespace FSI.Application.Startuper
             _startuperSimilarityRepository = startuperSimilarityRepository;
             _projectRequestStartuperInfoRepository = projectRequestStartuperInfoRepository;
             _projectSimilarStartuperCache = projectSimilarStartuperCache;
+            Configuration = configuration;
         }
 
         public async Task<StartuperDto> InsertStartuperAsync(CreateStartuperDto input)
@@ -250,7 +254,7 @@ namespace FSI.Application.Startuper
                 await file.CopyToAsync(fileStream);
             }
 
-            var fileUrl = "https://fsiconnected.cloud/images/" + fileName;
+            var fileUrl = $"{Configuration["App:ServerUrl"]}/images/" + fileName;
 
             await _fileInfomationRepository.InsertAsync(new FileInfomation()
             {
@@ -282,7 +286,6 @@ namespace FSI.Application.Startuper
             myUserInfo.Name = input.Name;
             myUserInfo.Phone = input.PhoneNumber ?? myUserInfo.Phone;
             myUserInfo.DateOfBirth = input.DateOfBirth;
-            myUserInfo.IdentityCard = input.IdentityCard;
             myUserInfo.Location = input.Location;
             myUserInfo.WorkingPlace = input.WorkingPlace;
             myUserInfo.Gender = input.Gender;

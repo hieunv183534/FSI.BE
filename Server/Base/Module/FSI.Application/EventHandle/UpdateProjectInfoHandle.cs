@@ -19,6 +19,7 @@ using Volo.Abp.EventBus.Distributed;
 using Volo.Abp.Uow;
 using static Google.Protobuf.Reflection.SourceCodeInfo.Types;
 using FSI.Common.DTO;
+using Microsoft.Extensions.Configuration;
 
 namespace FSI.Application.EventHandle
 {
@@ -27,12 +28,14 @@ namespace FSI.Application.EventHandle
         private readonly IProjectRepository _projectRepository;
         private readonly IRepository<ProjectSimilarity, Guid> _projectSimilarityRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
+        private readonly IConfiguration Configuration;
 
-        public UpdateProjectInfoHandle(IUnitOfWorkManager unitOfWorkManager, IRepository<ProjectSimilarity, Guid> projectSimilarityRepository, IProjectRepository projectRepository)
+        public UpdateProjectInfoHandle(IUnitOfWorkManager unitOfWorkManager, IRepository<ProjectSimilarity, Guid> projectSimilarityRepository, IProjectRepository projectRepository, IConfiguration configuration)
         {
             _unitOfWorkManager = unitOfWorkManager;
             _projectSimilarityRepository = projectSimilarityRepository;
             _projectRepository = projectRepository;
+            Configuration = configuration;
         }
 
         [UnitOfWork]
@@ -40,8 +43,7 @@ namespace FSI.Application.EventHandle
         {
             using (var uow = _unitOfWorkManager.Begin(requiresNew: true, isTransactional: true))
             {
-                string apiKey = "AIzaSyBL_ZkafZReHeEjgFeJs1jovrWM96EcF0c";
-                TranslationClient client = TranslationClient.CreateFromApiKey(apiKey);
+                TranslationClient client = TranslationClient.CreateFromApiKey(Configuration["GoogleTranslateKey"]);
 
                 var projects = await _projectRepository.GetListAsync();
                 var myProject= projects.FirstOrDefault(x => x.Id.Equals(eventData.ProjectId));

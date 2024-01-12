@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Connections.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -39,8 +40,9 @@ namespace FSI.Application.Chat
         private readonly IFileInfomationRepository _fileInfomationRepository;
         private readonly IHubContext<ChatHub> _hubContext;
         private readonly Guid currentUserId;
+        private readonly IConfiguration Configuration;
 
-        public ChatAppService(IConversationRepository conversationRepository, IUserConversationRepository userConversationRepository, IMessageRepository messageRepository, IHubContext<ChatHub> hubContext, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository)
+        public ChatAppService(IConversationRepository conversationRepository, IUserConversationRepository userConversationRepository, IMessageRepository messageRepository, IHubContext<ChatHub> hubContext, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IConfiguration configuration)
         {
             _conversationRepository = conversationRepository;
             _userConversationRepository = userConversationRepository;
@@ -50,6 +52,7 @@ namespace FSI.Application.Chat
             this.currentUserId = Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
             _userRepository = userRepository;
             _fileInfomationRepository = fileInfomationRepository;
+            Configuration = configuration;
         }
 
         public async Task<PagedResultDto<ConversationDto>> PostToGetListConversation(GetListConversationDto input)
@@ -329,7 +332,7 @@ namespace FSI.Application.Chat
                     await file.CopyToAsync(fileStream);
                 }
 
-                var fileUrl = "https://fsiconnected.cloud/images/" + fileName;
+                var fileUrl = $"{Configuration["App:ServerUrl"]}/images/" + fileName;
 
                 await _fileInfomationRepository.InsertAsync(new FileInfomation()
                 {
@@ -419,7 +422,7 @@ namespace FSI.Application.Chat
                     await file.CopyToAsync(fileStream);
                 }
 
-                var fileUrl = "https://fsiconnected.cloud/images/" + fileName;
+                var fileUrl = $"{Configuration["App:ServerUrl"]}/images/" + fileName;
 
                 await _fileInfomationRepository.InsertAsync(new FileInfomation()
                 {

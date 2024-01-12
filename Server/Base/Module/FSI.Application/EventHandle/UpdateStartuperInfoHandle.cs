@@ -3,6 +3,7 @@ using FSI.Common.ETO;
 using FSI.Domain.Project;
 using FSI.Domain.Startuper;
 using Google.Cloud.Translation.V2;
+using Microsoft.Extensions.Configuration;
 using Microsoft.ML;
 using Microsoft.ML.Transforms.Text;
 using System;
@@ -23,12 +24,14 @@ namespace FSI.Application.EventHandle
         private readonly IStartuperRepository _startuperRepository;
         private readonly IRepository<StartuperSimilarity, Guid> _startuperSimilarityRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
+        private readonly IConfiguration Configuration;
 
-        public UpdateStartuperInfoHandle(IStartuperRepository startuperRepository, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository, IUnitOfWorkManager unitOfWorkManager)
+        public UpdateStartuperInfoHandle(IStartuperRepository startuperRepository, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository, IUnitOfWorkManager unitOfWorkManager, IConfiguration configuration)
         {
             _startuperRepository = startuperRepository;
             _startuperSimilarityRepository = startuperSimilarityRepository;
             _unitOfWorkManager = unitOfWorkManager;
+            Configuration = configuration;
         }
 
         [UnitOfWork]
@@ -37,8 +40,7 @@ namespace FSI.Application.EventHandle
             using (var uow = _unitOfWorkManager.Begin(requiresNew: true, isTransactional: true))
             {
 
-                string apiKey = "AIzaSyBL_ZkafZReHeEjgFeJs1jovrWM96EcF0c";
-                TranslationClient client = TranslationClient.CreateFromApiKey(apiKey);
+                TranslationClient client = TranslationClient.CreateFromApiKey(Configuration["GoogleTranslateKey"]);
 
 
                 var startupers = await _startuperRepository.GetListAsync();

@@ -5,6 +5,7 @@ using FSI.Domain.Startuper;
 using Google.Api.Gax;
 using Google.Cloud.Translation.V2;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Configuration;
 using Microsoft.ML;
 using Microsoft.ML.Transforms.Text;
 using NPOI.SS.Formula.Functions;
@@ -31,14 +32,16 @@ namespace FSI.Application.EventHandle
         private readonly IStartuperRepository _startuperRepository;
         private readonly IRepository<ProjectUser, Guid> _projectUserRepository;
         private readonly IDistributedCache<List<ProjectSimilarStartuper>> _projectSimilarStartuperCache;
+        private readonly IConfiguration Configuration;
 
-        public UpdateProjectRequestStartuperInfoHandle(IUnitOfWorkManager unitOfWorkManager, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository, IRepository<ProjectUser, Guid> projectUserRepository, IStartuperRepository startuperRepository, IDistributedCache<List<ProjectSimilarStartuper>> projectSimilarStartuperCache)
+        public UpdateProjectRequestStartuperInfoHandle(IUnitOfWorkManager unitOfWorkManager, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository, IRepository<ProjectUser, Guid> projectUserRepository, IStartuperRepository startuperRepository, IDistributedCache<List<ProjectSimilarStartuper>> projectSimilarStartuperCache, IConfiguration configuration)
         {
             _unitOfWorkManager = unitOfWorkManager;
             _projectRequestStartuperInfoRepository = projectRequestStartuperInfoRepository;
             _projectUserRepository = projectUserRepository;
             _startuperRepository = startuperRepository;
             _projectSimilarStartuperCache = projectSimilarStartuperCache;
+            Configuration = configuration;
         }
 
         [UnitOfWork]
@@ -50,8 +53,7 @@ namespace FSI.Application.EventHandle
 
                 if(pjRqInfo != null)
                 {
-                    string apiKey = "AIzaSyBL_ZkafZReHeEjgFeJs1jovrWM96EcF0c";
-                    TranslationClient client = TranslationClient.CreateFromApiKey(apiKey);
+                    TranslationClient client = TranslationClient.CreateFromApiKey(Configuration["GoogleTranslateKey"]);
 
                     var fields = DataPointDto.GetMultiEnglish(FsiDataValue.Fields, pjRqInfo.Fields);
                     var jobs = DataPointDto.GetMultiEnglish(FsiDataValue.Fields, pjRqInfo.Jobs);

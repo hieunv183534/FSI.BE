@@ -7,6 +7,7 @@ using FSI.Lib;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,12 +31,14 @@ namespace FSI.Application.Agora
         private readonly IConversationRepository _conversationRepository;
         private readonly IUserRootRepository _userRepository;
         private readonly IUserConversationRepository _userConversationRepository;
+        private readonly IConfiguration Configuration;
 
-        public AgoraAppService(IHttpContextAccessor httpContextAccessor, IConversationRepository conversationRepository, IUserConversationRepository userConversationRepository)
+        public AgoraAppService(IHttpContextAccessor httpContextAccessor, IConversationRepository conversationRepository, IUserConversationRepository userConversationRepository, IConfiguration configuration)
         {
             _httpContextAccessor = httpContextAccessor;
             _conversationRepository = conversationRepository;
             _userConversationRepository = userConversationRepository;
+            Configuration = configuration;
         }
 
         public async Task<string> CreateRtcToken(GetTokenDto input)
@@ -59,15 +62,15 @@ namespace FSI.Application.Agora
             }
 
 
-            var token1 = new AccessToken("48f5a9f8d4e644a6a1ca96376fdcf441",
-                                        "cfbf074b9424427bba74f3c47b998921",
+            var token1 = new AccessToken(Configuration["Agora:AppId"],
+                                        Configuration["Agora:AppCertificate"],
                                         input.ChannelName,
                                         uIdStr);
             token1.addPrivilege(Privileges.kJoinChannel, DateTime.Now.AddDays(1).ToDoUInt32DateTime());
             string result1 = token1.build();
 
-            var token2 = new AccessToken("48f5a9f8d4e644a6a1ca96376fdcf441",
-                                        "cfbf074b9424427bba74f3c47b998921",
+            var token2 = new AccessToken(Configuration["Agora:AppId"],
+                                        Configuration["Agora:AppCertificate"],
                                         input.ChannelName,
                                         uIdStr + "screen");
             token2.addPrivilege(Privileges.kJoinChannel, DateTime.Now.AddDays(1).ToDoUInt32DateTime());
