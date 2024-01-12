@@ -26,7 +26,7 @@ namespace FSI.Domain.User
 
         public int? Job { get; set; }
 
-        public bool? Gender { get; set; }
+        public bool Gender { get; set; }
 
         public string? University { get; set; }
 

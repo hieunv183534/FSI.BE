@@ -59,14 +59,21 @@ namespace FSI.Application.Agora
             }
 
 
-            var token = new AccessToken("48f5a9f8d4e644a6a1ca96376fdcf441",
+            var token1 = new AccessToken("48f5a9f8d4e644a6a1ca96376fdcf441",
                                         "cfbf074b9424427bba74f3c47b998921",
                                         input.ChannelName,
                                         uIdStr);
+            token1.addPrivilege(Privileges.kJoinChannel, DateTime.Now.AddDays(1).ToDoUInt32DateTime());
+            string result1 = token1.build();
 
-            token.addPrivilege(Privileges.kJoinChannel, DateTime.Now.AddDays(1).ToDoUInt32DateTime());
-            string result = token.build();
-            return result;
+            var token2 = new AccessToken("48f5a9f8d4e644a6a1ca96376fdcf441",
+                                        "cfbf074b9424427bba74f3c47b998921",
+                                        input.ChannelName,
+                                        uIdStr + "screen");
+            token2.addPrivilege(Privileges.kJoinChannel, DateTime.Now.AddDays(1).ToDoUInt32DateTime());
+            string result2 = token2.build();
+
+            return result1 + "_and_" + result2;
         }
     }
 }
