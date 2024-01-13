@@ -46,5 +46,16 @@ namespace FSI.Domain.Startuper
 
         public string? StartuperEnglishText { get; set; }
 
+        public List<string>? Collab { get; set; }
+
+        // điểm cộng tính cách
+        public List<int>? RequestPersonality { get; set; }
+
+        // điểm cộng kĩ năng
+        public List<int>? RequestSkill { get; set; }
+
+        // có ý tưởng hay không
+        public bool? hasIdea { get; set; }
+
     }
 }

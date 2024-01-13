@@ -31,5 +31,14 @@ namespace FSI.Application.Contracts.Startuper.DTO
         public int? YearOfExp { get; set; }
 
         public int? AvailableTime { get; set; }
+
+        public List<string>? Collab { get; set; }
+
+        public List<int>? RequestPersonality { get; set; }
+
+        public List<int>? RequestSkill { get; set; }
+
+        public bool? hasIdea { get; set; }
+
     }
 }

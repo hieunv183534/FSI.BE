@@ -98,6 +98,10 @@ namespace FSI.Application.Startuper
             thisStartuper.AvailableTime = input.AvailableTime;
             thisStartuper.WorkingExperience = input.WorkingExperience;
             thisStartuper.IsNewProfile = false;
+            thisStartuper.Collab = input.Collab;
+            thisStartuper.RequestPersonality = input.RequestPersonality;
+            thisStartuper.RequestSkill = input.RequestSkill;
+            thisStartuper.hasIdea = false;
             var rs = await _startuperRepository.UpdateAsync(thisStartuper);
 
             await _distributedEventBus.PublishAsync(new UpdateStartuperInfoEto()
