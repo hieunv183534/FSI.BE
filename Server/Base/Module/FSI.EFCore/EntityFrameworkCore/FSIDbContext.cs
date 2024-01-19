@@ -107,6 +107,10 @@ public class FSIDbContext :
             entity.Property(x => x.RequestPersonality).IsJson();
             entity.Property(x => x.RequestSkill).IsJson();
             entity.Property(x => x.Collab).IsJson();
+            entity.Property(x => x.ideaField).IsJson();
+            entity.Property(x => x.targetField).IsJson();
+            entity.Property(x => x.Specialize).IsJson();
+            entity.Property(x => x.targetSpecialize).IsJson();
         });
 
         builder.Entity<ProjectEvent>(entity =>
