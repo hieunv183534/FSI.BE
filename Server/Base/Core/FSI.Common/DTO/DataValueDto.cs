@@ -36,7 +36,7 @@ namespace FSI.Common.DTO
 
     public class FsiDataValue
     {
-        public static List<DataPointDto> Fields = new List<DataPointDto> {
+        public static List<DataPointDto> Specializies = new List<DataPointDto> {
             new DataPointDto("Agency (Design/Development)", 1, "Design/Development"),
             new DataPointDto("Agency (Marketing/Advertising)", 2, "Marketing/Advertising"),
             new DataPointDto("Bán lẻ - Hàng tiêu dùng - FMCG", 3, "Retail/FMCG"),
@@ -77,6 +77,21 @@ namespace FSI.Common.DTO
             new DataPointDto("Viễn thông", 38, "Telecommunications"),
             new DataPointDto("Xây dựng", 39, "Construction"),
             new DataPointDto("Xuất nhập khẩu", 40, "Import/Export"),
+        };
+
+        public static List<DataPointDto> Fields = new List<DataPointDto> {
+            new DataPointDto("Công nghệ thông tin", 1, "Information Technology"),
+            new DataPointDto("Y tế và chăm sóc sức khỏe", 2, "Healthcare and Medical"),
+            new DataPointDto("Kinh doanh và tài chính", 3, "Business and Finance"),
+            new DataPointDto("Năng lượng và môi trường", 4, "Energy and Environment"),
+            new DataPointDto("Thiết bị điện tử", 5, "Electronics"),
+            new DataPointDto("Giáo dục", 6, "Education"),
+            new DataPointDto("Vận tải", 7, "Transportation"),
+            new DataPointDto("Khách sạn và du lịch", 8, "Hospitality and Tourism"),
+            new DataPointDto("Thực phẩm và nông nghiệp", 9, "Food and Agriculture"),
+            new DataPointDto("Thương mại điện tử", 10, "E-commerce"),
+            new DataPointDto("Công nghiệp và sản xuất", 11, "Industrial and Manufacturing"),
+            new DataPointDto("Khác", 0, "Other")
         };
 
         public static List<DataPointDto> Jobs = new List<DataPointDto> {

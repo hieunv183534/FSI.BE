@@ -11,7 +11,7 @@ namespace FSI.Application.Contracts.Startuper.DTO
     {
         public string? Filter { get; set; }
 
-        public List<int>? Fields { get; set; }
+        public List<int>? Specializies { get; set; }
 
         public List<int>? Personalities { get; set; }
 

@@ -120,7 +120,7 @@ namespace FSI.Application.Startuper
                                                                                             x.Activity.Contains(input.Filter) ||
                                                                                             x.WorkingExperience.Contains(input.Filter) ||
                                                                                             x.StudentId.Equals(input.Filter))
-                                    .WhereIf(input.Fields.Count != 0, x => input.Fields.Contains(x.Field.Value))
+                                    .WhereIf(input.Specializies.Count != 0, x => input.Specializies.Contains(x.Field.Value))
                                     .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Location))
                                     .WhereIf(input.YearOfExps.Count != 0, x => input.YearOfExps.Contains(x.YearOfExp.Value))
                                     .WhereIf(input.AvailableTimes.Count != 0, x => input.AvailableTimes.Contains(x.AvailableTime.Value))
