@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
+using Volo.Abp.BlobStoring;
 using Volo.Abp.Domain.Repositories;
 
 namespace FSI.Application.Chat
@@ -41,8 +42,9 @@ namespace FSI.Application.Chat
         private readonly IHubContext<ChatHub> _hubContext;
         private readonly Guid currentUserId;
         private readonly IConfiguration Configuration;
+        private readonly IBlobContainer _blobContainer;
 
-        public ChatAppService(IConversationRepository conversationRepository, IUserConversationRepository userConversationRepository, IMessageRepository messageRepository, IHubContext<ChatHub> hubContext, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IConfiguration configuration)
+        public ChatAppService(IConversationRepository conversationRepository, IUserConversationRepository userConversationRepository, IMessageRepository messageRepository, IHubContext<ChatHub> hubContext, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IConfiguration configuration, IBlobContainer blobContainer = null)
         {
             _conversationRepository = conversationRepository;
             _userConversationRepository = userConversationRepository;
@@ -53,6 +55,7 @@ namespace FSI.Application.Chat
             _userRepository = userRepository;
             _fileInfomationRepository = fileInfomationRepository;
             Configuration = configuration;
+            _blobContainer = blobContainer;
         }
 
         public async Task<PagedResultDto<ConversationDto>> PostToGetListConversation(GetListConversationDto input)
