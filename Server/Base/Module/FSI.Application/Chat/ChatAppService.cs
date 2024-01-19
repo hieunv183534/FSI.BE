@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http.Connections.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
+using Microsoft.VisualBasic;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -284,7 +285,8 @@ namespace FSI.Application.Chat
                 ConversationId = conversation.Id,
                 SenderId = currentUserId,
                 Type = input.Type,
-                Index = lastMessage.Index + 1
+                Index = lastMessage.Index + 1,
+                FocusToMessageId = input.FocusToMessageId
             });
 
             conversation.LastMessageId = newMessage.Id;
@@ -296,7 +298,7 @@ namespace FSI.Application.Chat
                 if (conversation.UserAId.Equals(currentUserId))
                 {
                     conversation.LastIndexSeenA = newMessage.Index;
-                    if(!conversation.IsActiveA.Value)
+                    if (!conversation.IsActiveA.Value)
                         conversation.IsActiveA = true;
                 }
                 else
@@ -345,7 +347,7 @@ namespace FSI.Application.Chat
                     ContentType = file.ContentType
                 });
 
-                input.AvatarUrl= fileUrl;
+                input.AvatarUrl = fileUrl;
             }
 
             var newConversation = await _conversationRepository.InsertAsync(new Conversation()
@@ -465,7 +467,7 @@ namespace FSI.Application.Chat
         {
             var userConversation = await _userConversationRepository.GetAsync(x => x.ConversationId.Equals(conversationId) && x.UserId.Equals(currentUserId) && x.IsActive.Value);
 
-            if(userConversation == null)
+            if (userConversation == null)
             {
                 throw new UserFriendlyException(message: "Bạn không có quyền thêm thành viên cho đoạn chat");
             }
@@ -509,7 +511,7 @@ namespace FSI.Application.Chat
             }
 
             var _userConversation = await _userConversationRepository.GetAsync(x => x.ConversationId.Equals(conversationId) && x.UserId.Equals(userId));
-            if(userConversation.RoleInConversation > _userConversation.RoleInConversation)
+            if (userConversation.RoleInConversation > _userConversation.RoleInConversation)
                 throw new UserFriendlyException(message: "Bạn không có quyền xóa thành viên khỏi đoạn chat");
 
             await _userConversationRepository.DeleteAsync(_userConversation);
@@ -551,7 +553,7 @@ namespace FSI.Application.Chat
                 await _conversationRepository.UpdateAsync(conversation);
             }
             else
-            {   
+            {
                 var userConversation = await _userConversationRepository.FindAsync(x => x.ConversationId.Equals(conversationId) && x.UserId.Equals(currentUserId));
                 if (userConversation == null)
                     throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
@@ -630,6 +632,41 @@ namespace FSI.Application.Chat
             var users = await _userRepository.GetListAsync();
             var userConversations = await _userConversationRepository.GetListAsync(x => x.ConversationId.Equals(conversationId));
             return ObjectMapper.Map<List<UserConversation>, List<UserConversationDto>>(userConversations);
+        }
+
+        public async Task PostReactMessage(PostReactMessageDto input)
+        {
+            var message = await _messageRepository.GetAsync(input.MessageId);
+
+            var oldReact = message.Reacts.FirstOrDefault(x => x.UserId == currentUserId);
+
+            if (oldReact == null)
+            {
+                if (input.React != null)
+                {
+                    message.Reacts.Add(new UserReactMessage()
+                    {
+                        React = input.React.Value,
+                        UserId = currentUserId
+                    });
+                }
+                else return;
+            }
+            else
+            {
+                if (input.React != null)
+                {
+                    oldReact.React = input.React.Value;
+                }
+                else
+                {
+                    message.Reacts.Remove(oldReact);
+                }
+            }
+
+            await _messageRepository.UpdateAsync(message);
+
+            await _hubContext.Clients.Group(message.ConversationId.ToString()).SendAsync("OnReactMessage", message);
         }
     }
 }

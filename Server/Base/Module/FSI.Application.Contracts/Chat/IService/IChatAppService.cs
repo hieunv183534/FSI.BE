@@ -36,5 +36,7 @@ namespace FSI.Application.Contracts.Chat.IService
         Task<ConversationDto> GetConversationByUserId(Guid userId);
 
         Task<List<UserConversationDto>> GetUsersByConversation(Guid conversationId);
+
+        Task PostReactMessage(PostReactMessageDto input);
     }
 }
