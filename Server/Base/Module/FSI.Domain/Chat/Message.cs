@@ -25,6 +25,8 @@ namespace FSI.Domain.Chat
 
         public List<UserReactMessage> Reacts { get; set; } = new List<UserReactMessage>();
 
+        public bool IsPinned { get; set; } = false;
+
     }
 
     public class UserReactMessage

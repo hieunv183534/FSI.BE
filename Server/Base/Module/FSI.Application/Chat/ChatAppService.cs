@@ -638,6 +638,19 @@ namespace FSI.Application.Chat
         {
             var message = await _messageRepository.GetAsync(input.MessageId);
 
+            var conversation = await _conversationRepository.GetAsync(message.ConversationId);
+            if (conversation.JustTwoPeople.Value)
+            {
+                if (!conversation.UserAId.Equals(currentUserId) && !conversation.UserBId.Equals(currentUserId))
+                    throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
+            }
+            else
+            {
+                var userConversation = await _userConversationRepository.FindAsync(x => x.ConversationId.Equals(message.ConversationId) && x.UserId.Equals(currentUserId));
+                if (userConversation == null)
+                    throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
+            }
+
             var oldReact = message.Reacts.FirstOrDefault(x => x.UserId == currentUserId);
 
             if (oldReact == null)
@@ -667,6 +680,49 @@ namespace FSI.Application.Chat
             await _messageRepository.UpdateAsync(message);
 
             await _hubContext.Clients.Group(message.ConversationId.ToString()).SendAsync("OnReactMessage", message);
+        }
+
+        public async Task PostPinMessage(PostPinMessageDto input)
+        {
+            var message = await _messageRepository.GetAsync(input.MessageId);
+
+            var conversation = await _conversationRepository.GetAsync(message.ConversationId);
+            if (conversation.JustTwoPeople.Value)
+            {
+                if (!conversation.UserAId.Equals(currentUserId) && !conversation.UserBId.Equals(currentUserId))
+                    throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
+            }
+            else
+            {
+                var userConversation = await _userConversationRepository.FindAsync(x => x.ConversationId.Equals(message.ConversationId) && x.UserId.Equals(currentUserId));
+                if (userConversation == null)
+                    throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
+            }
+
+            message.IsPinned = input.IsPin;
+            await _messageRepository.UpdateAsync(message);
+
+            await _hubContext.Clients.Group(message.ConversationId.ToString()).SendAsync("OnPinMessage", message);
+        }
+
+        public async Task<List<MessageDto>> GetListPinMessageByConversation(Guid conversationId)
+        {
+            var conversation = await _conversationRepository.GetAsync(conversationId);
+            if (conversation.JustTwoPeople.Value)
+            {
+                if (!conversation.UserAId.Equals(currentUserId) && !conversation.UserBId.Equals(currentUserId))
+                    throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
+            }
+            else
+            {
+                var userConversation = await _userConversationRepository.FindAsync(x => x.ConversationId.Equals(conversationId) && x.UserId.Equals(currentUserId));
+                if (userConversation == null)
+                    throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
+            }
+
+            var pinnedMessages = await _messageRepository.GetListAsync(x => x.ConversationId == conversationId && x.IsPinned);
+
+            return ObjectMapper.Map<List<Message>, List<MessageDto>>(pinnedMessages);
         }
     }
 }
