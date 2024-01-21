@@ -135,11 +135,11 @@ namespace FSI.Application.Startuper
 
             if (input.IsStudent.Value)
             {
-                startupers = startupers.Where(x=> x.Job == 1)
-                                        .WhereIf(!String.IsNullOrEmpty(input.University), x=> x.University != null && x.University.Equals(input.University))
+                startupers = startupers.Where(x => x.Job == 1)
+                                        .WhereIf(!String.IsNullOrEmpty(input.University), x => x.University != null && x.University.Equals(input.University))
                                         .WhereIf(!String.IsNullOrEmpty(input.UniversitySpecialized), x => x.UniversitySpecialized != null && x.UniversitySpecialized.Equals(input.UniversitySpecialized))
-                                        .WhereIf(!String.IsNullOrEmpty(input.StudentId), x=> x.StudentId != null && x.StudentId.Contains(input.StudentId))
-                            .ToList();  
+                                        .WhereIf(!String.IsNullOrEmpty(input.StudentId), x => x.StudentId != null && x.StudentId.Contains(input.StudentId))
+                            .ToList();
             }
 
             var allPatners = await _friendRepository.GetListAsync(x => x.UserAId.Equals(currentUserId) || x.UserBId.Equals(currentUserId));
@@ -212,9 +212,9 @@ namespace FSI.Application.Startuper
 
             // join với startuperSililarity để order theo similarity với người dùng hiện tại
             if (input.Mode.Equals(GuidStartuperMode.UuidStartuperModeNew) ||
-                input.Mode.Equals(GuidStartuperMode.UuidStartuperModeNew) ||
-                input.Mode.Equals(GuidStartuperMode.UuidStartuperModeNew) ||
-                input.Mode.Equals(GuidStartuperMode.UuidStartuperModeNew))
+                input.Mode.Equals(GuidStartuperMode.UuidStartuperModeFromMe) ||
+                input.Mode.Equals(GuidStartuperMode.UuidStartuperModeToMe) ||
+                input.Mode.Equals(GuidStartuperMode.UuidStartuperModeOfMe))
             {
                 var startuperSimilarities = await _startuperSimilarityRepository.GetListAsync(x => x.UserId.Equals(currentUserId));
                 var query = from startuper in startupers
@@ -254,15 +254,15 @@ namespace FSI.Application.Startuper
         {
             var file = _httpContextAccessor.HttpContext.Request.Form.Files[0];
             var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string filePath = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/images"),
-                fileName);
 
-            using (Stream fileStream = new FileStream(filePath, FileMode.Create))
+            using (var stream = new MemoryStream())
             {
-                await file.CopyToAsync(fileStream);
+                await file.CopyToAsync(stream);
+
+                await _blobContainer.SaveAsync(fileName, stream.ToArray(), overrideExisting: true);
             }
 
-            var fileUrl = $"{Configuration["App:ServerUrl"]}/images/" + fileName;
+            var fileUrl = "https://fsiconnectedapi.azurewebsites.net/image/" + fileName;
 
             await _fileInfomationRepository.InsertAsync(new FileInfomation()
             {
