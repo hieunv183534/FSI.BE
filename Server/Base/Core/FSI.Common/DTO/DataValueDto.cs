@@ -104,6 +104,13 @@ namespace FSI.Common.DTO
             new DataPointDto("Khác", 0, "Other")
         };
 
+        public static List<DataPointDto> Purposes = new List<DataPointDto> {
+            new DataPointDto("Tôi là người có ý tưởng", 1, "Have Idea"),
+            new DataPointDto("Tôi muốn tìm người có ý tưởng", 2, "Find People Have Idea"),
+            new DataPointDto("Tôi là người có dự án", 3, "Have Project"),
+            new DataPointDto("Tôi là người muốn tìm dự án", 4, "Find People Have Project"),
+        };
+
         public static List<DataPointDto> Areas = new List<DataPointDto>
         {
             new DataPointDto("Bắc Giang", 1, "BacGiang"),
