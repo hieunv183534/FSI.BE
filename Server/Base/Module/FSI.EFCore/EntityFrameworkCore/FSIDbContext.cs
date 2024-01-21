@@ -100,6 +100,11 @@ public class FSIDbContext :
             entity.Property(x => x.AvailableTimeRequire).IsJson();
         });
 
+        builder.Entity<Message>(entity =>
+        {
+            entity.Property(x => x.Reacts).IsJson();
+        });
+
         builder.Entity<Startuper>(entity =>
         {
             entity.Property(x => x.Personality).IsJson();

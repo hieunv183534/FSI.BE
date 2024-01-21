@@ -10,7 +10,10 @@ namespace FSI.Application.Contracts.Chat.DTO
     public class MessageSendToConversationDto
     {
         public MessageType Type { get; set; }
+
         public string Content { get; set; }
+
+        public Guid? FocusToMessageId { get; set; }
 
         public Guid ConversationId { get; set; }
     }

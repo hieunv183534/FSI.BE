@@ -23,5 +23,16 @@ namespace FSI.Domain.Chat
 
         public Guid? FocusToMessageId { get; set; }
 
+        public List<UserReactMessage> Reacts { get; set; } = new List<UserReactMessage>();
+
+        public bool IsPinned { get; set; } = false;
+
+    }
+
+    public class UserReactMessage
+    {
+        public Guid UserId { get; set; }
+
+        public MessageReact React { get; set; }
     }
 }

@@ -11,6 +11,7 @@ using Volo.Abp.BlobStoring;
 
 namespace FSI.Application.Blob
 {
+    [IgnoreAntiforgeryToken]
     public class FileAppService : ApplicationService, IFileAppService
     {
 

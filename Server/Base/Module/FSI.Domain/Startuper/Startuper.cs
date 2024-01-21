@@ -12,7 +12,7 @@ namespace FSI.Domain.Startuper
     public class Startuper : UserRoot
     {
 
-        // lĩnh vực 
+        // chuyên môn
         public int? Field { get; set; }
 
         // chuyên môn: mô tả những gì họ làm bằng text

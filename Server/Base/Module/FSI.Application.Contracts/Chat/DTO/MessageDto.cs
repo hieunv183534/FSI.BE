@@ -29,6 +29,12 @@ namespace FSI.Application.Contracts.Chat.DTO
 
         public Guid? FocusToMessageId { get; set; }
 
+        public MessageDto FocusToMessage { get; set; }
+
         public bool? IsMine { get; set; }
+
+        public List<UserReactMessage> Reacts { get; set; }
+
+        public bool IsPinned { get; set; }
     }
 }

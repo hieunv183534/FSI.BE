@@ -447,15 +447,15 @@ namespace FSI.Application.Project
 
             var file = _httpContextAccessor.HttpContext.Request.Form.Files[0];
             var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string filePath = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/images"),
-                fileName);
 
-            using (Stream fileStream = new FileStream(filePath, FileMode.Create))
+            using (var stream = new MemoryStream())
             {
-                await file.CopyToAsync(fileStream);
+                await file.CopyToAsync(stream);
+
+                await _blobContainer.SaveAsync(fileName, stream.ToArray(), overrideExisting: true);
             }
 
-            var fileUrl = $"{Configuration["App:ServerUrl"]}/images/" + fileName;
+            var fileUrl = "https://fsiconnectedapi.azurewebsites.net/image/" + fileName;
 
             await _fileInfomationRepository.InsertAsync(new FileInfomation()
             {
@@ -765,13 +765,14 @@ namespace FSI.Application.Project
             files.ForEach(async file =>
             {
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                string filePath = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/images"),
-                fileName);
-                using (Stream fileStream = new FileStream(filePath, FileMode.Create))
+                using (var stream = new MemoryStream())
                 {
-                    await file.CopyToAsync(fileStream);
+                    await file.CopyToAsync(stream);
+
+                    await _blobContainer.SaveAsync(fileName, stream.ToArray(), overrideExisting: true);
                 }
-                var fileUrl = $"{Configuration["App:ServerUrl"]}/images/" + fileName;
+
+                var fileUrl = "https://fsiconnectedapi.azurewebsites.net/image/" + fileName;
                 fileInfos.Add(new FileInfomation()
                 {
                     AuthorId = this.currentUserId,
