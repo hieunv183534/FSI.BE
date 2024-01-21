@@ -196,7 +196,7 @@ namespace FSI.Application.Chat
             var users = await _userRepository.GetListAsync();
             var messages = await _messageRepository.GetListAsync(x => x.ConversationId.Equals(input.ConversationId));
 
-            var rs = ObjectMapper.Map<List<Message>, List<MessageDto>>(messages.Skip(input.SkipCount).Take(input.MaxResultCount).OrderByDescending(x => x.CreationTime).ToList());
+            var rs = ObjectMapper.Map<List<Message>, List<MessageDto>>(messages.OrderByDescending(x => x.CreationTime).Skip(input.SkipCount).Take(input.MaxResultCount).ToList());
             rs.ForEach(async x =>
             {
                 x.IsMine = x.Sender.Id.Equals(currentUserId);
