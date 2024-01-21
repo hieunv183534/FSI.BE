@@ -732,5 +732,17 @@ namespace FSI.Application.Chat
 
             return ObjectMapper.Map<List<Message>, List<MessageDto>>(pinnedMessages);
         }
+
+        public async Task DeleteMessage(Guid messageId)
+        {
+            var message = await _messageRepository.GetAsync(messageId);
+
+            if (message.SenderId != currentUserId)
+                throw new UserFriendlyException(message: "Bạn không thể xóa tin nhắn của người khác!");
+
+            await _messageRepository.DeleteAsync(messageId);
+
+            await _hubContext.Clients.Group(message.ConversationId.ToString()).SendAsync("OnDeleteMessage", message);
+        }
     }
 }

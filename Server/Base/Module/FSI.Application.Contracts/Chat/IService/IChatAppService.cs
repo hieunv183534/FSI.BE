@@ -42,5 +42,7 @@ namespace FSI.Application.Contracts.Chat.IService
         Task PostPinMessage(PostPinMessageDto input);
 
         Task<List<MessageDto>> GetListPinMessageByConversation(Guid conversationId);
+
+        Task DeleteMessage(Guid messageId);
     }
 }
