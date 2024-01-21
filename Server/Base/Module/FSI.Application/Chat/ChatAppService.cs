@@ -197,12 +197,13 @@ namespace FSI.Application.Chat
             var messages = await _messageRepository.GetListAsync(x => x.ConversationId.Equals(input.ConversationId));
 
             var rs = ObjectMapper.Map<List<Message>, List<MessageDto>>(messages.OrderByDescending(x => x.CreationTime).Skip(input.SkipCount).Take(input.MaxResultCount).ToList());
-            rs.ForEach(async x =>
+            
+            rs.ForEach(x =>
             {
                 x.IsMine = x.Sender.Id.Equals(currentUserId);
                 if(x.FocusToMessageId != null)
                 {
-                    var focusMessage = await _messageRepository.GetAsync(x.FocusToMessageId.Value);
+                    var focusMessage = messages.FirstOrDefault(y=> y.Id == x.FocusToMessageId);
                     x.FocusToMessage = ObjectMapper.Map<Message, MessageDto>(focusMessage);
                 }
             });
@@ -266,7 +267,7 @@ namespace FSI.Application.Chat
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public async Task<MessageDto> SendMessageToConversation(MessageSendToConversationDto input)
+        public async Task<MessageDto> SendMessageToConversation(MessageSendToConversationDto input) 
         {
             var conversation = await _conversationRepository.GetAsync(input.ConversationId);
 
