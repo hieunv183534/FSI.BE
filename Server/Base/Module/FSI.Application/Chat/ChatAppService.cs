@@ -197,9 +197,14 @@ namespace FSI.Application.Chat
             var messages = await _messageRepository.GetListAsync(x => x.ConversationId.Equals(input.ConversationId));
 
             var rs = ObjectMapper.Map<List<Message>, List<MessageDto>>(messages.Skip(input.SkipCount).Take(input.MaxResultCount).OrderByDescending(x => x.CreationTime).ToList());
-            rs.ForEach(x =>
+            rs.ForEach(async x =>
             {
                 x.IsMine = x.Sender.Id.Equals(currentUserId);
+                if(x.FocusToMessageId != null)
+                {
+                    var focusMessage = await _messageRepository.GetAsync(x.FocusToMessageId.Value);
+                    x.FocusToMessage = ObjectMapper.Map<Message, MessageDto>(focusMessage);
+                }
             });
             return new PagedResultDto<MessageDto>()
             {
