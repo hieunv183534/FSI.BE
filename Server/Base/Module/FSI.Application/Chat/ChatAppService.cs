@@ -477,8 +477,10 @@ namespace FSI.Application.Chat
             {
                 ConversationId = conversationId,
                 UserId = userId,
-                EnableNotification = false,
+                EnableNotification = true,
                 IsActive = false,
+                IsStorage = false,
+                IsDeleted = false,
                 RoleInConversation = Common.Enums.UserConversationRole.Member,
                 LastIndexSeen = -1
             });
