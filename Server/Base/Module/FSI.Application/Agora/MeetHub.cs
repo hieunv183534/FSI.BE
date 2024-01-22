@@ -41,6 +41,9 @@ namespace FSI.Application.Agora
             }
             else
             {
+                var users = _meetHubService.UserMeets.Where(x=> x.ConversationId == conversationId).Select(x => x.Uid).ToList();
+                await Clients.Caller.SendAsync("OnJoinSuccess", users);
+
                 _meetHubService.UserMeets.Add(new UserMeet()
                 {
                     ConversationId = conversationId,
@@ -51,7 +54,6 @@ namespace FSI.Application.Agora
                     Video = false
                 });
                 await Groups.AddToGroupAsync(Context.ConnectionId, conversationId.ToString());
-                await Clients.Caller.SendAsync("OnJoinSuccess");
                 await Clients.Group(conversationId.ToString()).SendAsync("OnJoined", currentUserId);
             }
         }
@@ -99,7 +101,7 @@ namespace FSI.Application.Agora
         }
 
         public override Task OnDisconnectedAsync(Exception exception)
-        {
+            {
             var userMeet = _meetHubService.UserMeets.FirstOrDefault(x => x.Uid == currentUserId && x.ConnectionId == Context.ConnectionId);
             if(userMeet != null)
             {
