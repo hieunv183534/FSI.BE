@@ -94,8 +94,8 @@ namespace FSI.Application.Agora
             {
                 _meetHubService.UserMeets.Remove(um);
             });
-            await Clients.Group()
-            return base.OnDisconnectedAsync(exception);
+            //await Clients.Group()
+            base.OnDisconnectedAsync(exception);
         }
     }
 
