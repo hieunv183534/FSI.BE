@@ -21,6 +21,7 @@ using Volo.Abp.AspNetCore.SignalR;
 using FSI.Application.Hubs;
 using Microsoft.AspNetCore.Http.Features;
 using System.Text.Json.Serialization;
+using FSI.Application.Agora;
 
 namespace FSI
 {
@@ -69,7 +70,8 @@ namespace FSI
                         var path = context.HttpContext.Request.Path;
                         if (!string.IsNullOrEmpty(accessToken) &&
                             (path.StartsWithSegments("/test") ||
-                            path.StartsWithSegments("/chat")))
+                            path.StartsWithSegments("/chat") ||
+                            path.StartsWithSegments("/meet")))
                         {
                             context.Token = accessToken;
                         }
@@ -100,6 +102,17 @@ namespace FSI
                     new HubConfig(
                         typeof(ChatHub),
                         "/chat",
+                        hubOptions =>
+                        {
+                            hubOptions.LongPolling.PollTimeout = TimeSpan.FromSeconds(30);
+                        }
+                    )
+                );
+
+                options.Hubs.Add(
+                    new HubConfig(
+                        typeof(MeetHub),
+                        "/meet",
                         hubOptions =>
                         {
                             hubOptions.LongPolling.PollTimeout = TimeSpan.FromSeconds(30);

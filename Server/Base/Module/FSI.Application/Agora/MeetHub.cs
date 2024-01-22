@@ -33,27 +33,38 @@ namespace FSI.Application.Agora
 
         public async Task JoinMeet(Guid conversationId)
         {
-            _meetHubService.UserMeets.Add(new UserMeet()
+            var currentUserMeet = _meetHubService.UserMeets.FirstOrDefault(x => x.Uid == currentUserId);
+
+            if (currentUserMeet != null)
             {
-                ConversationId = conversationId,
-                ConnectionId = Context.ConnectionId,
-                Uid = currentUserId,
-                Micro = false,
-                Screen = false,
-                Video = false
-            });
-            await Groups.AddToGroupAsync(Context.ConnectionId, conversationId.ToString());
-            await Clients.Group(conversationId.ToString()).SendAsync("OnJoined", currentUserId);
+                await Clients.Caller.SendAsync("OnJoinFailed", "Bạn chỉ có thể tham gia 1 meet trong 1 thời điểm. Hãy thoát các meet khác trước khi tham gia meet này!");
+            }
+            else
+            {
+                _meetHubService.UserMeets.Add(new UserMeet()
+                {
+                    ConversationId = conversationId,
+                    ConnectionId = Context.ConnectionId,
+                    Uid = currentUserId,
+                    Micro = false,
+                    Screen = false,
+                    Video = false
+                });
+                await Groups.AddToGroupAsync(Context.ConnectionId, conversationId.ToString());
+                await Clients.Caller.SendAsync("OnJoinSuccess");
+                await Clients.Group(conversationId.ToString()).SendAsync("OnJoined", currentUserId);
+            }
         }
 
-        public async Task Chat(Guid conversationId, string message)
+        public async Task Chat(string message)
         {
-            await Clients.Group(conversationId.ToString()).SendAsync("OnMessage", currentUserId, message);
+            var userMeet = _meetHubService.UserMeets.FirstOrDefault(x => x.Uid == currentUserId);
+            await Clients.Group(userMeet.ConversationId.ToString()).SendAsync("OnMessage", currentUserId, message);
         }
 
-        public async Task Publish(Guid conversationId, string track)
+        public async Task Publish(string track)
         {
-            var userMeet = _meetHubService.UserMeets.FirstOrDefault(x=> x.ConversationId == conversationId && x.Uid == currentUserId);
+            var userMeet = _meetHubService.UserMeets.FirstOrDefault(x => x.Uid == currentUserId);
             switch (track)
             {
                 case "micro":
@@ -66,12 +77,12 @@ namespace FSI.Application.Agora
                     userMeet.Screen = true;
                     break;
             }
-            await Clients.Groups(conversationId.ToString()).SendAsync("OnPublish", currentUserId, track);
+            await Clients.Groups(userMeet.ConversationId.ToString()).SendAsync("OnPublish", currentUserId, track);
         }
 
-        public async Task UnPublish(Guid conversationId, string track)
+        public async Task UnPublish(string track)
         {
-            var userMeet = _meetHubService.UserMeets.FirstOrDefault(x => x.ConversationId == conversationId && x.Uid == currentUserId);
+            var userMeet = _meetHubService.UserMeets.FirstOrDefault(x => x.Uid == currentUserId);
             switch (track)
             {
                 case "micro":
@@ -84,18 +95,19 @@ namespace FSI.Application.Agora
                     userMeet.Screen = false;
                     break;
             }
-            await Clients.Groups(conversationId.ToString()).SendAsync("OnUnPublish", currentUserId, track);
+            await Clients.Groups(userMeet.ConversationId.ToString()).SendAsync("OnUnPublish", currentUserId, track);
         }
 
-        public override async Task OnDisconnectedAsync(Exception exception)
+        public override Task OnDisconnectedAsync(Exception exception)
         {
-            var currentUserMeets = _meetHubService.UserMeets.Where(x => x.Uid == currentUserId).ToList();
-            currentUserMeets.ForEach(um =>
+            var userMeet = _meetHubService.UserMeets.FirstOrDefault(x => x.Uid == currentUserId && x.ConnectionId == Context.ConnectionId);
+            if(userMeet != null)
             {
-                _meetHubService.UserMeets.Remove(um);
-            });
-            //await Clients.Group()
-            base.OnDisconnectedAsync(exception);
+                Groups.RemoveFromGroupAsync(Context.ConnectionId, userMeet.ConversationId.ToString());
+                Clients.Groups(userMeet.ConversationId.ToString()).SendAsync("OnLeave", currentUserId);
+                _meetHubService.UserMeets.Remove(userMeet);
+            }
+            return base.OnDisconnectedAsync(exception);
         }
     }
 

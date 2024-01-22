@@ -10,5 +10,6 @@ namespace FSI.Application.Contracts.Agora.IService
     public interface IAgoraAppService
     {
         Task<string> CreateRtcToken(GetTokenDto input);
+
     }
 }

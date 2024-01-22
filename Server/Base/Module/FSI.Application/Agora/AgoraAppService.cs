@@ -1,13 +1,16 @@
 ﻿using AgoraIO.Media;
 using FSI.Application.Contracts.Agora.DTO;
 using FSI.Application.Contracts.Agora.IService;
+using FSI.Application.Hubs;
 using FSI.Domain.Chat;
 using FSI.Domain.User;
 using FSI.Lib;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
+using Polly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,18 +30,25 @@ namespace FSI.Application.Agora
 
         protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private Guid currentUserId;
 
         private readonly IConversationRepository _conversationRepository;
-        private readonly IUserRootRepository _userRepository;
         private readonly IUserConversationRepository _userConversationRepository;
         private readonly IConfiguration Configuration;
 
-        public AgoraAppService(IHttpContextAccessor httpContextAccessor, IConversationRepository conversationRepository, IUserConversationRepository userConversationRepository, IConfiguration configuration)
+        private readonly IHubContext<ChatHub> _hubContext;
+        private readonly MeetHubService _meetHubService;
+
+
+        public AgoraAppService(IHttpContextAccessor httpContextAccessor, IConversationRepository conversationRepository, IUserConversationRepository userConversationRepository, IConfiguration configuration, IHubContext<ChatHub> hubContext, MeetHubService meetHubService)
         {
             _httpContextAccessor = httpContextAccessor;
+            currentUserId = Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
             _conversationRepository = conversationRepository;
             _userConversationRepository = userConversationRepository;
             Configuration = configuration;
+            _hubContext = hubContext;
+            _meetHubService = meetHubService;
         }
 
         public async Task<string> CreateRtcToken(GetTokenDto input)
@@ -78,5 +88,6 @@ namespace FSI.Application.Agora
 
             return result1 + "_and_" + result2;
         }
+
     }
 }
