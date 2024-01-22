@@ -1,4 +1,5 @@
-﻿using FSI.GrpcClient.RecommendationSystem;
+﻿using FSI.Application.Agora;
+using FSI.GrpcClient.RecommendationSystem;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp;
 using Volo.Abp.AutoMapper;
@@ -45,6 +46,7 @@ namespace FSI
             });
 
             context.Services.AddScoped<IRecommendationSystem, RecommendationSystem>();
+            context.Services.AddSingleton<MeetHubService>();
         }
 
     }
