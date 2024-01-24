@@ -740,6 +740,16 @@ namespace FSI.Application.Chat
             if (message.SenderId != currentUserId)
                 throw new UserFriendlyException(message: "Bạn không thể xóa tin nhắn của người khác!");
 
+            var conversation = await _conversationRepository.GetAsync(message.ConversationId);
+
+            if(conversation.LastMessageId == messageId)
+            {
+                var messages = await _messageRepository.GetListAsync(x => x.ConversationId == message.ConversationId);
+                var previousMessage = messages.OrderByDescending(x=> x.Index).ElementAt(1);
+                conversation.LastMessageId = previousMessage.Id;
+                await _conversationRepository.UpdateAsync(conversation);
+            }
+
             await _messageRepository.DeleteAsync(messageId);
 
             await _hubContext.Clients.Group(message.ConversationId.ToString()).SendAsync("OnDeleteMessage", message);
