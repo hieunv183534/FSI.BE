@@ -86,6 +86,7 @@ namespace FSI.Application.Auth
                         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                         new Claim(ClaimTypes.GivenName , acc.Id.ToString()),
                         new Claim("phoneNumber" , acc.PhoneNumber),
+                        new Claim("job" , user.Job.ToString()),
                         new Claim("avatarUrl" , user.AvatarUrl ?? "../../../../assets/img/profileIcon.png"),
                     }),
                     Expires = DateTime.UtcNow.AddDays(30),
