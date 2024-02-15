@@ -357,6 +357,18 @@ namespace FSI.Common.DTO
             new DataPointDto("Toàn thời gian", 5, "Full-time")
         };
 
+        public static List<DataPointDto> Scale = new List<DataPointDto> {
+            new DataPointDto("Dưới 10", 1),
+            new DataPointDto("10 - 30", 2),
+            new DataPointDto("30 - 50", 3),
+            new DataPointDto("Trên 50", 4),
+        };
+
+        public static List<DataPointDto> ActivePurpose = new List<DataPointDto> {
+            new DataPointDto("Lợi nhuận", 1),
+            new DataPointDto("Phi lợi nhuận", 2),
+        };
+
         public static List<DataPointDto> ProjectStages = new List<DataPointDto>
         {
             new DataPointDto("Xác lập",1),
