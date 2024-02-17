@@ -105,6 +105,11 @@ public class FSIDbContext :
             entity.Property(x => x.Reacts).IsJson();
         });
 
+        builder.Entity<Conversation>(entity =>
+        {
+            entity.Property(x => x.MeetInviteKeys).IsJson();
+        });
+
         builder.Entity<Startuper>(entity =>
         {
             entity.Property(x => x.Personality).IsJson();

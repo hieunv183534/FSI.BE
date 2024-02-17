@@ -754,5 +754,25 @@ namespace FSI.Application.Chat
 
             await _hubContext.Clients.Group(message.ConversationId.ToString()).SendAsync("OnDeleteMessage", message);
         }
+
+        public async Task CreateMeetInviteKey(Guid conversationId)
+        {
+            var conversation = await _conversationRepository.GetAsync(conversationId);
+            if (conversation.JustTwoPeople.Value)
+            {
+                if (!conversation.UserAId.Equals(currentUserId) && !conversation.UserBId.Equals(currentUserId))
+                    throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
+            }
+            else
+            {
+                var userConversation = await _userConversationRepository.FindAsync(x => x.ConversationId.Equals(conversationId) && x.UserId.Equals(currentUserId));
+                if (userConversation == null)
+                    throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
+            }
+
+            var inviteKey = Guid.NewGuid().ToString();
+
+
+        }
     }
 }

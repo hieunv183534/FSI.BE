@@ -11,5 +11,6 @@ namespace FSI.Application.Contracts.Agora.IService
     {
         Task<string> CreateRtcToken(GetTokenDto input);
 
+        Task<string> LoginAsGuestToMeet(GuestToMeetDto input);
     }
 }

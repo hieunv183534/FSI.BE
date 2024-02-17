@@ -9,6 +9,8 @@ namespace FSI.Application.Agora
     public class MeetHubService
     {
         public List<UserMeet> UserMeets { get; set; } = new List<UserMeet>();
+
+        public List<GuestMeet> GuestMeets { get; set; } = new List<GuestMeet>();
     }
 
     public class UserMeet
@@ -24,5 +26,14 @@ namespace FSI.Application.Agora
         public bool Micro { get; set; }
 
         public bool Screen { get; set; }
+    }
+
+    public class GuestMeet
+    {
+        public Guid GuestId { get; set; }
+
+        public Guid ConversationId { get; set; }
+
+        public string GuestName { get; set; }
     }
 }
