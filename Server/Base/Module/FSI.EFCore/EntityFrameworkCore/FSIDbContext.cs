@@ -77,6 +77,7 @@ public class FSIDbContext :
         /* Include modules to your migration db context */
 
         builder.Ignore<ProjectSimilarStartuper>();
+        builder.Ignore<MeetInviteKey>();
 
 
         /* Configure your own tables/entities inside here */

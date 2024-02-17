@@ -26,6 +26,7 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.BlobStoring;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.ObjectMapping;
 
 namespace FSI.Application.Chat
 {
@@ -197,13 +198,13 @@ namespace FSI.Application.Chat
             var messages = await _messageRepository.GetListAsync(x => x.ConversationId.Equals(input.ConversationId));
 
             var rs = ObjectMapper.Map<List<Message>, List<MessageDto>>(messages.OrderByDescending(x => x.CreationTime).Skip(input.SkipCount).Take(input.MaxResultCount).ToList());
-            
+
             rs.ForEach(x =>
             {
                 x.IsMine = x.Sender.Id.Equals(currentUserId);
-                if(x.FocusToMessageId != null)
+                if (x.FocusToMessageId != null)
                 {
-                    var focusMessage = messages.FirstOrDefault(y=> y.Id == x.FocusToMessageId);
+                    var focusMessage = messages.FirstOrDefault(y => y.Id == x.FocusToMessageId);
                     x.FocusToMessage = ObjectMapper.Map<Message, MessageDto>(focusMessage);
                 }
             });
@@ -267,7 +268,7 @@ namespace FSI.Application.Chat
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public async Task<MessageDto> SendMessageToConversation(MessageSendToConversationDto input) 
+        public async Task<MessageDto> SendMessageToConversation(MessageSendToConversationDto input)
         {
             var conversation = await _conversationRepository.GetAsync(input.ConversationId);
 
@@ -742,10 +743,10 @@ namespace FSI.Application.Chat
 
             var conversation = await _conversationRepository.GetAsync(message.ConversationId);
 
-            if(conversation.LastMessageId == messageId)
+            if (conversation.LastMessageId == messageId)
             {
                 var messages = await _messageRepository.GetListAsync(x => x.ConversationId == message.ConversationId);
-                var previousMessage = messages.OrderByDescending(x=> x.Index).ElementAt(1);
+                var previousMessage = messages.OrderByDescending(x => x.Index).ElementAt(1);
                 conversation.LastMessageId = previousMessage.Id;
                 await _conversationRepository.UpdateAsync(conversation);
             }
@@ -755,7 +756,33 @@ namespace FSI.Application.Chat
             await _hubContext.Clients.Group(message.ConversationId.ToString()).SendAsync("OnDeleteMessage", message);
         }
 
-        public async Task CreateMeetInviteKey(Guid conversationId)
+        public async Task CreateMeetInviteKey(CreateMeetInviteKeyDto input)
+        {
+            var conversation = await _conversationRepository.GetAsync(input.ConversationId);
+            if (conversation.JustTwoPeople.Value)
+            {
+                if (!conversation.UserAId.Equals(currentUserId) && !conversation.UserBId.Equals(currentUserId))
+                    throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
+            }
+            else
+            {
+                var userConversation = await _userConversationRepository.FindAsync(x => x.ConversationId.Equals(input.ConversationId) && x.UserId.Equals(currentUserId));
+                if (userConversation == null)
+                    throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
+            }
+
+            var inviteKey = Guid.NewGuid().ToString();
+
+            conversation.MeetInviteKeys.Add(new MeetInviteKey()
+            {
+                InviteKey = inviteKey,
+                ValidTo = input.ValidTo
+            });
+
+            await _conversationRepository.UpdateAsync(conversation);
+        }
+
+        public async Task<List<MeetInviteKeyDto>> GetListInviteKeys(Guid conversationId)
         {
             var conversation = await _conversationRepository.GetAsync(conversationId);
             if (conversation.JustTwoPeople.Value)
@@ -770,9 +797,30 @@ namespace FSI.Application.Chat
                     throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
             }
 
-            var inviteKey = Guid.NewGuid().ToString();
+            return ObjectMapper.Map<List<MeetInviteKey>, List<MeetInviteKeyDto>>(conversation.MeetInviteKeys);
+        }
 
+        public async Task DeleteInviteKey(Guid conversationId, string key)
+        {
+            var conversation = await _conversationRepository.GetAsync(conversationId);
+            if (conversation.JustTwoPeople.Value)
+            {
+                if (!conversation.UserAId.Equals(currentUserId) && !conversation.UserBId.Equals(currentUserId))
+                    throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
+            }
+            else
+            {
+                var userConversation = await _userConversationRepository.FindAsync(x => x.ConversationId.Equals(conversationId) && x.UserId.Equals(currentUserId));
+                if (userConversation == null)
+                    throw new UserFriendlyException(message: "Bạn không thuộc về đoạn hội thoại này!");
+            }
 
+            var inviteKey = conversation.MeetInviteKeys.FirstOrDefault(x=> x.InviteKey.Equals(key));
+
+            if(inviteKey == null) throw new UserFriendlyException(message: "Invite Key không tồn tại!");
+
+            conversation.MeetInviteKeys.Remove(inviteKey);
+            await _conversationRepository.UpdateAsync(conversation);
         }
     }
 }

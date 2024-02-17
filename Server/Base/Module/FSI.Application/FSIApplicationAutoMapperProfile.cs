@@ -41,6 +41,7 @@ namespace FSI
             CreateMap<UserRootDto, FSI.Domain.Startuper.Startuper>().ReverseMap();
             CreateMap<UserRoot, UserRootDto>().ReverseMap();
             CreateMap<Conversation, ConversationDto>().ReverseMap();
+            CreateMap<MeetInviteKey, MeetInviteKeyDto>().ReverseMap();
             CreateMap<Message, MessageDto>().ReverseMap();
             CreateMap<UserConversation, UserConversationDto>().ReverseMap();
             CreateMap<RegisterDto, Account>().ForMember(a => a.PasswordHash, r => r.MapFrom(src => src.Password)).ReverseMap();

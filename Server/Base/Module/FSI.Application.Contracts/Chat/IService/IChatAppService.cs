@@ -45,6 +45,10 @@ namespace FSI.Application.Contracts.Chat.IService
 
         Task DeleteMessage(Guid messageId);
 
-        Task CreateMeetInviteKey(Guid conversationId);
+        Task CreateMeetInviteKey(CreateMeetInviteKeyDto input);
+
+        Task<List<MeetInviteKeyDto>> GetListInviteKeys(Guid conversationId);
+
+        Task DeleteInviteKey(Guid conversationId, string key);
     }
 }
