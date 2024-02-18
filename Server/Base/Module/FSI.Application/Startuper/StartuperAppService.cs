@@ -248,7 +248,7 @@ namespace FSI.Application.Startuper
                     }
                     break;
                 case "availableTime":
-                    startupers = startupers.OrderBy(x=> x.AvailableTime).ToList();  
+                    startupers = startupers.OrderBy(x => x.AvailableTime).ToList();
                     break;
                 case "availableTimeDESC":
                     startupers = startupers.OrderByDescending(x => x.AvailableTime).ToList();
@@ -340,7 +340,7 @@ namespace FSI.Application.Startuper
 
         public async Task<List<ProjectUserDto>> GetMyProjects()
         {
-            var projects = await _projectRepository.GetListAsync();
+            var projects = await _projectRepository.GetListAsync(x => x.IsActive.Value);
             var myProjectUsers = await _projectUserRepository.GetListAsync(x => x.IsActive && x.UserId.Equals(currentUserId));
             return ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(myProjectUsers);
         }
