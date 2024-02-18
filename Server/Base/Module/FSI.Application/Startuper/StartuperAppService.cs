@@ -179,66 +179,86 @@ namespace FSI.Application.Startuper
             {
                 var projectUserIds = (await _projectUserRepository.GetListAsync(x => x.ProjectId.Equals(input.Mode))).Select(x => x.UserId);
                 startupers = startupers.Where(x => !projectUserIds.Contains(x.Id)).ToList();
-
-                var similarities = await _projectSimilarStartuperCache.GetAsync(input.Mode.ToString());
-
-                if (similarities == null)
-                {
-                    await _distributedEventBus.PublishAsync(new UpdateProjectRequestStartuperInfoEto()
-                    {
-                        ProjectId = input.Mode.Value
-                    });
-
-                    var rq = await _projectRequestStartuperInfoRepository.FindAsync(x => x.ProjectId.Equals(input.Mode));
-                    similarities = rq?.Similarities;
-                }
-
-                if (similarities != null)
-                {
-                    var query = from startuper in startupers
-                                join similarity in similarities
-                                on startuper.Id equals similarity.StartuperId
-                                into gj
-                                from subSimilarity in gj.DefaultIfEmpty()
-                                select new
-                                {
-                                    Startuper = startuper,
-                                    Similarity = subSimilarity?.Similarity ?? 0
-                                };
-
-                    var startupersIncludeSimilarity = query.OrderByDescending(x => x.Similarity).ToList();
-                    startupers = startupersIncludeSimilarity.Select(x =>
-                    {
-                        x.Startuper.SetProperty("similarity", x.Similarity);
-                        return x.Startuper;
-                    }).ToList();
-                }
             }
 
-            // join với startuperSililarity để order theo similarity với người dùng hiện tại
-            if (input.Mode.Equals(GuidStartuperMode.UuidStartuperModeNew) ||
-                input.Mode.Equals(GuidStartuperMode.UuidStartuperModeFromMe) ||
-                input.Mode.Equals(GuidStartuperMode.UuidStartuperModeToMe) ||
-                input.Mode.Equals(GuidStartuperMode.UuidStartuperModeOfMe))
+            switch (input.Sorting)
             {
-                var startuperSimilarities = await _startuperSimilarityRepository.GetListAsync(x => x.UserId.Equals(currentUserId));
-                var query = from startuper in startupers
-                            join similarity in startuperSimilarities
-                            on startuper.Id equals similarity.TargetId
-                            into gj
-                            from subSimilarity in gj.DefaultIfEmpty()
-                            select new
-                            {
-                                Startuper = startuper,
-                                Similarity = subSimilarity?.Similarity ?? 0
-                            };
+                case "suitable":
+                    {
+                        if (input.Mode.Equals(GuidStartuperMode.UuidStartuperModeNew) ||
+                            input.Mode.Equals(GuidStartuperMode.UuidStartuperModeFromMe) ||
+                            input.Mode.Equals(GuidStartuperMode.UuidStartuperModeToMe) ||
+                            input.Mode.Equals(GuidStartuperMode.UuidStartuperModeOfMe))
+                        {
+                            var startuperSimilarities = await _startuperSimilarityRepository.GetListAsync(x => x.UserId.Equals(currentUserId));
+                            var query = from startuper in startupers
+                                        join similarity in startuperSimilarities
+                                        on startuper.Id equals similarity.TargetId
+                                        into gj
+                                        from subSimilarity in gj.DefaultIfEmpty()
+                                        select new
+                                        {
+                                            Startuper = startuper,
+                                            Similarity = subSimilarity?.Similarity ?? 0
+                                        };
 
-                var startupersIncludeSimilarity = query.OrderByDescending(x => x.Similarity).ToList();
-                startupers = startupersIncludeSimilarity.Select(x =>
-                {
-                    x.Startuper.SetProperty("similarity", x.Similarity);
-                    return x.Startuper;
-                }).ToList();
+                            var startupersIncludeSimilarity = query.OrderByDescending(x => x.Similarity).ToList();
+                            startupers = startupersIncludeSimilarity.Select(x =>
+                            {
+                                x.Startuper.SetProperty("similarity", x.Similarity);
+                                return x.Startuper;
+                            }).ToList();
+                        }
+                        else
+                        {
+                            var similarities = await _projectSimilarStartuperCache.GetAsync(input.Mode.ToString());
+
+                            if (similarities == null)
+                            {
+                                await _distributedEventBus.PublishAsync(new UpdateProjectRequestStartuperInfoEto()
+                                {
+                                    ProjectId = input.Mode.Value
+                                });
+
+                                var rq = await _projectRequestStartuperInfoRepository.FindAsync(x => x.ProjectId.Equals(input.Mode));
+                                similarities = rq?.Similarities;
+                            }
+
+                            if (similarities != null)
+                            {
+                                var query = from startuper in startupers
+                                            join similarity in similarities
+                                            on startuper.Id equals similarity.StartuperId
+                                            into gj
+                                            from subSimilarity in gj.DefaultIfEmpty()
+                                            select new
+                                            {
+                                                Startuper = startuper,
+                                                Similarity = subSimilarity?.Similarity ?? 0
+                                            };
+
+                                var startupersIncludeSimilarity = query.OrderByDescending(x => x.Similarity).ToList();
+                                startupers = startupersIncludeSimilarity.Select(x =>
+                                {
+                                    x.Startuper.SetProperty("similarity", x.Similarity);
+                                    return x.Startuper;
+                                }).ToList();
+                            }
+                        }
+                    }
+                    break;
+                case "availableTime":
+                    startupers = startupers.OrderBy(x=> x.AvailableTime).ToList();  
+                    break;
+                case "availableTimeDESC":
+                    startupers = startupers.OrderByDescending(x => x.AvailableTime).ToList();
+                    break;
+                case "yearOfExp":
+                    startupers = startupers.OrderBy(x => x.YearOfExp).ToList();
+                    break;
+                case "yearOfExpDESC":
+                    startupers = startupers.OrderByDescending(x => x.YearOfExp).ToList();
+                    break;
             }
 
             var startuperPageds = startupers.Skip(input.SkipCount).Take(input.MaxResultCount).ToList();
