@@ -341,7 +341,7 @@ namespace FSI.Application.Startuper
         public async Task<List<ProjectUserDto>> GetMyProjects()
         {
             var projects = await _projectRepository.GetListAsync(x => x.IsActive.Value);
-            var myProjectUsers = await _projectUserRepository.GetListAsync(x => x.IsActive && x.UserId.Equals(currentUserId));
+            var myProjectUsers = await _projectUserRepository.GetListAsync(x => x.IsActive && x.UserId.Equals(currentUserId) && x.Project.IsActive.Value);
             return ObjectMapper.Map<List<ProjectUser>, List<ProjectUserDto>>(myProjectUsers);
         }
 
