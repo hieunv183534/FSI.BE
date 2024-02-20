@@ -48,7 +48,6 @@ namespace FSI.Application.Project
         private readonly IRepository<ProjectFile, Guid> _projectFileRepository;
         private readonly IRepository<ProjectEvent, Guid> _projectEventRepository;
         private readonly IRepository<ProjectWork, Guid> _projectWorkRepository;
-        private readonly IRepository<ProjectHiring, Guid> _projectHiringRepository;
         private readonly IRepository<ProjectCalendarEvent, Guid> _projectCalendarEventRepository;
         private readonly IRepository<ProjectRequestStartuperInfo, Guid> _projectRequestStartuperInfoRepository;
         private readonly IUserRootRepository _userRepository;
@@ -66,7 +65,7 @@ namespace FSI.Application.Project
 
         private readonly IBlobContainer _blobContainer;
 
-        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository, IDistributedEventBus distributedEventBus, IRepository<ProjectSimilarity, Guid> projectSimilarityRepository, IRepository<UserProjectRating, Guid> userProjectRatingRepository, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository, IDistributedCache<List<PredictRatingProject>> predictRatingProjectForStartuperIdCache, IDistributedCache<string> testCache, IConfiguration configuration, IBlobContainer blobContainer = null, IRepository<ProjectHiring, Guid> projectHiringRepository = null)
+        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository, IDistributedEventBus distributedEventBus, IRepository<ProjectSimilarity, Guid> projectSimilarityRepository, IRepository<UserProjectRating, Guid> userProjectRatingRepository, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository, IDistributedCache<List<PredictRatingProject>> predictRatingProjectForStartuperIdCache, IDistributedCache<string> testCache, IConfiguration configuration, IBlobContainer blobContainer = null)
         {
             _projectRepository = projectRepository;
             _projectUserRepository = projectUserRepository;
@@ -88,7 +87,6 @@ namespace FSI.Application.Project
             _testCache = testCache;
             Configuration = configuration;
             _blobContainer = blobContainer;
-            _projectHiringRepository = projectHiringRepository;
         }
 
         public async Task<ProjectDto> InsertProjectAsync(CreateProjectDto input)
@@ -997,15 +995,13 @@ namespace FSI.Application.Project
 
         public async Task<ProjectHiringDto> GetProjectHiring(Guid hiringId)
         {
-            var hiring = await _projectHiringRepository.GetAsync(hiringId);
-            return ObjectMapper.Map<ProjectHiring, ProjectHiringDto>(hiring);
+            return null;
         }
 
-        public Task CreateProjectHiring(CreateOrUpdateProjectHiringDto input)
+        public async Task CreateProjectHiring(CreateOrUpdateProjectHiringDto input)
         {
             var hiring = ObjectMapper.Map<CreateOrUpdateProjectHiringDto, ProjectHiring>(input);
-
-            return null;
+            //var project = await _
         }
 
         public Task UpdateProjectHiring(CreateOrUpdateProjectHiringDto input)
