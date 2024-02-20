@@ -3,6 +3,7 @@ using System;
 using FSI.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -11,9 +12,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace FSI.EFCore.Migrations
 {
     [DbContext(typeof(FSIDbContext))]
-    partial class FSIDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240220142620_hiring")]
+    partial class hiring
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -586,6 +588,9 @@ namespace FSI.EFCore.Migrations
                     b.Property<Guid?>("FounderId")
                         .HasColumnType("char(36)");
 
+                    b.Property<string>("Hirings")
+                        .HasColumnType("longtext");
+
                     b.Property<bool?>("IsActive")
                         .HasColumnType("tinyint(1)");
 
@@ -614,10 +619,6 @@ namespace FSI.EFCore.Migrations
 
                     b.Property<int?>("Stage")
                         .HasColumnType("int");
-
-                    b.Property<string>("TheLeanCanvasBusinessModel")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<string>("Website")
                         .HasColumnType("longtext");
@@ -877,70 +878,6 @@ namespace FSI.EFCore.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("ProjectFiles");
-                });
-
-            modelBuilder.Entity("FSI.Domain.Project.ProjectHiring", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("char(36)");
-
-                    b.Property<int?>("Degree")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("Duration")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Income")
-                        .HasColumnType("longtext");
-
-                    b.Property<int?>("Location")
-                        .HasColumnType("int");
-
-                    b.Property<string>("OtherDetail")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("OtherRequest")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Personalities")
-                        .HasColumnType("longtext");
-
-                    b.Property<Guid?>("ProjectId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Skills")
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("Specialize")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("WorkingAddress")
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("WorkingForm")
-                        .HasColumnType("int");
-
-                    b.Property<string>("WorkingTimes")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("YearOfExps")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("ProjectHiring");
                 });
 
             modelBuilder.Entity("FSI.Domain.Project.ProjectRequestStartuperInfo", b =>
@@ -1777,13 +1714,6 @@ namespace FSI.EFCore.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("FSI.Domain.Project.ProjectHiring", b =>
-                {
-                    b.HasOne("FSI.Domain.Project.Project", null)
-                        .WithMany("Hirings")
-                        .HasForeignKey("ProjectId");
-                });
-
             modelBuilder.Entity("FSI.Domain.Project.ProjectUser", b =>
                 {
                     b.HasOne("FSI.Domain.Project.Project", "Project")
@@ -1854,11 +1784,6 @@ namespace FSI.EFCore.Migrations
                         .IsRequired();
 
                     b.Navigation("Account");
-                });
-
-            modelBuilder.Entity("FSI.Domain.Project.Project", b =>
-                {
-                    b.Navigation("Hirings");
                 });
 #pragma warning restore 612, 618
         }

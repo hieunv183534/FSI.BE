@@ -101,6 +101,15 @@ public class FSIDbContext :
             entity.Property(x => x.AvailableTimeRequire).IsJson();
         });
 
+        builder.Entity<ProjectHiring>(entity =>
+        {
+            entity.Property(x => x.WorkingTimes).IsJson();
+            entity.Property(x => x.YearOfExps).IsJson();
+            entity.Property(x => x.Skills).IsJson();
+            entity.Property(x => x.Personalities).IsJson();
+        });
+
+
         builder.Entity<Message>(entity =>
         {
             entity.Property(x => x.Reacts).IsJson();

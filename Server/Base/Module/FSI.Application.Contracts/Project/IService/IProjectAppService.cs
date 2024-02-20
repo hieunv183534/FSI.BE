@@ -1,8 +1,10 @@
 ﻿using FSI.Application.Contracts.Investor.DTO;
 using FSI.Application.Contracts.Project.DTO;
+using FSI.Application.Contracts.Project.DTO.Hiring;
 using FSI.Application.Contracts.Startuper.DTO;
 using FSI.Application.Contracts.User.DTO;
 using FSI.Common.Enums;
+using FSI.Domain.Project;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,5 +79,19 @@ namespace FSI.Application.Contracts.Project.IService
         Task<ProjectRequestStartuperInfoDto> GetProjectRequestStartuperInfo(Guid projectId);
 
         Task PostUpdateProjectRequestStartuperInfo(ProjectRequestStartuperInfoDto input);
+
+        Task<List<ProjectHiringDto>> GetProjectHirings(Guid projectId);
+
+        Task<ProjectHiringDto> GetProjectHiring(Guid hiringId);
+
+        Task CreateProjectHiring(CreateOrUpdateProjectHiringDto input);
+
+        Task UpdateProjectHiring(CreateOrUpdateProjectHiringDto input);
+
+        Task DeleteProjectHiring(Guid hiringId);
+
+        Task<string> GetProjectCanvasModel(Guid projectId);
+
+        Task UpdateProjectCanvasModel(Guid projectId, string model);
     }
 }

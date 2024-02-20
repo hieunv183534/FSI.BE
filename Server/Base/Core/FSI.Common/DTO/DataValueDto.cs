@@ -363,6 +363,13 @@ namespace FSI.Common.DTO
             new DataPointDto("30 - 50", 3),
             new DataPointDto("Trên 50", 4),
         };
+        public static List<DataPointDto> Degree = new List<DataPointDto> {
+            new DataPointDto("Đại học", 1),
+            new DataPointDto("Cao đẳng", 2),
+            new DataPointDto("Trung cấp", 3),
+            new DataPointDto("Trung học", 4),
+        };
+
 
         public static List<DataPointDto> ActivePurpose = new List<DataPointDto> {
             new DataPointDto("Lợi nhuận", 1),

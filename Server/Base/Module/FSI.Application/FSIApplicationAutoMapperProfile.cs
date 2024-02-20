@@ -4,6 +4,7 @@ using FSI.Application.Contracts.Auth.DTO;
 using FSI.Application.Contracts.Chat.DTO;
 using FSI.Application.Contracts.File;
 using FSI.Application.Contracts.Project.DTO;
+using FSI.Application.Contracts.Project.DTO.Hiring;
 using FSI.Application.Contracts.Startuper.DTO;
 using FSI.Application.Contracts.Test.DTO;
 using FSI.Application.Contracts.User.DTO;
@@ -34,6 +35,8 @@ namespace FSI
             CreateMap<ProjectFile, ProjectFileDto>().ReverseMap();
             CreateMap<ProjectEvent, ProjectEventDto>().ReverseMap();
             CreateMap<ProjectWork, ProjectWorkDto>().ReverseMap();
+            CreateMap<ProjectHiring, ProjectHiringDto>().ReverseMap();
+            CreateMap<CreateOrUpdateProjectHiringDto, ProjectHiring>();
             CreateMap<ProjectCalendarEvent, ProjectCalendarEventDto>().ReverseMap();
             CreateMap<ProjectRequestStartuperInfo, ProjectRequestStartuperInfoDto>().ReverseMap();
             CreateMap<Startuper, StartuperDto>().ReverseMap();
