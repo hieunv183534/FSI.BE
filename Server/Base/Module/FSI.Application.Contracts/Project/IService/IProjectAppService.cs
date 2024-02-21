@@ -82,8 +82,6 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task<List<ProjectHiringDto>> GetProjectHirings(Guid projectId);
 
-        Task<ProjectHiringDto> GetProjectHiring(Guid hiringId);
-
         Task CreateProjectHiring(CreateOrUpdateProjectHiringDto input);
 
         Task UpdateProjectHiring(CreateOrUpdateProjectHiringDto input);

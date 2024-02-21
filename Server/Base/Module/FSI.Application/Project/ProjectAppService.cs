@@ -993,15 +993,13 @@ namespace FSI.Application.Project
             return ObjectMapper.Map<List<ProjectHiring>, List<ProjectHiringDto>>(project.Hirings);
         }
 
-        public async Task<ProjectHiringDto> GetProjectHiring(Guid hiringId)
-        {
-            return null;
-        }
 
         public async Task CreateProjectHiring(CreateOrUpdateProjectHiringDto input)
         {
             var hiring = ObjectMapper.Map<CreateOrUpdateProjectHiringDto, ProjectHiring>(input);
-            //var project = await _
+            var project = await _projectRepository.GetAsync(input.ProjectId);
+            project.Hirings.Add(hiring);
+            await _projectRepository.UpdateAsync(project);
         }
 
         public Task UpdateProjectHiring(CreateOrUpdateProjectHiringDto input)
@@ -1020,7 +1018,7 @@ namespace FSI.Application.Project
             return project.TheLeanCanvasBusinessModel;
         }
 
-        public async Task UpdateProjectCanvasModel(Guid projectId, string model)
+        public async Task UpdateProjectCanvasModel(Guid projectId,[FromBody] string model)
         {
             var project = await _projectRepository.GetAsync(projectId);
 
