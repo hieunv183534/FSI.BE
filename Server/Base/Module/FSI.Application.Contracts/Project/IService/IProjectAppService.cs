@@ -82,11 +82,13 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task<List<ProjectHiringDto>> GetProjectHirings(Guid projectId);
 
+        Task<ProjectHiringDto> GetProjectHiring(Guid projectId, Guid hiringId);
+
         Task CreateProjectHiring(CreateOrUpdateProjectHiringDto input);
 
         Task UpdateProjectHiring(CreateOrUpdateProjectHiringDto input);
 
-        Task DeleteProjectHiring(Guid hiringId);
+        Task DeleteProjectHiring(Guid projectId, Guid hiringId);
 
         Task<string> GetProjectCanvasModel(Guid projectId);
 

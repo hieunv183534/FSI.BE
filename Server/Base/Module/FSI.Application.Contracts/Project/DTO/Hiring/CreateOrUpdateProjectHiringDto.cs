@@ -9,6 +9,8 @@ namespace FSI.Application.Contracts.Project.DTO.Hiring
 {
     public class CreateOrUpdateProjectHiringDto
     {
+        public Guid? Id { get; set; }
+
         public string Title { get; set; }
 
         public int Quantity { get; set; }

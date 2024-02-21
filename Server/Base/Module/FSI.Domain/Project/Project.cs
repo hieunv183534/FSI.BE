@@ -83,5 +83,7 @@ namespace FSI.Domain.Project
         public string? OtherDetail { get; set; }
 
         public DateTime? Duration { get; set; }
+
+        public Guid ProjectId { get; set; }
     }
 }

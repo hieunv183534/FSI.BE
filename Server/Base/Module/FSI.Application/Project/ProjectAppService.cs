@@ -808,7 +808,7 @@ namespace FSI.Application.Project
             var events = await _projectEventRepository.GetListAsync(x => x.ProjectId.Equals(input.ProjectId));
 
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(input.ProjectId));
-            if(myProjectUser == null || !myProjectUser.IsActive)
+            if (myProjectUser == null || !myProjectUser.IsActive)
             {
                 events = events.WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.Content.Contains(input.Filter))
                                 .Where(x => x.Type != ProjectEventType.PostNotification || x.IsPublic.Value).ToList();
@@ -988,9 +988,17 @@ namespace FSI.Application.Project
 
         public async Task<List<ProjectHiringDto>> GetProjectHirings(Guid projectId)
         {
-            var project = await _projectRepository.GetAsync(projectId);
+            var project = await _projectRepository.GetProjectWithHirings(projectId);
 
             return ObjectMapper.Map<List<ProjectHiring>, List<ProjectHiringDto>>(project.Hirings);
+        }
+
+        public async Task<ProjectHiringDto> GetProjectHiring(Guid projectId, Guid hiringId)
+        {
+            var project = await _projectRepository.GetProjectWithHirings(projectId);
+            var hiring = project.Hirings.FirstOrDefault(x => x.Id == hiringId);
+
+            return ObjectMapper.Map<ProjectHiring, ProjectHiringDto>(hiring);
         }
 
 
@@ -998,18 +1006,47 @@ namespace FSI.Application.Project
         {
             var hiring = ObjectMapper.Map<CreateOrUpdateProjectHiringDto, ProjectHiring>(input);
             var project = await _projectRepository.GetAsync(input.ProjectId);
-            project.Hirings.Add(hiring);
+            if (project.Hirings == null)
+            {
+                project.Hirings = new List<ProjectHiring> { hiring };
+            }
+            else
+                project.Hirings.Add(hiring);
             await _projectRepository.UpdateAsync(project);
         }
 
-        public Task UpdateProjectHiring(CreateOrUpdateProjectHiringDto input)
+        public async Task UpdateProjectHiring(CreateOrUpdateProjectHiringDto input)
         {
-            throw new NotImplementedException();
+            var project = await _projectRepository.GetProjectWithHirings(input.ProjectId);
+
+            var hiring = project.Hirings.FirstOrDefault(x => x.Id == input.Id);
+
+            hiring.Title = input.Title;
+            hiring.Quantity = input.Quantity;
+            hiring.Specialize = input.Specialize;
+            hiring.WorkingForm = input.WorkingForm;
+            hiring.Location = input.Location;
+            hiring.WorkingAddress = input.WorkingAddress;
+            hiring.WorkingTimes = input.WorkingTimes;
+            hiring.Income = input.Income;
+            hiring.Description = input.Description;
+            hiring.YearOfExps = input.YearOfExps;
+            hiring.Degree = input.Degree;
+            hiring.Skills = input.Skills;
+            hiring.Personalities = input.Personalities;
+            hiring.OtherRequest = input.OtherRequest;
+            hiring.OtherDetail = input.OtherDetail;
+            hiring.Duration = input.Duration;
+
+            await _projectRepository.UpdateAsync(project);
         }
 
-        public Task DeleteProjectHiring(Guid hiringId)
+        public async Task DeleteProjectHiring(Guid projectId, Guid hiringId)
         {
-            throw new NotImplementedException();
+            var project = await _projectRepository.GetProjectWithHirings(projectId);
+            var hiring = project.Hirings.FirstOrDefault(x => x.Id == hiringId);
+            project.Hirings.Remove(hiring);
+            await _projectRepository.UpdateAsync(project);
         }
 
         public async Task<string> GetProjectCanvasModel(Guid projectId)
@@ -1028,5 +1065,7 @@ namespace FSI.Application.Project
             project.TheLeanCanvasBusinessModel = input.Model;
             await _projectRepository.UpdateAsync(project);
         }
+
+
     }
 }
