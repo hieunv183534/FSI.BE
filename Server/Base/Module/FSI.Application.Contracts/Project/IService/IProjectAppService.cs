@@ -90,6 +90,6 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task<string> GetProjectCanvasModel(Guid projectId);
 
-        Task UpdateProjectCanvasModel(Guid projectId, string model);
+        Task UpdateProjectCanvasModel(UpdateCanvasModelDto input);
     }
 }

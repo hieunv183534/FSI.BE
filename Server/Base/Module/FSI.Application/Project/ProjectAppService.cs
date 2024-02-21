@@ -1018,14 +1018,14 @@ namespace FSI.Application.Project
             return project.TheLeanCanvasBusinessModel;
         }
 
-        public async Task UpdateProjectCanvasModel(Guid projectId,[FromBody] string model)
+        public async Task UpdateProjectCanvasModel(UpdateCanvasModelDto input)
         {
-            var project = await _projectRepository.GetAsync(projectId);
+            var project = await _projectRepository.GetAsync(input.ProjectId);
 
             if (project.FounderId != currentUserId)
                 throw new UserFriendlyException("Chỉ founder dự án mới có quyền cập nhật!");
 
-            project.TheLeanCanvasBusinessModel = model;
+            project.TheLeanCanvasBusinessModel = input.Model;
             await _projectRepository.UpdateAsync(project);
         }
     }
