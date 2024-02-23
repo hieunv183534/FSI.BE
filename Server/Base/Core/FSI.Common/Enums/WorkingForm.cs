@@ -10,6 +10,6 @@ namespace FSI.Common.Enums
     {
         Offline,
         Remote,
-        Hibrid
+        Hybrid
     }
 }

@@ -32,8 +32,10 @@ namespace FSI.Application.Contracts.Project.DTO
 
         public string? AvatarUrl { get; set; }
 
-        public bool? IsHireNewMember { get; set; }
+        public int Scale { get; set; }
 
-        public List<int>? AvailableTimeRequire { get; set; }
+        public WorkingForm WorkingForm { get; set; }
+
+        public bool IsProfit { get; set; }
     }
 }

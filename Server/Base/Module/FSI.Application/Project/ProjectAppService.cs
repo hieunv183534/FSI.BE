@@ -17,14 +17,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
-using NPOI.SS.Formula.Functions;
 using Pipelines.Sockets.Unofficial.Arenas;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
@@ -33,7 +27,6 @@ using Volo.Abp.Caching;
 using Volo.Abp.Data;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.EventBus.Distributed;
-using Volo.Abp.ObjectMapping;
 
 namespace FSI.Application.Project
 {
@@ -103,8 +96,6 @@ namespace FSI.Application.Project
                 Website = input.Website,
                 FoundedTime = input.FoundedTime,
                 ProjectName = input.ProjectName,
-                IsHireNewMember = input.IsHireNewMember,
-                AvailableTimeRequire = input.AvailableTimeRequire,
                 FounderId = this.currentUserId,
                 IsActive = false
             });
@@ -176,8 +167,6 @@ namespace FSI.Application.Project
             project.AvatarUrl = input.AvatarUrl;
             project.Stage = input.Stage;
             project.Website = input.Website;
-            project.IsHireNewMember = input.IsHireNewMember;
-            project.AvailableTimeRequire = input.AvailableTimeRequire;
             project.Fields = input.Fields;
 
             await _distributedEventBus.PublishAsync(new UpdateProjectInfoEto()
@@ -311,8 +300,10 @@ namespace FSI.Application.Project
                                 .WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.ProjectName.Contains(input.Filter) || x.Description.Contains(input.Filter))
                                 .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Area.Value))
                                 .WhereIf(input.Stages.Count != 0, x => input.Stages.Contains(x.Stage.Value))
+                                .WhereIf(input.Scales.Count != 0, x => input.Scales.Contains(x.Scale.Value))
                                 .WhereIf(input.Fields.Count != 0, x => x.Fields.Any(y => input.Fields.Contains(y)))
-                                .WhereIf(input.AvailableTimes.Count != 0, x => x.AvailableTimeRequire.Any(y => input.AvailableTimes.Contains(y))).ToList();
+                                .WhereIf(input.WorkingForm.HasValue, x=> x.WorkingForm == input.WorkingForm)
+                                .WhereIf(input.IsProfit.HasValue, x=> x.IsProfit == input.IsProfit).ToList();
 
             var myProjectIds = (await _projectUserRepository.GetListAsync(x => x.UserId.Equals(this.currentUserId) && x.IsActive)).Select(x => x.ProjectId).ToList();
             var projectRequestToMeIds = (await _projectUserRepository.GetListAsync(x => x.UserId.Equals(currentUserId) && !x.IsActive && !x.IsFromUser)).Select(x => x.ProjectId).ToList();
@@ -334,6 +325,12 @@ namespace FSI.Application.Project
                     projects = projects.Where(x => projectMeRequestToIds.Contains(x.Id)).ToList();
                     break;
             }
+
+            //switch (input.Sorting)
+            //{
+            //    case "":
+            //        break;
+            //}
 
             if (input.RelationWithProject == RelationWithProject.NotMemberOfProject)
             {
@@ -1004,6 +1001,10 @@ namespace FSI.Application.Project
 
         public async Task CreateProjectHiring(CreateOrUpdateProjectHiringDto input)
         {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(input.ProjectId));
+            if (myProjectUser == null || !myProjectUser.IsActive)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+
             var hiring = ObjectMapper.Map<CreateOrUpdateProjectHiringDto, ProjectHiring>(input);
             var project = await _projectRepository.GetAsync(input.ProjectId);
             if (project.Hirings == null)
@@ -1017,6 +1018,11 @@ namespace FSI.Application.Project
 
         public async Task UpdateProjectHiring(CreateOrUpdateProjectHiringDto input)
         {
+
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(input.ProjectId));
+            if (myProjectUser == null || !myProjectUser.IsActive)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+
             var project = await _projectRepository.GetProjectWithHirings(input.ProjectId);
 
             var hiring = project.Hirings.FirstOrDefault(x => x.Id == input.Id);
@@ -1043,6 +1049,10 @@ namespace FSI.Application.Project
 
         public async Task DeleteProjectHiring(Guid projectId, Guid hiringId)
         {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectId));
+            if (myProjectUser == null || !myProjectUser.IsActive)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+
             var project = await _projectRepository.GetProjectWithHirings(projectId);
             var hiring = project.Hirings.FirstOrDefault(x => x.Id == hiringId);
             project.Hirings.Remove(hiring);
@@ -1065,7 +1075,6 @@ namespace FSI.Application.Project
             project.TheLeanCanvasBusinessModel = input.Model;
             await _projectRepository.UpdateAsync(project);
         }
-
 
     }
 }

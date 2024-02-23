@@ -38,10 +38,12 @@ namespace FSI.Application.Contracts.Project.DTO
 
         public UserRootDto? Founder { get; set; }
 
-        public bool? IsHireNewMember { get; set; }
-
-        public List<int>? AvailableTimeRequire { get; set; }
-
         public bool? IsActive { get; set; }
+
+        public int Scale { get; set; }
+
+        public WorkingForm WorkingForm { get; set; }
+
+        public bool IsProfit { get; set; }
     }
 }

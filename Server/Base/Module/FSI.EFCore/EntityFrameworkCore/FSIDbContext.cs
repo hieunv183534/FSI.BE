@@ -98,7 +98,6 @@ public class FSIDbContext :
         builder.Entity<Project>(entity =>
         {
             entity.Property(x => x.Fields).IsJson();
-            entity.Property(x => x.AvailableTimeRequire).IsJson();
         });
 
         builder.Entity<ProjectHiring>(entity =>

@@ -36,10 +36,6 @@ namespace FSI.Domain.Project
 
         public UserRoot? Founder { get; set; }
 
-        public bool? IsHireNewMember { get; set; }
-
-        public List<int>? AvailableTimeRequire { get; set; }
-
         public bool? IsActive { get; set; }
 
         public string? ProjectEnglishText { get; set; }
@@ -48,6 +44,11 @@ namespace FSI.Domain.Project
 
         public string TheLeanCanvasBusinessModel { get; set; }
 
+        public int? Scale { get; set; }
+
+        public WorkingForm WorkingForm { get; set; }
+
+        public bool IsProfit { get; set; }
     }
 
     public class ProjectHiring : Entity<Guid>
