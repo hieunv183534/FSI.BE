@@ -1034,7 +1034,6 @@ namespace FSI.Application.Project
             hiring.Location = input.Location;
             hiring.WorkingAddress = input.WorkingAddress;
             hiring.WorkingTimes = input.WorkingTimes;
-            hiring.Income = input.Income;
             hiring.Description = input.Description;
             hiring.YearOfExps = input.YearOfExps;
             hiring.Degree = input.Degree;
@@ -1043,6 +1042,11 @@ namespace FSI.Application.Project
             hiring.OtherRequest = input.OtherRequest;
             hiring.OtherDetail = input.OtherDetail;
             hiring.Duration = input.Duration;
+
+            hiring.IncodeMode = input.IncodeMode;
+            hiring.IncomeFrom = input.IncomeFrom;
+            hiring.IncomeTo = input.IncomeTo;
+            hiring.IncomeRange = input.IncomeRange;
 
             await _projectRepository.UpdateAsync(project);
         }

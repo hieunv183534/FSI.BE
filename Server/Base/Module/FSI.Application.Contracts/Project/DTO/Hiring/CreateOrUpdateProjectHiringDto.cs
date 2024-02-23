@@ -25,8 +25,6 @@ namespace FSI.Application.Contracts.Project.DTO.Hiring
 
         public List<int>? WorkingTimes { get; set; }
 
-        public string? Income { get; set; }
-
         public string? Description { get; set; }
 
         public List<int>? YearOfExps { get; set; }
@@ -44,5 +42,14 @@ namespace FSI.Application.Contracts.Project.DTO.Hiring
         public DateTime? Duration { get; set; }
 
         public Guid ProjectId { get; set; }
+
+
+        public int IncodeMode { get; set; }
+
+        public int? IncomeFrom { get; set; }
+
+        public int? IncomeTo { get; set; }
+
+        public int? IncomeRange { get; set; }
     }
 }

@@ -8,7 +8,7 @@ using Volo.Abp.Application.Dtos;
 
 namespace FSI.Application.Contracts.Project.DTO.Hiring
 {
-    public class ProjectHiringDto : EntityDto<Guid>
+    public class ProjectHiringDto : FullAuditedEntityDto<Guid>
     {
         public string Title { get; set; }
 
@@ -23,8 +23,6 @@ namespace FSI.Application.Contracts.Project.DTO.Hiring
         public string? WorkingAddress { get; set; }
 
         public List<int>? WorkingTimes { get; set; }
-
-        public string? Income { get; set; }
 
         public string? Description { get; set; }
 
@@ -41,5 +39,14 @@ namespace FSI.Application.Contracts.Project.DTO.Hiring
         public string? OtherDetail { get; set; }
 
         public DateTime? Duration { get; set; }
+
+
+        public int IncodeMode { get; set; }
+
+        public int? IncomeFrom { get; set; }
+
+        public int? IncomeTo { get; set; }
+
+        public int? IncomeRange { get; set; }
     }
 }

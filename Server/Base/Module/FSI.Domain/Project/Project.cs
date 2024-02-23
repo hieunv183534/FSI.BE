@@ -51,7 +51,7 @@ namespace FSI.Domain.Project
         public bool IsProfit { get; set; }
     }
 
-    public class ProjectHiring : Entity<Guid>
+    public class ProjectHiring : FullAuditedEntity<Guid>
     {
         public string Title { get; set; }
 
@@ -66,8 +66,6 @@ namespace FSI.Domain.Project
         public string? WorkingAddress { get; set; }
 
         public List<int>? WorkingTimes { get; set; }
-
-        public string? Income { get; set; }
 
         public string? Description { get; set; }
 
@@ -86,5 +84,14 @@ namespace FSI.Domain.Project
         public DateTime? Duration { get; set; }
 
         public Guid ProjectId { get; set; }
+
+
+        public int IncodeMode { get; set; }
+
+        public int? IncomeFrom { get; set; }
+
+        public int? IncomeTo { get; set; }
+
+        public int? IncomeRange { get; set; }
     }
 }
