@@ -1043,7 +1043,7 @@ namespace FSI.Application.Project
             hiring.OtherDetail = input.OtherDetail;
             hiring.Duration = input.Duration;
 
-            hiring.IncodeMode = input.IncodeMode;
+            hiring.IncomeMode = input.IncomeMode;
             hiring.IncomeFrom = input.IncomeFrom;
             hiring.IncomeTo = input.IncomeTo;
             hiring.IncomeRange = input.IncomeRange;

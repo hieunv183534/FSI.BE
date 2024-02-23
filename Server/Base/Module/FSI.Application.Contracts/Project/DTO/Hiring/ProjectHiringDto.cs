@@ -41,7 +41,7 @@ namespace FSI.Application.Contracts.Project.DTO.Hiring
         public DateTime? Duration { get; set; }
 
 
-        public int IncodeMode { get; set; }
+        public int IncomeMode { get; set; }
 
         public int? IncomeFrom { get; set; }
 

@@ -86,7 +86,7 @@ namespace FSI.Domain.Project
         public Guid ProjectId { get; set; }
 
 
-        public int IncodeMode { get; set; }
+        public int IncomeMode { get; set; }
 
         public int? IncomeFrom { get; set; }
 
