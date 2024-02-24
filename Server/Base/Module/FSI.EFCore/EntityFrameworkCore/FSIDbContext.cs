@@ -54,6 +54,7 @@ public class FSIDbContext :
     public DbSet<ProjectSimilarity> ProjectSimilarities { get; set; }
     public DbSet<ProjectEvent> ProjectEvents { get; set; }
     public DbSet<ProjectWork> ProjectWorks { get; set; }
+    public DbSet<ProjectHiring> ProjectHiring { get; set; }
     public DbSet<ProjectUser> ProjectUsers { get; set; }
     public DbSet<ProjectFile> ProjectFiles { get; set; }
     public DbSet<ProjectCalendarEvent> ProjectCalendarEvents { get; set; }
@@ -98,6 +99,7 @@ public class FSIDbContext :
         builder.Entity<Project>(entity =>
         {
             entity.Property(x => x.Fields).IsJson();
+            entity.Property(x => x.PitchDeck).IsJson();
         });
 
         builder.Entity<ProjectHiring>(entity =>

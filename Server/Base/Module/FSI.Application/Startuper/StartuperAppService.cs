@@ -287,7 +287,7 @@ namespace FSI.Application.Startuper
                 await _blobContainer.SaveAsync(fileName, stream.ToArray(), overrideExisting: true);
             }
 
-            var fileUrl = "https://fsiconnectedapi.azurewebsites.net/image/" + fileName;
+            var fileUrl = "https://fffsssiii.blob.core.windows.net/avt/host/" + fileName;
 
             await _fileInfomationRepository.InsertAsync(new FileInfomation()
             {

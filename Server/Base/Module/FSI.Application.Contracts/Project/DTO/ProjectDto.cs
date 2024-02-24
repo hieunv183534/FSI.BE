@@ -1,4 +1,5 @@
-﻿using FSI.Application.Contracts.User.DTO;
+﻿using FSI.Application.Contracts.Project.DTO.Hiring;
+using FSI.Application.Contracts.User.DTO;
 using FSI.Common.Enums;
 using FSI.Domain.Project;
 using FSI.Domain.User;
@@ -39,6 +40,8 @@ namespace FSI.Application.Contracts.Project.DTO
         public UserRootDto? Founder { get; set; }
 
         public bool? IsActive { get; set; }
+
+        public List<ProjectHiringDto>? Hirings { get; set; }
 
         public int Scale { get; set; }
 
