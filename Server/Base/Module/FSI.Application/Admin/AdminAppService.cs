@@ -150,8 +150,8 @@ namespace FSI.Application.Admin
             var projects = await _projectRepository.GetListAsync();
 
             projects = projects.WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.ProjectName.Contains(input.Filter) || x.Description.Contains(input.Filter))
-                                .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Area.Value))
-                                .WhereIf(input.Stages.Count != 0, x => input.Stages.Contains(x.Stage.Value))
+                                .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Area))
+                                .WhereIf(input.Stages.Count != 0, x => input.Stages.Contains(x.Stage))
                                 .WhereIf(input.Fields.Count != 0, x => x.Fields.Any(y => input.Fields.Contains(y)))
                                 .Where(x=> x.IsActive.Equals(input.IsActive)).ToList();
 

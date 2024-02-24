@@ -300,9 +300,9 @@ namespace FSI.Application.Project
 
             projects = projects.Where(x => x.IsActive.Value)
                                 .WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.ProjectName.Contains(input.Filter) || x.Description.Contains(input.Filter))
-                                .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Area.Value))
-                                .WhereIf(input.Stages.Count != 0, x => input.Stages.Contains(x.Stage.Value))
-                                .WhereIf(input.Scales.Count != 0, x => input.Scales.Contains(x.Scale.Value))
+                                .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Area))
+                                .WhereIf(input.Stages.Count != 0, x => input.Stages.Contains(x.Stage))
+                                .WhereIf(input.Scales.Count != 0, x => input.Scales.Contains(x.Scale))
                                 .WhereIf(input.Fields.Count != 0, x => x.Fields.Any(y => input.Fields.Contains(y)))
                                 .WhereIf(input.IsProfit.HasValue, x=> x.IsProfit == input.IsProfit).ToList();
 

@@ -12,17 +12,17 @@ namespace FSI.Domain.Project
 {
     public class Project : FullAuditedAggregateRoot<Guid>
     {
-        public string? ProjectName { get; set; }
+        public string ProjectName { get; set; }
 
         public string? Description { get; set; }
 
-        public List<int>? Fields { get; set; }
+        public List<int> Fields { get; set; }
 
-        public ProjectStage? Stage { get; set; }
+        public ProjectStage Stage { get; set; }
 
-        public DateTime? FoundedTime { get; set; }
+        public DateTime FoundedTime { get; set; }
 
-        public int? Area { get; set; }
+        public int Area { get; set; }
 
         public string? Website { get; set; }
 
@@ -32,7 +32,7 @@ namespace FSI.Domain.Project
 
         public string? AvatarUrl { get; set; }
 
-        public Guid? FounderId { get; set; }
+        public Guid FounderId { get; set; }
 
         public UserRoot? Founder { get; set; }
 
@@ -42,9 +42,9 @@ namespace FSI.Domain.Project
 
         public List<ProjectHiring>? Hirings { get; set; }
 
-        public string TheLeanCanvasBusinessModel { get; set; }
+        public string? TheLeanCanvasBusinessModel { get; set; }
 
-        public int? Scale { get; set; }
+        public int Scale { get; set; }
 
         public bool IsProfit { get; set; }
     }

@@ -14,17 +14,17 @@ namespace FSI.Application.Contracts.Project.DTO
 {
     public class ProjectDto : FullAuditedAggregateRoot<Guid>
     {
-        public string? ProjectName { get; set; }
+        public string ProjectName { get; set; }
 
         public string? Description { get; set; }
 
-        public List<int>? Fields { get; set; }
+        public List<int> Fields { get; set; }
 
-        public ProjectStage? Stage { get; set; }
+        public ProjectStage Stage { get; set; }
 
-        public DateTime? FoundedTime { get; set; }
+        public DateTime FoundedTime { get; set; }
 
-        public int? Area { get; set; }
+        public int Area { get; set; }
 
         public string? Website { get; set; }
 
@@ -34,7 +34,7 @@ namespace FSI.Application.Contracts.Project.DTO
 
         public string? AvatarUrl { get; set; }
 
-        public Guid? FounderId { get; set; }
+        public Guid FounderId { get; set; }
 
         public UserRootDto? Founder { get; set; }
 
