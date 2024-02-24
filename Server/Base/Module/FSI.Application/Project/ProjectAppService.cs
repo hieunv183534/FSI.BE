@@ -97,7 +97,9 @@ namespace FSI.Application.Project
                 FoundedTime = input.FoundedTime,
                 ProjectName = input.ProjectName,
                 FounderId = this.currentUserId,
-                IsActive = false
+                IsActive = false,
+                IsProfit = input.IsProfit,
+                Scale = input.Scale
             });
 
             await _projectEventRepository.InsertAsync(new ProjectEvent()
@@ -302,7 +304,6 @@ namespace FSI.Application.Project
                                 .WhereIf(input.Stages.Count != 0, x => input.Stages.Contains(x.Stage.Value))
                                 .WhereIf(input.Scales.Count != 0, x => input.Scales.Contains(x.Scale.Value))
                                 .WhereIf(input.Fields.Count != 0, x => x.Fields.Any(y => input.Fields.Contains(y)))
-                                .WhereIf(input.WorkingForm.HasValue, x=> x.WorkingForm == input.WorkingForm)
                                 .WhereIf(input.IsProfit.HasValue, x=> x.IsProfit == input.IsProfit).ToList();
 
             var myProjectIds = (await _projectUserRepository.GetListAsync(x => x.UserId.Equals(this.currentUserId) && x.IsActive)).Select(x => x.ProjectId).ToList();

@@ -34,8 +34,6 @@ namespace FSI.Application.Contracts.Project.DTO
 
         public int Scale { get; set; }
 
-        public WorkingForm WorkingForm { get; set; }
-
         public bool IsProfit { get; set; }
     }
 }

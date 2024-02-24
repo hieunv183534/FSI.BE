@@ -46,8 +46,6 @@ namespace FSI.Domain.Project
 
         public int? Scale { get; set; }
 
-        public WorkingForm WorkingForm { get; set; }
-
         public bool IsProfit { get; set; }
     }
 
