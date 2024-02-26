@@ -759,13 +759,14 @@ namespace FSI.Application.Project
 
             var files = _httpContextAccessor.HttpContext.Request.Form.Files.ToList();
             var fileInfos = new List<FileInfomation>();
-            files.ForEach(async file =>
+
+            for(int i=0; i < files.Count; i++)
             {
+                var file = files[i];
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
                 using (var stream = new MemoryStream())
                 {
                     await file.CopyToAsync(stream);
-
                     await _blobContainer.SaveAsync(fileName, stream.ToArray(), overrideExisting: true);
                 }
 
@@ -777,7 +778,7 @@ namespace FSI.Application.Project
                     Size = (int)file.Length,
                     ContentType = file.ContentType
                 });
-            });
+            }
 
             await _fileInfomationRepository.InsertManyAsync(fileInfos);
 
@@ -1091,13 +1092,14 @@ namespace FSI.Application.Project
 
             var files = _httpContextAccessor.HttpContext.Request.Form.Files.ToList();
             var fileInfos = new List<FileInfomation>();
-            files.ForEach(async file =>
+
+            for(int i=0; i< files.Count; i++)
             {
+                var file = files[i];
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
                 using (var stream = new MemoryStream())
                 {
                     await file.CopyToAsync(stream);
-
                     await _blobContainer.SaveAsync(fileName, stream.ToArray(), overrideExisting: true);
                 }
 
@@ -1109,7 +1111,7 @@ namespace FSI.Application.Project
                     Size = (int)file.Length,
                     ContentType = file.ContentType
                 });
-            });
+            }
 
             await _fileInfomationRepository.InsertManyAsync(fileInfos);
 
