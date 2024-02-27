@@ -23,6 +23,8 @@ namespace FSI.Application.Contracts.Startuper.DTO
             
         public List<int> Areas { get; set; }
 
+        public List<int> Purposes { get; set; }
+
         public Guid? Mode { get; set; }
 
         public bool? IsStudent { get; set; }

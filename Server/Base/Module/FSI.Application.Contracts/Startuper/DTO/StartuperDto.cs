@@ -38,17 +38,15 @@ namespace FSI.Application.Contracts.Startuper.DTO
 
         public List<int>? RequestSkill { get; set; }
 
-        public bool? hasIdea { get; set; }
-
         public int Purpose { get; set; }
 
-        public List<int>? ideaField { get; set; }
+        public List<int>? IdeaField { get; set; }
 
-        public List<int>? targetField { get; set; }
+        public List<int>? TargetField { get; set; }
 
         public List<int>? Specialize { get; set; }
 
-        public List<int>? targetSpecialize { get; set; }
+        public List<int>? TargetSpecialize { get; set; }
 
     }
 }
