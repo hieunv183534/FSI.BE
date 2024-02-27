@@ -52,22 +52,19 @@ namespace FSI.Domain.Startuper
         // điểm cộng kĩ năng
         public List<int>? RequestSkill { get; set; }
 
-        // có ý tưởng hay không
-        public bool? hasIdea { get; set; }
-
         // mục đích tham gia fsi
         public int Purpose { get; set; }
 
         // lĩnh vực của ý tưởng nếu có
-        public List<int>? ideaField { get; set; }
+        public List<int>? IdeaField { get; set; }
 
         // lĩnh vực của dự án/ ý tưởng muốn tham gia
-        public List<int>? targetField { get; set; }
+        public List<int>? TargetField { get; set; }
 
         // chuyên môn của mình
         public List<int>? Specialize { get; set; }
 
         // muốn tìm người chuyên môn như nào
-        public List<int>? targetSpecialize { get; set; }
+        public List<int>? TargetSpecialize { get; set; }
     }
 }

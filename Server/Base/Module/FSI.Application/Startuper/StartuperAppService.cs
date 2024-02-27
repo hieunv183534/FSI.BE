@@ -104,12 +104,8 @@ namespace FSI.Application.Startuper
             thisStartuper.Collab = input.Collab;
             thisStartuper.RequestPersonality = input.RequestPersonality;
             thisStartuper.RequestSkill = input.RequestSkill;
-            thisStartuper.hasIdea = false;
             thisStartuper.Purpose = input.Purpose;
             thisStartuper.Specialize = input.Specialize;
-            thisStartuper.ideaField = input.ideaField;
-            thisStartuper.targetField = input.targetField;
-            thisStartuper.targetSpecialize = input.targetSpecialize;
 
             //if (()||
             //    ()||
@@ -120,6 +116,9 @@ namespace FSI.Application.Startuper
             //    thisStartuper.IsNewProfile = true;
             //else thisStartuper.IsNewProfile = false;
 
+             thisStartuper.IdeaField = input.IdeaField;
+            thisStartuper.TargetField = input.TargetField;
+            thisStartuper.TargetSpecialize = input.TargetSpecialize;
             var rs = await _startuperRepository.UpdateAsync(thisStartuper);
 
             await _distributedEventBus.PublishAsync(new UpdateStartuperInfoEto()
