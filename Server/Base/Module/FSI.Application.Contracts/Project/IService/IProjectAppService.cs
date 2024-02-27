@@ -100,7 +100,7 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task<List<Pitch>> DeletePitchDeck(Guid projectId, Guid pitchId);
 
-        Task<List<Pitch>> SortPitchDeck(Guid projectId ,List<Guid> pitchSortedIds);
+        Task<List<Pitch>> SortPitchDeck(Guid projectId ,List<Pitch> pitchSorteds);
 
     }
 }

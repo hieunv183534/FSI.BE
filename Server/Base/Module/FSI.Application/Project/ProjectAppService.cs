@@ -1112,7 +1112,7 @@ namespace FSI.Application.Project
                 pitchDecks.Add(new Pitch()
                 {
                     Id = id,
-                    Name = file.Name,
+                    Name = file.FileName,
                     Url = fileUrl
                 });
 
@@ -1169,7 +1169,7 @@ namespace FSI.Application.Project
             return project.PitchDeck;
         }
 
-        public async Task<List<Pitch>> SortPitchDeck(Guid projectId, List<Guid> pitchSortedIds)
+        public async Task<List<Pitch>> SortPitchDeck(Guid projectId, List<Pitch> pitchSorteds)
         {
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
             if (myProjectUser == null)
@@ -1180,8 +1180,7 @@ namespace FSI.Application.Project
                 throw new UserFriendlyException(message: "Bạn không đủ quyền");
 
             var project = await _projectRepository.GetAsync(projectId);
-
-            project.PitchDeck.Sort((x, y) => pitchSortedIds.IndexOf(x.Id).CompareTo(pitchSortedIds.IndexOf(y.Id)));  
+            project.PitchDeck = pitchSorteds;
             await _projectRepository.UpdateAsync(project);
             return project.PitchDeck;
         }
