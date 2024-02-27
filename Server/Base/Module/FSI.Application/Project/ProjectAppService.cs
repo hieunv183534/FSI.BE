@@ -11,6 +11,7 @@ using FSI.Domain.MatrixRating;
 using FSI.Domain.Project;
 using FSI.Domain.Startuper;
 using FSI.Domain.User;
+using Google.Protobuf.Collections;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -1082,7 +1083,7 @@ namespace FSI.Application.Project
             await _projectRepository.UpdateAsync(project);
         }
 
-        public async Task<List<string>> UploadPitchDeck(Guid projectId)
+        public async Task<List<Pitch>> UploadPitchDeck(Guid projectId)
         {
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
             if (myProjectUser == null)
@@ -1094,11 +1095,12 @@ namespace FSI.Application.Project
 
             var files = _httpContextAccessor.HttpContext.Request.Form.Files.ToList();
             var fileInfos = new List<FileInfomation>();
-
+            var pitchDecks = new List<Pitch>();
             for(int i=0; i< files.Count; i++)
             {
                 var file = files[i];
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                var id = Guid.NewGuid();
+                var fileName = id.ToString() + Path.GetExtension(file.FileName);
                 using (var stream = new MemoryStream())
                 {
                     await file.CopyToAsync(stream);
@@ -1106,6 +1108,14 @@ namespace FSI.Application.Project
                 }
 
                 var fileUrl = "https://fffsssiii.blob.core.windows.net/avt/host/" + fileName;
+
+                pitchDecks.Add(new Pitch()
+                {
+                    Id = id,
+                    Name = file.Name,
+                    Url = fileUrl
+                });
+
                 fileInfos.Add(new FileInfomation()
                 {
                     AuthorId = this.currentUserId,
@@ -1122,23 +1132,23 @@ namespace FSI.Application.Project
             var project = await _projectRepository.GetAsync(projectId);
 
             if (project.PitchDeck == null)
-                project.PitchDeck = new List<string>();
+                project.PitchDeck = new List<Pitch>();
 
-            project.PitchDeck.AddRange(images);
+            project.PitchDeck.AddRange(pitchDecks);
 
             await _projectRepository.UpdateAsync(project);
 
             return project.PitchDeck;
         }
 
-        public async Task<List<string>> GetProjectPitchDeck(Guid projectId)
+        public async Task<List<Pitch>> GetProjectPitchDeck(Guid projectId)
         {
             var project = await _projectRepository.GetAsync(projectId);
 
             return project.PitchDeck;
         }
 
-        public async Task<List<string>> DeletePitchDeck(Guid projectId, string pitch)
+        public async Task<List<Pitch>> DeletePitchDeck(Guid projectId, Guid pitchId)
         {
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
             if (myProjectUser == null)
@@ -1147,16 +1157,19 @@ namespace FSI.Application.Project
                 throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
             if ((int)myProjectUser.Role < 2)
                 throw new UserFriendlyException(message: "Bạn không đủ quyền");
-            var fileName = pitch.Replace("https://fffsssiii.blob.core.windows.net/avt/host/", "");
-            await _blobContainer.DeleteAsync(fileName);
-
             var project = await _projectRepository.GetAsync(projectId);
+            var pitch = project.PitchDeck.Find(x => x.Id == pitchId);
             project.PitchDeck.Remove(pitch);
             await _projectRepository.UpdateAsync(project);
+
+            var fileName = pitch.Url.Replace("https://fffsssiii.blob.core.windows.net/avt/host/", "");
+            await _blobContainer.DeleteAsync(fileName);
+
+
             return project.PitchDeck;
         }
 
-        public async Task<List<string>> SortPitchDesk(Guid projectId, List<string> pitchSorted)
+        public async Task<List<Pitch>> SortPitchDeck(Guid projectId, List<Guid> pitchSortedIds)
         {
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
             if (myProjectUser == null)
@@ -1167,7 +1180,8 @@ namespace FSI.Application.Project
                 throw new UserFriendlyException(message: "Bạn không đủ quyền");
 
             var project = await _projectRepository.GetAsync(projectId);
-            project.PitchDeck = pitchSorted;
+
+            project.PitchDeck.Sort((x, y) => pitchSortedIds.IndexOf(x.Id).CompareTo(pitchSortedIds.IndexOf(y.Id)));  
             await _projectRepository.UpdateAsync(project);
             return project.PitchDeck;
         }

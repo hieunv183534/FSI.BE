@@ -79,6 +79,7 @@ public class FSIDbContext :
 
         builder.Ignore<ProjectSimilarStartuper>();
         builder.Ignore<MeetInviteKey>();
+        builder.Ignore<Pitch>();
 
 
         /* Configure your own tables/entities inside here */

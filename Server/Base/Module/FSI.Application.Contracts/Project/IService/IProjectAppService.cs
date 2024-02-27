@@ -94,13 +94,13 @@ namespace FSI.Application.Contracts.Project.IService
 
         Task UpdateProjectCanvasModel(UpdateCanvasModelDto input);
 
-        Task<List<string>> UploadPitchDeck(Guid projectId);
+        Task<List<Pitch>> UploadPitchDeck(Guid projectId);
 
-        Task<List<string>> GetProjectPitchDeck(Guid projectId);
+        Task<List<Pitch>> GetProjectPitchDeck(Guid projectId);
 
-        Task<List<string>> DeletePitchDeck(Guid projectId, string pitch);
+        Task<List<Pitch>> DeletePitchDeck(Guid projectId, Guid pitchId);
 
-        Task<List<string>> SortPitchDesk(Guid projectId ,List<string> pitchSorted);
+        Task<List<Pitch>> SortPitchDeck(Guid projectId ,List<Guid> pitchSortedIds);
 
     }
 }

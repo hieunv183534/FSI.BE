@@ -48,7 +48,16 @@ namespace FSI.Domain.Project
 
         public bool IsProfit { get; set; }
 
-        public List<string>? PitchDeck { get; set; }
+        public List<Pitch>? PitchDeck { get; set; }
+    }
+
+    public class Pitch
+    {
+        public Guid Id { get; set; }
+
+        public string Url { get; set; }
+
+        public string Name { get; set; }
     }
 
     public class ProjectHiring : FullAuditedEntity<Guid>

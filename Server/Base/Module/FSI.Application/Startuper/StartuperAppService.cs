@@ -111,13 +111,14 @@ namespace FSI.Application.Startuper
             thisStartuper.targetField = input.targetField;
             thisStartuper.targetSpecialize = input.targetSpecialize;
 
-            if (()||
-                ()||
-                ()||
-                ()||
-                ()||)
-                thisStartuper.IsNewProfile = true;
-            else thisStartuper.IsNewProfile = false;
+            //if (()||
+            //    ()||
+            //    ()||
+            //    ()||
+            //    ()||
+            //    ())
+            //    thisStartuper.IsNewProfile = true;
+            //else thisStartuper.IsNewProfile = false;
 
             var rs = await _startuperRepository.UpdateAsync(thisStartuper);
 
