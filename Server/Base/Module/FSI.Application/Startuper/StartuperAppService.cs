@@ -96,7 +96,6 @@ namespace FSI.Application.Startuper
             thisStartuper.Personality = input.Personality;
             thisStartuper.CertificateAndAward = input.CertificateAndAward;
             thisStartuper.Skill = input.Skill;
-            thisStartuper.hasProject = input.hasProject;
             thisStartuper.Describe = input.Describe;
             thisStartuper.YearOfExp = input.YearOfExp;
             thisStartuper.AvailableTime = input.AvailableTime;
@@ -111,6 +110,15 @@ namespace FSI.Application.Startuper
             thisStartuper.ideaField = input.ideaField;
             thisStartuper.targetField = input.targetField;
             thisStartuper.targetSpecialize = input.targetSpecialize;
+
+            if (()||
+                ()||
+                ()||
+                ()||
+                ()||)
+                thisStartuper.IsNewProfile = true;
+            else thisStartuper.IsNewProfile = false;
+
             var rs = await _startuperRepository.UpdateAsync(thisStartuper);
 
             await _distributedEventBus.PublishAsync(new UpdateStartuperInfoEto()

@@ -33,8 +33,6 @@ namespace FSI.Domain.Startuper
         // chứng chỉ & giải thưởng
         public string? CertificateAndAward { get; set; }
 
-        public bool? hasProject { get; set; }
-
         // mô tả bản thân, slogan
         public string? Describe { get; set; }
 

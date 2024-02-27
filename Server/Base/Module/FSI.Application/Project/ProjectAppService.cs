@@ -756,6 +756,8 @@ namespace FSI.Application.Project
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(input.ProjectId));
             if (myProjectUser == null || !myProjectUser.IsActive)
                 throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+            if (!myProjectUser.IsActive)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
 
             var files = _httpContextAccessor.HttpContext.Request.Form.Files.ToList();
             var fileInfos = new List<FileInfomation>();
