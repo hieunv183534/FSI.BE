@@ -3,6 +3,7 @@ using System;
 using FSI.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -11,9 +12,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace FSI.EFCore.Migrations
 {
     [DbContext(typeof(FSIDbContext))]
-    partial class FSIDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240220151130_canvasModel")]
+    partial class canvasModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -533,8 +535,11 @@ namespace FSI.EFCore.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("char(36)");
 
-                    b.Property<int>("Area")
+                    b.Property<int?>("Area")
                         .HasColumnType("int");
+
+                    b.Property<string>("AvailableTimeRequire")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("AvatarUrl")
                         .HasColumnType("longtext");
@@ -575,13 +580,12 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("Fields")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime>("FoundedTime")
+                    b.Property<DateTime?>("FoundedTime")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid>("FounderId")
+                    b.Property<Guid?>("FounderId")
                         .HasColumnType("char(36)");
 
                     b.Property<bool?>("IsActive")
@@ -593,7 +597,7 @@ namespace FSI.EFCore.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
 
-                    b.Property<bool>("IsProfit")
+                    b.Property<bool?>("IsHireNewMember")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime?>("LastModificationTime")
@@ -604,23 +608,17 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("char(36)")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<string>("PitchDeck")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("ProjectEnglishText")
                         .HasColumnType("longtext");
 
                     b.Property<string>("ProjectName")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("Scale")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Stage")
+                    b.Property<int?>("Stage")
                         .HasColumnType("int");
 
                     b.Property<string>("TheLeanCanvasBusinessModel")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Website")
@@ -888,24 +886,8 @@ namespace FSI.EFCore.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("char(36)");
 
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("CreatorId");
-
                     b.Property<int?>("Degree")
                         .HasColumnType("int");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("DeletionTime");
 
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
@@ -913,31 +895,8 @@ namespace FSI.EFCore.Migrations
                     b.Property<DateTime?>("Duration")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int?>("IncomeFrom")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IncomeMode")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("IncomeRange")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("IncomeTo")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("LastModifierId");
+                    b.Property<string>("Income")
+                        .HasColumnType("longtext");
 
                     b.Property<int?>("Location")
                         .HasColumnType("int");
@@ -951,7 +910,7 @@ namespace FSI.EFCore.Migrations
                     b.Property<string>("Personalities")
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("ProjectId")
+                    b.Property<Guid?>("ProjectId")
                         .HasColumnType("char(36)");
 
                     b.Property<int>("Quantity")
@@ -1638,9 +1597,6 @@ namespace FSI.EFCore.Migrations
                     b.Property<int?>("Field")
                         .HasColumnType("int");
 
-                    b.Property<string>("IdeaField")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Personality")
                         .HasColumnType("longtext");
 
@@ -1665,20 +1621,26 @@ namespace FSI.EFCore.Migrations
                     b.Property<string>("StartuperEnglishText")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("TargetField")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("TargetSpecialize")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("WorkingExperience")
                         .HasColumnType("longtext");
 
                     b.Property<int?>("YearOfExp")
                         .HasColumnType("int");
 
+                    b.Property<bool?>("hasIdea")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<bool?>("hasProject")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("ideaField")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("targetField")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("targetSpecialize")
+                        .HasColumnType("longtext");
 
                     b.HasDiscriminator().HasValue("Startuper");
                 });
@@ -1751,9 +1713,7 @@ namespace FSI.EFCore.Migrations
                 {
                     b.HasOne("FSI.Domain.User.UserRoot", "Founder")
                         .WithMany()
-                        .HasForeignKey("FounderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FounderId");
 
                     b.Navigation("Founder");
                 });
@@ -1823,9 +1783,7 @@ namespace FSI.EFCore.Migrations
                 {
                     b.HasOne("FSI.Domain.Project.Project", null)
                         .WithMany("Hirings")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProjectId");
                 });
 
             modelBuilder.Entity("FSI.Domain.Project.ProjectUser", b =>

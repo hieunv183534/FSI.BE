@@ -10,5 +10,6 @@ namespace FSI.Domain.Project
 {
     public interface IProjectRepository : IRepository<Project, Guid>
     {
+        Task<Project> GetProjectWithHirings(Guid projectId);
     }
 }

@@ -46,5 +46,13 @@ namespace FSI.Domain.Chat
         [NotMapped]
         public Message? LastMessage { get; set; }
 
+        public List<MeetInviteKey> MeetInviteKeys { get; set; }
+    }
+
+    public class MeetInviteKey
+    {
+        public string InviteKey { get; set; }
+
+        public DateTime ValidTo { get; set; }
     }
 }

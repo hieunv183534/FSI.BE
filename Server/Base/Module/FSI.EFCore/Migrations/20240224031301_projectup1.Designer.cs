@@ -3,6 +3,7 @@ using System;
 using FSI.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -11,9 +12,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace FSI.EFCore.Migrations
 {
     [DbContext(typeof(FSIDbContext))]
-    partial class FSIDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240224031301_projectup1")]
+    partial class projectup1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -603,9 +605,6 @@ namespace FSI.EFCore.Migrations
                     b.Property<Guid?>("LastModifierId")
                         .HasColumnType("char(36)")
                         .HasColumnName("LastModifierId");
-
-                    b.Property<string>("PitchDeck")
-                        .HasColumnType("longtext");
 
                     b.Property<string>("ProjectEnglishText")
                         .HasColumnType("longtext");
@@ -1638,9 +1637,6 @@ namespace FSI.EFCore.Migrations
                     b.Property<int?>("Field")
                         .HasColumnType("int");
 
-                    b.Property<string>("IdeaField")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Personality")
                         .HasColumnType("longtext");
 
@@ -1665,20 +1661,26 @@ namespace FSI.EFCore.Migrations
                     b.Property<string>("StartuperEnglishText")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("TargetField")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("TargetSpecialize")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("WorkingExperience")
                         .HasColumnType("longtext");
 
                     b.Property<int?>("YearOfExp")
                         .HasColumnType("int");
 
+                    b.Property<bool?>("hasIdea")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<bool?>("hasProject")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("ideaField")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("targetField")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("targetSpecialize")
+                        .HasColumnType("longtext");
 
                     b.HasDiscriminator().HasValue("Startuper");
                 });

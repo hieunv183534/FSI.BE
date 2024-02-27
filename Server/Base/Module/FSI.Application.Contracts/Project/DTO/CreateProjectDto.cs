@@ -12,17 +12,17 @@ namespace FSI.Application.Contracts.Project.DTO
     {
         public Guid? Id { get; set; }
 
-        public string? ProjectName { get; set; }
+        public string ProjectName { get; set; }
 
         public string? Description { get; set; }
 
-        public List<int>? Fields { get; set; }
+        public List<int> Fields { get; set; }
 
-        public ProjectStage? Stage { get; set; }
+        public ProjectStage Stage { get; set; }
 
-        public DateTime? FoundedTime { get; set; }
+        public DateTime FoundedTime { get; set; }
 
-        public int? Area { get; set; }
+        public int Area { get; set; }
 
         public string? Website { get; set; }
 
@@ -32,8 +32,8 @@ namespace FSI.Application.Contracts.Project.DTO
 
         public string? AvatarUrl { get; set; }
 
-        public bool? IsHireNewMember { get; set; }
+        public int Scale { get; set; }
 
-        public List<int>? AvailableTimeRequire { get; set; }
+        public bool IsProfit { get; set; }
     }
 }

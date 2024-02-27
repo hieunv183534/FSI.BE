@@ -1,6 +1,7 @@
 ﻿using AgoraIO.Media;
 using FSI.Application.Contracts.Agora.DTO;
 using FSI.Application.Contracts.Agora.IService;
+using FSI.Application.Contracts.Auth.DTO;
 using FSI.Application.Hubs;
 using FSI.Domain.Chat;
 using FSI.Domain.User;
@@ -10,9 +11,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Polly;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -89,5 +92,26 @@ namespace FSI.Application.Agora
             return result1 + "_and_" + result2;
         }
 
+        [AllowAnonymous]
+        public async Task<string> LoginAsGuestToMeet(GuestToMeetDto input)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenKey = Encoding.ASCII.GetBytes("this-is-my-super-key");
+
+            var guestId = Guid.NewGuid;
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                        new Claim("guestName", input.GuestName),
+                        new Claim("nameid", guestId.ToString())
+                }),
+                Expires = DateTime.UtcNow.AddDays(30),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
     }
 }

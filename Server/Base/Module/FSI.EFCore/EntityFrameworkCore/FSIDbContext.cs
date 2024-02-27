@@ -54,6 +54,7 @@ public class FSIDbContext :
     public DbSet<ProjectSimilarity> ProjectSimilarities { get; set; }
     public DbSet<ProjectEvent> ProjectEvents { get; set; }
     public DbSet<ProjectWork> ProjectWorks { get; set; }
+    public DbSet<ProjectHiring> ProjectHiring { get; set; }
     public DbSet<ProjectUser> ProjectUsers { get; set; }
     public DbSet<ProjectFile> ProjectFiles { get; set; }
     public DbSet<ProjectCalendarEvent> ProjectCalendarEvents { get; set; }
@@ -77,6 +78,7 @@ public class FSIDbContext :
         /* Include modules to your migration db context */
 
         builder.Ignore<ProjectSimilarStartuper>();
+        builder.Ignore<MeetInviteKey>();
 
 
         /* Configure your own tables/entities inside here */
@@ -97,12 +99,26 @@ public class FSIDbContext :
         builder.Entity<Project>(entity =>
         {
             entity.Property(x => x.Fields).IsJson();
-            entity.Property(x => x.AvailableTimeRequire).IsJson();
+            entity.Property(x => x.PitchDeck).IsJson();
         });
+
+        builder.Entity<ProjectHiring>(entity =>
+        {
+            entity.Property(x => x.WorkingTimes).IsJson();
+            entity.Property(x => x.YearOfExps).IsJson();
+            entity.Property(x => x.Skills).IsJson();
+            entity.Property(x => x.Personalities).IsJson();
+        });
+
 
         builder.Entity<Message>(entity =>
         {
             entity.Property(x => x.Reacts).IsJson();
+        });
+
+        builder.Entity<Conversation>(entity =>
+        {
+            entity.Property(x => x.MeetInviteKeys).IsJson();
         });
 
         builder.Entity<Startuper>(entity =>

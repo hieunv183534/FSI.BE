@@ -5,23 +5,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Entities.Auditing;
 
 namespace FSI.Domain.Project
 {
     public class Project : FullAuditedAggregateRoot<Guid>
     {
-        public string? ProjectName { get; set; }
+        public string ProjectName { get; set; }
 
         public string? Description { get; set; }
 
-        public List<int>? Fields { get; set; }
+        public List<int> Fields { get; set; }
 
-        public ProjectStage? Stage { get; set; }
+        public ProjectStage Stage { get; set; }
 
-        public DateTime? FoundedTime { get; set; }
+        public DateTime FoundedTime { get; set; }
 
-        public int? Area { get; set; }
+        public int Area { get; set; }
 
         public string? Website { get; set; }
 
@@ -31,17 +32,66 @@ namespace FSI.Domain.Project
 
         public string? AvatarUrl { get; set; }
 
-        public Guid? FounderId { get; set; }
+        public Guid FounderId { get; set; }
 
         public UserRoot? Founder { get; set; }
-
-        public bool? IsHireNewMember { get; set; }
-
-        public List<int>? AvailableTimeRequire { get; set; }
 
         public bool? IsActive { get; set; }
 
         public string? ProjectEnglishText { get; set; }
 
+        public List<ProjectHiring>? Hirings { get; set; }
+
+        public string? TheLeanCanvasBusinessModel { get; set; }
+
+        public int Scale { get; set; }
+
+        public bool IsProfit { get; set; }
+
+        public List<string>? PitchDeck { get; set; }
+    }
+
+    public class ProjectHiring : FullAuditedEntity<Guid>
+    {
+        public string Title { get; set; }
+
+        public int Quantity { get; set; }
+
+        public int Specialize { get; set; }
+
+        public WorkingForm WorkingForm { get; set; }
+
+        public int? Location { get; set; }
+
+        public string? WorkingAddress { get; set; }
+
+        public List<int>? WorkingTimes { get; set; }
+
+        public string? Description { get; set; }
+
+        public List<int>? YearOfExps { get; set; }
+
+        public int? Degree { get; set; }
+
+        public List<int>? Skills { get; set; }
+
+        public List<int>? Personalities { get; set; }
+
+        public string? OtherRequest { get; set; }
+
+        public string? OtherDetail { get; set; }
+
+        public DateTime? Duration { get; set; }
+
+        public Guid ProjectId { get; set; }
+
+
+        public int IncomeMode { get; set; }
+
+        public int? IncomeFrom { get; set; }
+
+        public int? IncomeTo { get; set; }
+
+        public int? IncomeRange { get; set; }
     }
 }

@@ -18,7 +18,11 @@ namespace FSI.Application.Contracts.Project.DTO
 
         public List<int> Areas { get; set; }
 
-        public List<int> AvailableTimes { get; set; }
+        public List<int> Scales { get; set; }
+
+        public bool? IsProfit { get; set; }
+
+        public WorkingForm? WorkingForm { get; set; }
 
         public RelationWithProject RelationWithProject { get; set; }
     }

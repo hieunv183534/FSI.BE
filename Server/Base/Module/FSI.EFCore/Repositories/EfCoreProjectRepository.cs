@@ -18,5 +18,12 @@ namespace FSI.EFCore.Repositories
         public EfCoreProjectRepository(IDbContextProvider<FSIDbContext> dbContextProvider) : base(dbContextProvider)
         {
         }
+
+        public async Task<Project> GetProjectWithHirings(Guid projectId)
+        {
+            var dbSet = await GetDbSetAsync();
+            var project = dbSet.Include("Hirings").FirstOrDefault(x=> x.Id == projectId);
+            return project;
+        }
     }
 }

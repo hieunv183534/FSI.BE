@@ -48,5 +48,14 @@ namespace FSI.Application.Contracts.Chat.DTO
         public MessageDto? LastMessage { get; set; }
 
         public bool? IsSeen { get; set; }
+
+        public List<MeetInviteKeyDto> MeetInviteKeys { get; set; }
+    }
+
+    public class MeetInviteKeyDto
+    {
+        public string InviteKey { get; set; }
+
+        public DateTime ValidTo { get; set; }
     }
 }

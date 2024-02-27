@@ -4,6 +4,7 @@ using FSI.Application.Contracts.Auth.DTO;
 using FSI.Application.Contracts.Chat.DTO;
 using FSI.Application.Contracts.File;
 using FSI.Application.Contracts.Project.DTO;
+using FSI.Application.Contracts.Project.DTO.Hiring;
 using FSI.Application.Contracts.Startuper.DTO;
 using FSI.Application.Contracts.Test.DTO;
 using FSI.Application.Contracts.User.DTO;
@@ -34,6 +35,8 @@ namespace FSI
             CreateMap<ProjectFile, ProjectFileDto>().ReverseMap();
             CreateMap<ProjectEvent, ProjectEventDto>().ReverseMap();
             CreateMap<ProjectWork, ProjectWorkDto>().ReverseMap();
+            CreateMap<ProjectHiring, ProjectHiringDto>().ReverseMap();
+            CreateMap<CreateOrUpdateProjectHiringDto, ProjectHiring>();
             CreateMap<ProjectCalendarEvent, ProjectCalendarEventDto>().ReverseMap();
             CreateMap<ProjectRequestStartuperInfo, ProjectRequestStartuperInfoDto>().ReverseMap();
             CreateMap<Startuper, StartuperDto>().ReverseMap();
@@ -41,6 +44,7 @@ namespace FSI
             CreateMap<UserRootDto, FSI.Domain.Startuper.Startuper>().ReverseMap();
             CreateMap<UserRoot, UserRootDto>().ReverseMap();
             CreateMap<Conversation, ConversationDto>().ReverseMap();
+            CreateMap<MeetInviteKey, MeetInviteKeyDto>().ReverseMap();
             CreateMap<Message, MessageDto>().ReverseMap();
             CreateMap<UserConversation, UserConversationDto>().ReverseMap();
             CreateMap<RegisterDto, Account>().ForMember(a => a.PasswordHash, r => r.MapFrom(src => src.Password)).ReverseMap();

@@ -9,6 +9,7 @@ using FSI.Domain.Startuper;
 using FSI.Domain.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -19,11 +20,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.Application.Services;
+using Volo.Abp.Authorization;
 using Volo.Abp.DependencyInjection;
 
 namespace FSI.Application.Auth
 {
-    [RemoteService(false)]
+    [Authorize]
+    [IgnoreAntiforgeryToken]
     public class AuthAppService : ApplicationService, IAuthAppService
     {
         private readonly IAccountRepository _accountRepository;
@@ -41,6 +44,8 @@ namespace FSI.Application.Auth
             _httpContextAccessor = httpContextAccessor;
         }
 
+        [Authorize]
+        [HttpPost]
         public async Task<bool> ChangePassword(string oldPass, string newPass)
         {
             var accId = Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.GivenName).Value);
@@ -55,10 +60,12 @@ namespace FSI.Application.Auth
             else return false;
         }
 
+        [AllowAnonymous]
+        [HttpPost]
         public async Task<string> Login(LoginDto loginDto)
         {
             var acc = await _accountRepository.FindAsync(a => a.Email.Equals(loginDto.Username) || a.PhoneNumber.Equals(loginDto.Username));
-            if (acc == null) return null;
+            if (acc == null) throw new AbpAuthorizationException();
 
             if (BCrypt.Net.BCrypt.Verify(loginDto.Password, acc.PasswordHash))
             {
@@ -95,13 +102,18 @@ namespace FSI.Application.Auth
                 var token = tokenHandler.CreateToken(tokenDescriptor);
                 return tokenHandler.WriteToken(token);
             }
-            return null;
+            else
+            {
+                throw new AbpAuthorizationException();
+            }
         }
 
+        [AllowAnonymous]
+        [HttpPost]
         public async Task<AccountDto> Register(RegisterDto input)
         {
             input.Password = BCrypt.Net.BCrypt.HashPassword(input.Password);
-            var newAcc = await _accountRepository.InsertAsync(ObjectMapper.Map<RegisterDto, Account>(input));
+            var newAcc = await _accountRepository.InsertAsync(ObjectMapper.Map<RegisterDto, Account>(input), autoSave: true);
 
             if (input.RoleRegister == Common.Enums.FsiRole.Startuper)
             {

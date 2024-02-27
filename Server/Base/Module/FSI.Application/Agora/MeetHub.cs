@@ -64,41 +64,6 @@ namespace FSI.Application.Agora
             await Clients.Group(userMeet.ConversationId.ToString()).SendAsync("OnMessage", currentUserId, message);
         }
 
-        public async Task Publish(string track)
-        {
-            var userMeet = _meetHubService.UserMeets.FirstOrDefault(x => x.Uid == currentUserId);
-            switch (track)
-            {
-                case "micro":
-                    userMeet.Micro = true;
-                    break;
-                case "video":
-                    userMeet.Video = true;
-                    break;
-                case "screen":
-                    userMeet.Screen = true;
-                    break;
-            }
-            await Clients.Groups(userMeet.ConversationId.ToString()).SendAsync("OnPublish", currentUserId, track);
-        }
-
-        public async Task UnPublish(string track)
-        {
-            var userMeet = _meetHubService.UserMeets.FirstOrDefault(x => x.Uid == currentUserId);
-            switch (track)
-            {
-                case "micro":
-                    userMeet.Micro = false;
-                    break;
-                case "video":
-                    userMeet.Video = false;
-                    break;
-                case "screen":
-                    userMeet.Screen = false;
-                    break;
-            }
-            await Clients.Groups(userMeet.ConversationId.ToString()).SendAsync("OnUnPublish", currentUserId, track);
-        }
 
         public override Task OnDisconnectedAsync(Exception exception)
             {

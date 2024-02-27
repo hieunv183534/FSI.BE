@@ -1,4 +1,5 @@
 ﻿using FSI.Application.Contracts.Project.DTO;
+using FSI.Application.Contracts.Project.DTO.Hiring;
 using FSI.Application.Contracts.Project.IService;
 using FSI.Application.Contracts.User.DTO;
 using FSI.Application.EventHandle;
@@ -16,14 +17,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
-using NPOI.SS.Formula.Functions;
 using Pipelines.Sockets.Unofficial.Arenas;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
@@ -32,7 +27,6 @@ using Volo.Abp.Caching;
 using Volo.Abp.Data;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.EventBus.Distributed;
-using Volo.Abp.ObjectMapping;
 
 namespace FSI.Application.Project
 {
@@ -47,6 +41,7 @@ namespace FSI.Application.Project
         private readonly IRepository<ProjectFile, Guid> _projectFileRepository;
         private readonly IRepository<ProjectEvent, Guid> _projectEventRepository;
         private readonly IRepository<ProjectWork, Guid> _projectWorkRepository;
+        private readonly IRepository<ProjectHiring, Guid> _projectHiringRepository;
         private readonly IRepository<ProjectCalendarEvent, Guid> _projectCalendarEventRepository;
         private readonly IRepository<ProjectRequestStartuperInfo, Guid> _projectRequestStartuperInfoRepository;
         private readonly IUserRootRepository _userRepository;
@@ -64,7 +59,7 @@ namespace FSI.Application.Project
 
         private readonly IBlobContainer _blobContainer;
 
-        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository, IDistributedEventBus distributedEventBus, IRepository<ProjectSimilarity, Guid> projectSimilarityRepository, IRepository<UserProjectRating, Guid> userProjectRatingRepository, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository, IDistributedCache<List<PredictRatingProject>> predictRatingProjectForStartuperIdCache, IDistributedCache<string> testCache, IConfiguration configuration, IBlobContainer blobContainer = null)
+        public ProjectAppService(IProjectRepository projectRepository, IRepository<ProjectUser, Guid> projectUserRepository, IHttpContextAccessor httpContextAccessor, IUserRootRepository userRepository, IFileInfomationRepository fileInfomationRepository, IAccountRepository accountRepository, IRepository<ProjectFile, Guid> projectFileRepository, IRepository<ProjectEvent, Guid> projectEventRepository, IRepository<ProjectCalendarEvent, Guid> projectCalendarEventRepository, IRepository<ProjectWork, Guid> projectWorkRepository, IDistributedEventBus distributedEventBus, IRepository<ProjectSimilarity, Guid> projectSimilarityRepository, IRepository<UserProjectRating, Guid> userProjectRatingRepository, IRepository<StartuperSimilarity, Guid> startuperSimilarityRepository, IRepository<ProjectRequestStartuperInfo, Guid> projectRequestStartuperInfoRepository, IDistributedCache<List<PredictRatingProject>> predictRatingProjectForStartuperIdCache, IDistributedCache<string> testCache, IConfiguration configuration, IBlobContainer blobContainer = null, IRepository<ProjectHiring, Guid> projectHiringRepository = null)
         {
             _projectRepository = projectRepository;
             _projectUserRepository = projectUserRepository;
@@ -86,6 +81,7 @@ namespace FSI.Application.Project
             _testCache = testCache;
             Configuration = configuration;
             _blobContainer = blobContainer;
+            _projectHiringRepository = projectHiringRepository;
         }
 
         public async Task<ProjectDto> InsertProjectAsync(CreateProjectDto input)
@@ -102,10 +98,10 @@ namespace FSI.Application.Project
                 Website = input.Website,
                 FoundedTime = input.FoundedTime,
                 ProjectName = input.ProjectName,
-                IsHireNewMember = input.IsHireNewMember,
-                AvailableTimeRequire = input.AvailableTimeRequire,
                 FounderId = this.currentUserId,
-                IsActive = false
+                IsActive = false,
+                IsProfit = input.IsProfit,
+                Scale = input.Scale
             });
 
             await _projectEventRepository.InsertAsync(new ProjectEvent()
@@ -175,8 +171,6 @@ namespace FSI.Application.Project
             project.AvatarUrl = input.AvatarUrl;
             project.Stage = input.Stage;
             project.Website = input.Website;
-            project.IsHireNewMember = input.IsHireNewMember;
-            project.AvailableTimeRequire = input.AvailableTimeRequire;
             project.Fields = input.Fields;
 
             await _distributedEventBus.PublishAsync(new UpdateProjectInfoEto()
@@ -308,10 +302,11 @@ namespace FSI.Application.Project
 
             projects = projects.Where(x => x.IsActive.Value)
                                 .WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.ProjectName.Contains(input.Filter) || x.Description.Contains(input.Filter))
-                                .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Area.Value))
-                                .WhereIf(input.Stages.Count != 0, x => input.Stages.Contains(x.Stage.Value))
+                                .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Area))
+                                .WhereIf(input.Stages.Count != 0, x => input.Stages.Contains(x.Stage))
+                                .WhereIf(input.Scales.Count != 0, x => input.Scales.Contains(x.Scale))
                                 .WhereIf(input.Fields.Count != 0, x => x.Fields.Any(y => input.Fields.Contains(y)))
-                                .WhereIf(input.AvailableTimes.Count != 0, x => x.AvailableTimeRequire.Any(y => input.AvailableTimes.Contains(y))).ToList();
+                                .WhereIf(input.IsProfit.HasValue, x => x.IsProfit == input.IsProfit).ToList();
 
             var myProjectIds = (await _projectUserRepository.GetListAsync(x => x.UserId.Equals(this.currentUserId) && x.IsActive)).Select(x => x.ProjectId).ToList();
             var projectRequestToMeIds = (await _projectUserRepository.GetListAsync(x => x.UserId.Equals(currentUserId) && !x.IsActive && !x.IsFromUser)).Select(x => x.ProjectId).ToList();
@@ -371,12 +366,14 @@ namespace FSI.Application.Project
 
             var projectPageds = projects.Skip(input.SkipCount).Take(input.MaxResultCount).ToList();
             var projectUsers = await _projectUserRepository.GetListAsync();
+            var projectHirings = await _projectHiringRepository.GetQueryableAsync();
 
             projectPageds.ForEach(async p =>
             {
                 var membersAndInvestor = projectUsers.Where(x => x.IsActive && x.ProjectId.Equals(p.Id)).ToList();
                 p.SetProperty("memberCount", membersAndInvestor.Where(x => x.Role != Common.Enums.RoleInProject.Investor).Count());
                 p.SetProperty("totalInvesment", membersAndInvestor.Where(x => x.Role == Common.Enums.RoleInProject.Investor).Select(x => x.TotalInvestment).Sum());
+                p.SetProperty("hiringSpecialies", projectHirings.Where(x => x.ProjectId == p.Id).Select(x => x.Specialize).Distinct().ToList());
             });
 
             return new PagedResultDto<ProjectDto>()
@@ -455,7 +452,7 @@ namespace FSI.Application.Project
                 await _blobContainer.SaveAsync(fileName, stream.ToArray(), overrideExisting: true);
             }
 
-            var fileUrl = "https://fsiconnectedapi.azurewebsites.net/image/" + fileName;
+            var fileUrl = "https://fffsssiii.blob.core.windows.net/avt/host/" + fileName;
 
             await _fileInfomationRepository.InsertAsync(new FileInfomation()
             {
@@ -762,17 +759,18 @@ namespace FSI.Application.Project
 
             var files = _httpContextAccessor.HttpContext.Request.Form.Files.ToList();
             var fileInfos = new List<FileInfomation>();
-            files.ForEach(async file =>
+
+            for(int i=0; i < files.Count; i++)
             {
+                var file = files[i];
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
                 using (var stream = new MemoryStream())
                 {
                     await file.CopyToAsync(stream);
-
                     await _blobContainer.SaveAsync(fileName, stream.ToArray(), overrideExisting: true);
                 }
 
-                var fileUrl = "https://fsiconnectedapi.azurewebsites.net/image/" + fileName;
+                var fileUrl = "https://fffsssiii.blob.core.windows.net/avt/host/" + fileName;
                 fileInfos.Add(new FileInfomation()
                 {
                     AuthorId = this.currentUserId,
@@ -780,7 +778,7 @@ namespace FSI.Application.Project
                     Size = (int)file.Length,
                     ContentType = file.ContentType
                 });
-            });
+            }
 
             await _fileInfomationRepository.InsertManyAsync(fileInfos);
 
@@ -807,7 +805,7 @@ namespace FSI.Application.Project
             var events = await _projectEventRepository.GetListAsync(x => x.ProjectId.Equals(input.ProjectId));
 
             var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(input.ProjectId));
-            if(myProjectUser == null || !myProjectUser.IsActive)
+            if (myProjectUser == null || !myProjectUser.IsActive)
             {
                 events = events.WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.Content.Contains(input.Filter))
                                 .Where(x => x.Type != ProjectEventType.PostNotification || x.IsPublic.Value).ToList();
@@ -983,6 +981,193 @@ namespace FSI.Application.Project
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
             });
+        }
+
+        public async Task<List<ProjectHiringDto>> GetProjectHirings(Guid projectId)
+        {
+            var project = await _projectRepository.GetProjectWithHirings(projectId);
+
+            return ObjectMapper.Map<List<ProjectHiring>, List<ProjectHiringDto>>(project.Hirings);
+        }
+
+        public async Task<ProjectHiringDto> GetProjectHiring(Guid projectId, Guid hiringId)
+        {
+            var project = await _projectRepository.GetProjectWithHirings(projectId);
+            var hiring = project.Hirings.FirstOrDefault(x => x.Id == hiringId);
+
+            return ObjectMapper.Map<ProjectHiring, ProjectHiringDto>(hiring);
+        }
+
+
+        public async Task CreateProjectHiring(CreateOrUpdateProjectHiringDto input)
+        {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(input.ProjectId));
+            if (myProjectUser == null || !myProjectUser.IsActive)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+
+            var hiring = ObjectMapper.Map<CreateOrUpdateProjectHiringDto, ProjectHiring>(input);
+            var project = await _projectRepository.GetAsync(input.ProjectId);
+            if (project.Hirings == null)
+            {
+                project.Hirings = new List<ProjectHiring> { hiring };
+            }
+            else
+                project.Hirings.Add(hiring);
+            await _projectRepository.UpdateAsync(project);
+        }
+
+        public async Task UpdateProjectHiring(CreateOrUpdateProjectHiringDto input)
+        {
+
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(input.ProjectId));
+            if (myProjectUser == null || !myProjectUser.IsActive)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+
+            var project = await _projectRepository.GetProjectWithHirings(input.ProjectId);
+
+            var hiring = project.Hirings.FirstOrDefault(x => x.Id == input.Id);
+
+            hiring.Title = input.Title;
+            hiring.Quantity = input.Quantity;
+            hiring.Specialize = input.Specialize;
+            hiring.WorkingForm = input.WorkingForm;
+            hiring.Location = input.Location;
+            hiring.WorkingAddress = input.WorkingAddress;
+            hiring.WorkingTimes = input.WorkingTimes;
+            hiring.Description = input.Description;
+            hiring.YearOfExps = input.YearOfExps;
+            hiring.Degree = input.Degree;
+            hiring.Skills = input.Skills;
+            hiring.Personalities = input.Personalities;
+            hiring.OtherRequest = input.OtherRequest;
+            hiring.OtherDetail = input.OtherDetail;
+            hiring.Duration = input.Duration;
+
+            hiring.IncomeMode = input.IncomeMode;
+            hiring.IncomeFrom = input.IncomeFrom;
+            hiring.IncomeTo = input.IncomeTo;
+            hiring.IncomeRange = input.IncomeRange;
+
+            await _projectRepository.UpdateAsync(project);
+        }
+
+        public async Task DeleteProjectHiring(Guid projectId, Guid hiringId)
+        {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectId));
+            if (myProjectUser == null || !myProjectUser.IsActive)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+
+            var project = await _projectRepository.GetProjectWithHirings(projectId);
+            var hiring = project.Hirings.FirstOrDefault(x => x.Id == hiringId);
+            project.Hirings.Remove(hiring);
+            await _projectRepository.UpdateAsync(project);
+        }
+
+        public async Task<string> GetProjectCanvasModel(Guid projectId)
+        {
+            var project = await _projectRepository.GetAsync(projectId);
+            return project.TheLeanCanvasBusinessModel;
+        }
+
+        public async Task UpdateProjectCanvasModel(UpdateCanvasModelDto input)
+        {
+            var project = await _projectRepository.GetAsync(input.ProjectId);
+
+            if (project.FounderId != currentUserId)
+                throw new UserFriendlyException("Chỉ founder dự án mới có quyền cập nhật!");
+
+            project.TheLeanCanvasBusinessModel = input.Model;
+            await _projectRepository.UpdateAsync(project);
+        }
+
+        public async Task<List<string>> UploadPitchDeck(Guid projectId)
+        {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
+            if (myProjectUser == null)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+            if (!myProjectUser.IsActive)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+            if ((int)myProjectUser.Role < 2)
+                throw new UserFriendlyException(message: "Bạn không đủ quyền");
+
+            var files = _httpContextAccessor.HttpContext.Request.Form.Files.ToList();
+            var fileInfos = new List<FileInfomation>();
+
+            for(int i=0; i< files.Count; i++)
+            {
+                var file = files[i];
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                using (var stream = new MemoryStream())
+                {
+                    await file.CopyToAsync(stream);
+                    await _blobContainer.SaveAsync(fileName, stream.ToArray(), overrideExisting: true);
+                }
+
+                var fileUrl = "https://fffsssiii.blob.core.windows.net/avt/host/" + fileName;
+                fileInfos.Add(new FileInfomation()
+                {
+                    AuthorId = this.currentUserId,
+                    Url = fileUrl,
+                    Size = (int)file.Length,
+                    ContentType = file.ContentType
+                });
+            }
+
+            await _fileInfomationRepository.InsertManyAsync(fileInfos);
+
+            var images = fileInfos.Select(x => x.Url).ToList();
+
+            var project = await _projectRepository.GetAsync(projectId);
+
+            if (project.PitchDeck == null)
+                project.PitchDeck = new List<string>();
+
+            project.PitchDeck.AddRange(images);
+
+            await _projectRepository.UpdateAsync(project);
+
+            return project.PitchDeck;
+        }
+
+        public async Task<List<string>> GetProjectPitchDeck(Guid projectId)
+        {
+            var project = await _projectRepository.GetAsync(projectId);
+
+            return project.PitchDeck;
+        }
+
+        public async Task<List<string>> DeletePitchDeck(Guid projectId, string pitch)
+        {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
+            if (myProjectUser == null)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+            if (!myProjectUser.IsActive)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+            if ((int)myProjectUser.Role < 2)
+                throw new UserFriendlyException(message: "Bạn không đủ quyền");
+            var fileName = pitch.Replace("https://fffsssiii.blob.core.windows.net/avt/host/", "");
+            await _blobContainer.DeleteAsync(fileName);
+
+            var project = await _projectRepository.GetAsync(projectId);
+            project.PitchDeck.Remove(pitch);
+            await _projectRepository.UpdateAsync(project);
+            return project.PitchDeck;
+        }
+
+        public async Task<List<string>> SortPitchDesk(Guid projectId, List<string> pitchSorted)
+        {
+            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(this.currentUserId) && x.ProjectId.Equals(projectId));
+            if (myProjectUser == null)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+            if (!myProjectUser.IsActive)
+                throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
+            if ((int)myProjectUser.Role < 2)
+                throw new UserFriendlyException(message: "Bạn không đủ quyền");
+
+            var project = await _projectRepository.GetAsync(projectId);
+            project.PitchDeck = pitchSorted;
+            await _projectRepository.UpdateAsync(project);
+            return project.PitchDeck;
         }
     }
 }

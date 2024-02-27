@@ -363,6 +363,13 @@ namespace FSI.Common.DTO
             new DataPointDto("30 - 50", 3),
             new DataPointDto("Trên 50", 4),
         };
+        public static List<DataPointDto> Degree = new List<DataPointDto> {
+            new DataPointDto("Đại học", 1),
+            new DataPointDto("Cao đẳng", 2),
+            new DataPointDto("Trung cấp", 3),
+            new DataPointDto("Trung học", 4),
+        };
+
 
         public static List<DataPointDto> ActivePurpose = new List<DataPointDto> {
             new DataPointDto("Lợi nhuận", 1),
@@ -379,6 +386,30 @@ namespace FSI.Common.DTO
             new DataPointDto("Tăng trưởng 2",6),
             new DataPointDto("Tăng trưởng 3",7),
             new DataPointDto("Tăng trưởng 4",8)
+        };
+
+
+        public static List<DataPointDto> IncomeModes = new List<DataPointDto>
+        {
+            new DataPointDto("Thỏa thuận",1),
+            new DataPointDto("Từ mức",2),
+            new DataPointDto("Đến mức",3),
+            new DataPointDto("Từ mức - Đến mức",4),
+            new DataPointDto("Trong khoảng",5)
+        };
+
+        public static List<DataPointDto> IncomeRanges = new List<DataPointDto>
+        {
+            new DataPointDto("1 - 3 triệu",1),
+            new DataPointDto("3 - 5 triệu",2),
+            new DataPointDto("5 - 7 triệu",3),
+            new DataPointDto("7 - 10 triệu",4),
+            new DataPointDto("10 - 15 triệu",5),
+            new DataPointDto("15 - 20 triệu",6),
+            new DataPointDto("20 - 30 triệu",7),
+            new DataPointDto("Trên 30 triệu",8),
+            new DataPointDto("Trên 50 triệu",9),
+            new DataPointDto("Trên 100 triệu",10)
         };
 
 
