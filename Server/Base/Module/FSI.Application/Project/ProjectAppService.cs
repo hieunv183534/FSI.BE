@@ -476,14 +476,30 @@ namespace FSI.Application.Project
                 throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
             if (!myProjectUser.IsActive)
                 throw new UserFriendlyException(message: "Dự án không tồn tại hoặc bạn không phải thành viên của dự án này!");
-            var file = _httpContextAccessor.HttpContext.Request.Form.Files[0];
+            //var file = _httpContextAccessor.HttpContext.Request.Form.Files[0];
 
-            string filePath = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), @"Docs"),
-                file.FileName);
-            using (Stream fileStream = new FileStream(filePath, FileMode.Create))
+            //string filePath = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), @"Docs"),
+            //    file.FileName);
+            //using (Stream fileStream = new FileStream(filePath, FileMode.Create))
+            //{
+            //    await file.CopyToAsync(fileStream);
+            //}
+
+
+            var file = _httpContextAccessor.HttpContext.Request.Form.Files[0];
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+
+            using (var stream = new MemoryStream())
             {
-                await file.CopyToAsync(fileStream);
+                await file.CopyToAsync(stream);
+
+                await _blobContainer.SaveAsync(fileName, stream.ToArray(), overrideExisting: true);
             }
+
+
+            var fileUrl = "https://fffsssiii.blob.core.windows.net/avt/host/" + fileName;
+
+
 
             var fileInfo = await _fileInfomationRepository.InsertAsync(new FileInfomation()
             {
@@ -492,6 +508,8 @@ namespace FSI.Application.Project
                 Size = (int)file.Length,
                 ContentType = file.ContentType
             });
+
+            fileInfo.SetProperty("LinkDownLoad", fileUrl);
 
             if (visibleForAll) visibleForInvestor = true;
 
