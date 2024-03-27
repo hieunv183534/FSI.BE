@@ -32,5 +32,6 @@ namespace FSI.Application.Contracts.User.DTO
         public string? UniversitySpecialized { get; set; }
 
         public string? StudentId { get; set; }
+
     }
 }

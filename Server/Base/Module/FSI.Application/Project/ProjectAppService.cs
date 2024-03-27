@@ -121,10 +121,10 @@ namespace FSI.Application.Project
                 JoinTime = DateTime.Now
             });
 
-            await _distributedEventBus.PublishAsync(new UpdateProjectInfoEto()
-            {
-                ProjectId = project.Id
-            });
+            //await _distributedEventBus.PublishAsync(new UpdateProjectInfoEto()
+            //{
+            //    ProjectId = project.Id
+            //});
 
             var rs = ObjectMapper.Map<FSI.Domain.Project.Project, ProjectDto>(project);
 
@@ -174,10 +174,10 @@ namespace FSI.Application.Project
             project.Website = input.Website;
             project.Fields = input.Fields;
 
-            await _distributedEventBus.PublishAsync(new UpdateProjectInfoEto()
-            {
-                ProjectId = project.Id
-            });
+            //await _distributedEventBus.PublishAsync(new UpdateProjectInfoEto()
+            //{
+            //    ProjectId = project.Id
+            //});
 
             var rs = await _projectRepository.UpdateAsync(project);
             return ObjectMapper.Map<FSI.Domain.Project.Project, ProjectDto>(rs);
@@ -972,10 +972,10 @@ namespace FSI.Application.Project
                 rqInfo.CertificateAndAward = input.CertificateAndAward;
             }
 
-            await _distributedEventBus.PublishAsync(new UpdateProjectRequestStartuperInfoEto()
-            {
-                ProjectId = input.ProjectId,
-            });
+            //await _distributedEventBus.PublishAsync(new UpdateProjectRequestStartuperInfoEto()
+            //{
+            //    ProjectId = input.ProjectId,
+            //});
         }
 
         public async Task TestAzureRedis(string value)

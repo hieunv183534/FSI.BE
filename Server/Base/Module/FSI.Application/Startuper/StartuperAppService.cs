@@ -121,10 +121,10 @@ namespace FSI.Application.Startuper
             thisStartuper.TargetSpecialize = input.TargetSpecialize;
             var rs = await _startuperRepository.UpdateAsync(thisStartuper);
 
-            await _distributedEventBus.PublishAsync(new UpdateStartuperInfoEto()
-            {
-                StartuperId = rs.Id
-            });
+            //await _distributedEventBus.PublishAsync(new UpdateStartuperInfoEto()
+            //{
+            //    StartuperId = rs.Id
+            //});
             return ObjectMapper.Map<FSI.Domain.Startuper.Startuper, StartuperDto>(rs);
         }
 
@@ -223,10 +223,10 @@ namespace FSI.Application.Startuper
 
                             if (similarities == null)
                             {
-                                await _distributedEventBus.PublishAsync(new UpdateProjectRequestStartuperInfoEto()
-                                {
-                                    ProjectId = input.Mode.Value
-                                });
+                                //await _distributedEventBus.PublishAsync(new UpdateProjectRequestStartuperInfoEto()
+                                //{
+                                //    ProjectId = input.Mode.Value
+                                //});
 
                                 var rq = await _projectRequestStartuperInfoRepository.FindAsync(x => x.ProjectId.Equals(input.Mode));
                                 similarities = rq?.Similarities;
@@ -340,10 +340,10 @@ namespace FSI.Application.Startuper
             await _startuperRepository.UpdateAsync(myUserInfo);
             await _accountRepository.UpdateAsync(acc);
 
-            await _distributedEventBus.PublishAsync(new UpdateStartuperInfoEto()
-            {
-                StartuperId = currentUserId
-            });
+            //await _distributedEventBus.PublishAsync(new UpdateStartuperInfoEto()
+            //{
+            //    StartuperId = currentUserId
+            //});
         }
 
         public async Task<List<ProjectUserDto>> GetMyProjects()
@@ -396,7 +396,7 @@ namespace FSI.Application.Startuper
         {
             var startuperInfo = await _startuperRepository.FindAsync(userId);
             var investorInfo = await _investorRepository.FindAsync(userId);
-            var projects = await _projectRepository.GetListAsync();
+            var projects = await _projectRepository.GetListAsync(x=> x.IsActive.Value);
             var projectUsers = await _projectUserRepository.GetListAsync(x => x.UserId.Equals(userId) && x.IsActive);
 
             var friend = await _friendRepository.FindAsync(x => (x.UserAId.Equals(currentUserId) && x.UserBId.Equals(userId)) ||

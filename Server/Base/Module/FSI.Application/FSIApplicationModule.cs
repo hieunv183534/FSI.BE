@@ -16,8 +16,8 @@ namespace FSI
     typeof(FSIDomainModule),
     typeof(FSIApplicationContractsModule),
     typeof(AbpAutoMapperModule),
-    typeof(AbpEventBusRabbitMqModule),
-    typeof(AbpBackgroundJobsRabbitMqModule),
+    //typeof(AbpEventBusRabbitMqModule),
+    //typeof(AbpBackgroundJobsRabbitMqModule),
     typeof(AbpCachingStackExchangeRedisModule),
     typeof(AbpBlobStoringAzureModule)
     )]

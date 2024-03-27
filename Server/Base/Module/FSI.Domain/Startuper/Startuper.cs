@@ -66,5 +66,12 @@ namespace FSI.Domain.Startuper
 
         // muốn tìm người chuyên môn như nào
         public List<int>? TargetSpecialize { get; set; }
+
+        // 
+        public string? University { get; set; }
+
+        public string? UniversitySpecialized { get; set; }
+
+        public string? StudentId { get; set; }
     }
 }
