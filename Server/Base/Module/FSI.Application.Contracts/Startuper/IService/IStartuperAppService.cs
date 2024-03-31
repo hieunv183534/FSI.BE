@@ -1,6 +1,7 @@
 ﻿using FSI.Application.Contracts.Project.DTO;
 using FSI.Application.Contracts.Startuper.DTO;
 using FSI.Application.Contracts.User.DTO;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,9 @@ namespace FSI.Application.Contracts.Startuper.IService
 
         Task<bool> GetCheckIsNewProfile();
 
-        Task UploadAvatar();
+        Task<string> UploadAvatar();
+
+        Task<string> ChooseDefaultAvatar([FromBody] string url);
 
         Task<StartuperDto> GetMyInfoAsync();
 

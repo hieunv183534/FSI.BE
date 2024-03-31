@@ -218,29 +218,40 @@ namespace FSI.Application.Project
             rs.SetProperty("memberCount", memberCount);
             rs.SetProperty("totalInvesment", totalInvesment);
             RelationWithProject relationWithProject;
-            var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectId));
-            if (myProjectUser == null)
+
+            var myRole = HttpContext.User.FindFirst(ClaimTypes.Role).Value;
+
+            if (myRole == "2")
             {
-                relationWithProject = RelationWithProject.NotMemberOfProject;
+                relationWithProject = RelationWithProject.Admin;
             }
             else
             {
-                if (myProjectUser.IsActive)
+                var myProjectUser = await _projectUserRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectId));
+                if (myProjectUser == null)
                 {
-                    relationWithProject = RelationWithProject.IsMemberOfProject;
+                    relationWithProject = RelationWithProject.NotMemberOfProject;
                 }
                 else
                 {
-                    if (myProjectUser.IsFromUser)
+                    if (myProjectUser.IsActive)
                     {
-                        relationWithProject = RelationWithProject.RequestToProject;
+                        relationWithProject = RelationWithProject.IsMemberOfProject;
                     }
                     else
                     {
-                        relationWithProject = RelationWithProject.ProjectRequestTo;
+                        if (myProjectUser.IsFromUser)
+                        {
+                            relationWithProject = RelationWithProject.RequestToProject;
+                        }
+                        else
+                        {
+                            relationWithProject = RelationWithProject.ProjectRequestTo;
+                        }
                     }
                 }
             }
+
             rs.SetProperty("relationWithProject", relationWithProject);
 
             var rating = await _userProjectRatingRepository.FindAsync(x => x.UserId.Equals(currentUserId) && x.ProjectId.Equals(projectId));
@@ -781,7 +792,7 @@ namespace FSI.Application.Project
             var files = _httpContextAccessor.HttpContext.Request.Form.Files.ToList();
             var fileInfos = new List<FileInfomation>();
 
-            for(int i=0; i < files.Count; i++)
+            for (int i = 0; i < files.Count; i++)
             {
                 var file = files[i];
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
@@ -1114,7 +1125,7 @@ namespace FSI.Application.Project
             var files = _httpContextAccessor.HttpContext.Request.Form.Files.ToList();
             var fileInfos = new List<FileInfomation>();
             var pitchDecks = new List<Pitch>();
-            for(int i=0; i< files.Count; i++)
+            for (int i = 0; i < files.Count; i++)
             {
                 var file = files[i];
                 var id = Guid.NewGuid();

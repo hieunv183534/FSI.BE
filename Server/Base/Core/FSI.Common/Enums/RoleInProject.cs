@@ -19,6 +19,7 @@ namespace FSI.Common.Enums
         IsMemberOfProject,
         NotMemberOfProject,
         ProjectRequestTo,
-        RequestToProject
+        RequestToProject,
+        Admin
     }
 }

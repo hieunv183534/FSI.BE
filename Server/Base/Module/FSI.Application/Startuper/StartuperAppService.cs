@@ -106,19 +106,10 @@ namespace FSI.Application.Startuper
             thisStartuper.RequestSkill = input.RequestSkill;
             thisStartuper.Purpose = input.Purpose;
             thisStartuper.Specialize = input.Specialize;
-
-            //if (()||
-            //    ()||
-            //    ()||
-            //    ()||
-            //    ()||
-            //    ())
-            //    thisStartuper.IsNewProfile = true;
-            //else thisStartuper.IsNewProfile = false;
-
             thisStartuper.IdeaField = input.IdeaField;
             thisStartuper.TargetField = input.TargetField;
             thisStartuper.TargetSpecialize = input.TargetSpecialize;
+            thisStartuper.IsNewProfile = CheckNewProfile(thisStartuper);
             var rs = await _startuperRepository.UpdateAsync(thisStartuper);
 
             //await _distributedEventBus.PublishAsync(new UpdateStartuperInfoEto()
@@ -128,10 +119,42 @@ namespace FSI.Application.Startuper
             return ObjectMapper.Map<FSI.Domain.Startuper.Startuper, StartuperDto>(rs);
         }
 
+        private bool CheckNewProfile(Domain.Startuper.Startuper info)
+        {
+            if(info.Field ==  null) return true;
+            if(info.Personality ==  null || info.Personality.Count ==0) return true;
+            if(info.Skill == null || info.Skill.Count == 0) return true;
+            if(info.YearOfExp ==  null) return true;
+            if(info.AvailableTime ==  null) return true;
+            if(info.Specialize ==  null) return true;
+            if(info.Purpose ==  null) return true;
+
+            if(info.Purpose == 1)
+            {
+                if (info.IdeaField == null || info.IdeaField.Count == 0) return true;
+                if(info.RequestPersonality == null) return true;
+                if (info.RequestSkill == null) return true;
+                if (info.TargetSpecialize == null) return true;
+            }
+            else if(info.Purpose == 2)
+            {
+                if (info.IdeaField == null) return true;
+            }else if(info.Purpose == 3)
+            {
+
+            }
+            else
+            {
+                if(info.TargetField ==  null) return true;
+            }
+            return false;
+        }
+
         public async Task<PagedResultDto<StartuperDto>> PostToGetListStartuper(GetListStartuperForStartuperDto input)
         {
             var startupersQrb = await _startuperRepository.GetQueryableAsync();
-            var startupers = startupersQrb.WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.Phone.Equals(input.Filter) ||
+            var startupers = startupersQrb.Where(x=> !x.IsNewProfile)
+                                    .WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.Phone.Equals(input.Filter) ||
                                                                                             x.Name.Contains(input.Filter) ||
                                                                                             x.Describe.Contains(input.Filter) ||
                                                                                             x.Activity.Contains(input.Filter) ||
@@ -283,7 +306,7 @@ namespace FSI.Application.Startuper
             return (bool)startuper.IsNewProfile;
         }
 
-        public async Task UploadAvatar()
+        public async Task<string> UploadAvatar()
         {
             var file = _httpContextAccessor.HttpContext.Request.Form.Files[0];
             var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
@@ -308,6 +331,7 @@ namespace FSI.Application.Startuper
             var myInfo = await _startuperRepository.GetAsync(this.currentUserId);
             myInfo.AvatarUrl = fileUrl;
             await _startuperRepository.UpdateAsync(myInfo);
+            return myInfo.AvatarUrl;
         }
 
         public async Task<StartuperDto> GetMyInfoAsync()
@@ -449,5 +473,12 @@ namespace FSI.Application.Startuper
             return ObjectMapper.Map<UserRoot, UserRootDto>(user);
         }
 
+        public async Task<string> ChooseDefaultAvatar([FromBody]string url)
+        {
+            var myInfo = await _startuperRepository.GetAsync(this.currentUserId);
+            myInfo.AvatarUrl = url;
+            await _startuperRepository.UpdateAsync(myInfo);
+            return myInfo.AvatarUrl;
+        }
     }
 }

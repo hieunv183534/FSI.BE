@@ -46,14 +46,17 @@ namespace FSI.Domain.Startuper
 
         public List<string>? Collab { get; set; }
 
+        // chuyên môn của mình
+        public List<int>? Specialize { get; set; }
+
+        // mục đích tham gia fsi
+        public int Purpose { get; set; }
+
         // điểm cộng tính cách
         public List<int>? RequestPersonality { get; set; }
 
         // điểm cộng kĩ năng
         public List<int>? RequestSkill { get; set; }
-
-        // mục đích tham gia fsi
-        public int Purpose { get; set; }
 
         // lĩnh vực của ý tưởng nếu có
         public List<int>? IdeaField { get; set; }
@@ -61,17 +64,9 @@ namespace FSI.Domain.Startuper
         // lĩnh vực của dự án/ ý tưởng muốn tham gia
         public List<int>? TargetField { get; set; }
 
-        // chuyên môn của mình
-        public List<int>? Specialize { get; set; }
 
         // muốn tìm người chuyên môn như nào
         public List<int>? TargetSpecialize { get; set; }
 
-        // 
-        public string? University { get; set; }
-
-        public string? UniversitySpecialized { get; set; }
-
-        public string? StudentId { get; set; }
     }
 }
