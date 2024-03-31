@@ -221,7 +221,7 @@ namespace FSI.Application.Project
 
             var myRole = HttpContext.User.FindFirst(ClaimTypes.Role).Value;
 
-            if (myRole == "2")
+            if (myRole == "Admin")
             {
                 relationWithProject = RelationWithProject.Admin;
             }
