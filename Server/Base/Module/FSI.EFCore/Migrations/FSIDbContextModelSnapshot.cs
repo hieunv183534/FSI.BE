@@ -3,7 +3,6 @@ using System;
 using FSI.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -12,10 +11,9 @@ using Volo.Abp.EntityFrameworkCore;
 namespace FSI.EFCore.Migrations
 {
     [DbContext(typeof(FSIDbContext))]
-    [Migration("20230717091846_ProjectRequestStartuperInfoSimilar")]
-    partial class ProjectRequestStartuperInfoSimilar
+    partial class FSIDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -244,6 +242,9 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("char(36)")
                         .HasColumnName("LastModifierId");
 
+                    b.Property<string>("MeetInviteKeys")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Tag")
                         .HasColumnType("longtext");
 
@@ -311,6 +312,9 @@ namespace FSI.EFCore.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
 
+                    b.Property<bool>("IsPinned")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("LastModificationTime");
@@ -318,6 +322,10 @@ namespace FSI.EFCore.Migrations
                     b.Property<Guid?>("LastModifierId")
                         .HasColumnType("char(36)")
                         .HasColumnName("LastModifierId");
+
+                    b.Property<string>("Reacts")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<Guid>("SenderId")
                         .HasColumnType("char(36)");
@@ -524,11 +532,8 @@ namespace FSI.EFCore.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("char(36)");
 
-                    b.Property<int?>("Area")
+                    b.Property<int>("Area")
                         .HasColumnType("int");
-
-                    b.Property<string>("AvailableTimeRequire")
-                        .HasColumnType("longtext");
 
                     b.Property<string>("AvatarUrl")
                         .HasColumnType("longtext");
@@ -569,12 +574,13 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("Fields")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime?>("FoundedTime")
+                    b.Property<DateTime>("FoundedTime")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid?>("FounderId")
+                    b.Property<Guid>("FounderId")
                         .HasColumnType("char(36)");
 
                     b.Property<bool?>("IsActive")
@@ -586,7 +592,7 @@ namespace FSI.EFCore.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
 
-                    b.Property<bool?>("IsHireNewMember")
+                    b.Property<bool>("IsProfit")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime?>("LastModificationTime")
@@ -597,14 +603,24 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("char(36)")
                         .HasColumnName("LastModifierId");
 
+                    b.Property<string>("PitchDeck")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("ProjectEnglishText")
                         .HasColumnType("longtext");
 
                     b.Property<string>("ProjectName")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int?>("Stage")
+                    b.Property<int>("Scale")
                         .HasColumnType("int");
+
+                    b.Property<int>("Stage")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TheLeanCanvasBusinessModel")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Website")
                         .HasColumnType("longtext");
@@ -665,6 +681,9 @@ namespace FSI.EFCore.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
 
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("LastModificationTime");
@@ -688,6 +707,8 @@ namespace FSI.EFCore.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("ProjectId");
 
                     b.ToTable("ProjectCalendarEvents");
                 });
@@ -744,6 +765,9 @@ namespace FSI.EFCore.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
 
+                    b.Property<bool?>("IsPublic")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("LastModificationTime");
@@ -776,6 +800,8 @@ namespace FSI.EFCore.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PosterId");
+
+                    b.HasIndex("ProjectId");
 
                     b.HasIndex("UserId");
 
@@ -856,6 +882,109 @@ namespace FSI.EFCore.Migrations
                     b.ToTable("ProjectFiles");
                 });
 
+            modelBuilder.Entity("FSI.Domain.Project.ProjectHiring", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<int?>("Degree")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("Duration")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("IncomeFrom")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IncomeMode")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("IncomeRange")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("IncomeTo")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<int?>("Location")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OtherDetail")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("OtherRequest")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Personalities")
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Skills")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Specialize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("WorkingAddress")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("WorkingForm")
+                        .HasColumnType("int");
+
+                    b.Property<string>("WorkingTimes")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("YearOfExps")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("ProjectHiring");
+                });
+
             modelBuilder.Entity("FSI.Domain.Project.ProjectRequestStartuperInfo", b =>
                 {
                     b.Property<Guid>("Id")
@@ -932,7 +1061,6 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Similarities")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Skills")
@@ -1166,6 +1294,8 @@ namespace FSI.EFCore.Migrations
                     b.HasIndex("AssigneeId");
 
                     b.HasIndex("AssignorId");
+
+                    b.HasIndex("ProjectId");
 
                     b.ToTable("ProjectWorks");
                 });
@@ -1402,11 +1532,8 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("ExtraProperties");
 
-                    b.Property<bool?>("Gender")
+                    b.Property<bool>("Gender")
                         .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("IdentityCard")
-                        .HasColumnType("longtext");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
@@ -1414,10 +1541,10 @@ namespace FSI.EFCore.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
 
-                    b.Property<bool?>("IsNewProfile")
+                    b.Property<bool>("IsNewProfile")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<int?>("Job")
+                    b.Property<int>("Job")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("LastModificationTime")
@@ -1428,7 +1555,7 @@ namespace FSI.EFCore.Migrations
                         .HasColumnType("char(36)")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<int?>("Location")
+                    b.Property<int>("Location")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -1437,6 +1564,15 @@ namespace FSI.EFCore.Migrations
 
                     b.Property<string>("Phone")
                         .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("StudentId")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("University")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("UniversitySpecialized")
                         .HasColumnType("longtext");
 
                     b.Property<string>("WorkingPlace")
@@ -1492,13 +1628,28 @@ namespace FSI.EFCore.Migrations
                     b.Property<string>("CertificateAndAward")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Collab")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Describe")
                         .HasColumnType("longtext");
 
                     b.Property<int?>("Field")
                         .HasColumnType("int");
 
+                    b.Property<string>("IdeaField")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Personality")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Purpose")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RequestPersonality")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("RequestSkill")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Skill")
@@ -1507,7 +1658,16 @@ namespace FSI.EFCore.Migrations
                     b.Property<string>("Speciality")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Specialize")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("StartuperEnglishText")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("TargetField")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("TargetSpecialize")
                         .HasColumnType("longtext");
 
                     b.Property<string>("WorkingExperience")
@@ -1515,9 +1675,6 @@ namespace FSI.EFCore.Migrations
 
                     b.Property<int?>("YearOfExp")
                         .HasColumnType("int");
-
-                    b.Property<bool?>("hasProject")
-                        .HasColumnType("tinyint(1)");
 
                     b.HasDiscriminator().HasValue("Startuper");
                 });
@@ -1590,7 +1747,9 @@ namespace FSI.EFCore.Migrations
                 {
                     b.HasOne("FSI.Domain.User.UserRoot", "Founder")
                         .WithMany()
-                        .HasForeignKey("FounderId");
+                        .HasForeignKey("FounderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Founder");
                 });
@@ -1603,7 +1762,15 @@ namespace FSI.EFCore.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FSI.Domain.Project.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("FSI.Domain.Project.ProjectEvent", b =>
@@ -1612,11 +1779,19 @@ namespace FSI.EFCore.Migrations
                         .WithMany()
                         .HasForeignKey("PosterId");
 
+                    b.HasOne("FSI.Domain.Project.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("FSI.Domain.User.UserRoot", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 
                     b.Navigation("Poster");
+
+                    b.Navigation("Project");
 
                     b.Navigation("User");
                 });
@@ -1638,6 +1813,15 @@ namespace FSI.EFCore.Migrations
                     b.Navigation("File");
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("FSI.Domain.Project.ProjectHiring", b =>
+                {
+                    b.HasOne("FSI.Domain.Project.Project", null)
+                        .WithMany("Hirings")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("FSI.Domain.Project.ProjectUser", b =>
@@ -1669,9 +1853,17 @@ namespace FSI.EFCore.Migrations
                         .WithMany()
                         .HasForeignKey("AssignorId");
 
+                    b.HasOne("FSI.Domain.Project.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Assignee");
 
                     b.Navigation("Assignor");
+
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("FSI.Domain.User.Friend", b =>
@@ -1702,6 +1894,11 @@ namespace FSI.EFCore.Migrations
                         .IsRequired();
 
                     b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("FSI.Domain.Project.Project", b =>
+                {
+                    b.Navigation("Hirings");
                 });
 #pragma warning restore 612, 618
         }

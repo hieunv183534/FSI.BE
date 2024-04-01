@@ -49,7 +49,7 @@ namespace FSI.Application.Contracts.Chat.DTO
 
         public bool? IsSeen { get; set; }
 
-        public List<MeetInviteKeyDto> MeetInviteKeys { get; set; }
+        public List<MeetInviteKeyDto>? MeetInviteKeys { get; set; }
     }
 
     public class MeetInviteKeyDto
