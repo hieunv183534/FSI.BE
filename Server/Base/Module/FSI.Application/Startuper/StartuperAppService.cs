@@ -138,7 +138,7 @@ namespace FSI.Application.Startuper
             }
             else if(info.Purpose == 2)
             {
-                if (info.IdeaField == null) return true;
+                if (info.TargetField == null) return true;
             }else if(info.Purpose == 3)
             {
 
@@ -167,6 +167,8 @@ namespace FSI.Application.Startuper
                                     .WhereIf(input.AvailableTimes.Count != 0, x => input.AvailableTimes.Contains(x.AvailableTime.Value))
                                     .WhereIf(input.Skills.Count != 0, x => x.Skill.Any(y => input.Skills.Contains(y)))
                                     .WhereIf(input.Personalities.Count != 0, x => x.Personality.Any(y => input.Personalities.Contains(y)))
+                                    .WhereIf(input.IsStudent.Value && !String.IsNullOrWhiteSpace(input.University) , x => x.University == input.University)
+                                    .WhereIf(input.IsStudent.Value && !String.IsNullOrWhiteSpace(input.UniversitySpecialized) , x => x.UniversitySpecialized == input.UniversitySpecialized)
                                     .Where(x => !x.Id.Equals(currentUserId))
                                     .ToList();
 
