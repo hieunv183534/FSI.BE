@@ -152,7 +152,7 @@ namespace FSI.Application.Startuper
 
         public async Task<PagedResultDto<StartuperDto>> PostToGetListStartuper(GetListStartuperForStartuperDto input)
         {
-            var startupersQrb = await _startuperRepository.GetQueryableAsync();
+            var startupersQrb = await _startuperRepository.GetListAsync();
             var startupers = startupersQrb.Where(x=> !x.IsNewProfile)
                                     .WhereIf(!String.IsNullOrWhiteSpace(input.Filter), x => x.Phone.Equals(input.Filter) ||
                                                                                             x.Name.Contains(input.Filter) ||
@@ -160,7 +160,8 @@ namespace FSI.Application.Startuper
                                                                                             x.Activity.Contains(input.Filter) ||
                                                                                             x.WorkingExperience.Contains(input.Filter) ||
                                                                                             x.StudentId.Equals(input.Filter))
-                                    .WhereIf(input.Specializies.Count != 0, x => input.Specializies.Contains(x.Field.Value))
+                                    .WhereIf(input.Specializies.Count != 0, x => x.Specialize.Any(y => input.Specializies.Contains(y)))
+                                    .WhereIf(input.Purposes.Count != 0, x => input.Purposes.Contains(x.Purpose))
                                     .WhereIf(input.Areas.Count != 0, x => input.Areas.Contains(x.Location))
                                     .WhereIf(input.YearOfExps.Count != 0, x => input.YearOfExps.Contains(x.YearOfExp.Value))
                                     .WhereIf(input.AvailableTimes.Count != 0, x => input.AvailableTimes.Contains(x.AvailableTime.Value))
