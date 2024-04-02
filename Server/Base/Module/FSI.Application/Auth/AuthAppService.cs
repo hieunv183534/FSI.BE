@@ -3,6 +3,7 @@ using BCrypt.Net;
 using FSI.Application.Contracts.Auth.DTO;
 using FSI.Application.Contracts.Auth.IService;
 using FSI.Application.Contracts.User.DTO;
+using FSI.Application.Mailling;
 using FSI.Domain.Account;
 using FSI.Domain.Investor;
 using FSI.Domain.Startuper;
@@ -35,13 +36,15 @@ namespace FSI.Application.Auth
 
         protected HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ISendMailService _mailService;
 
-        public AuthAppService(IAccountRepository accountRepository, IStartuperRepository startuperRepository, IInvestorRepository investorRepository, IHttpContextAccessor httpContextAccessor)
+        public AuthAppService(IAccountRepository accountRepository, IStartuperRepository startuperRepository, IInvestorRepository investorRepository, IHttpContextAccessor httpContextAccessor, ISendMailService mailService)
         {
             _accountRepository = accountRepository;
             _startuperRepository = startuperRepository;
             _investorRepository = investorRepository;
             _httpContextAccessor = httpContextAccessor;
+            _mailService = mailService;
         }
 
         [Authorize]
@@ -64,8 +67,11 @@ namespace FSI.Application.Auth
         [HttpPost]
         public async Task<string> Login(LoginDto loginDto)
         {
+
             var acc = await _accountRepository.FindAsync(a => a.Email.Equals(loginDto.Username) || a.PhoneNumber.Equals(loginDto.Username));
             if (acc == null) throw new AbpAuthorizationException();
+
+            await _mailService.SendEmailAsync(acc.Email, "Đăng nhập thành công trên FSI Connected!", "Cảm ơn bạn đã sử dụng dịch vụ của FSI Connected. Hi vọng bạn hài lòng với chất lượng dịch vụ của chúng tôi!");
 
             if (BCrypt.Net.BCrypt.Verify(loginDto.Password, acc.PasswordHash))
             {

@@ -1,4 +1,5 @@
 ﻿using FSI.Application.Agora;
+using FSI.Application.Mailling;
 using FSI.GrpcClient.RecommendationSystem;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp;
@@ -46,7 +47,11 @@ namespace FSI
             });
 
             context.Services.AddScoped<IRecommendationSystem, RecommendationSystem>();
+            context.Services.AddScoped<ISendMailService, SendMailService>();
             context.Services.AddSingleton<MeetHubService>();
+
+            var mailsettings = configuration.GetSection("MailSettings");
+            context.Services.Configure<MailSettings>(mailsettings);
         }
 
     }

@@ -22,8 +22,6 @@ namespace FSI.Application.Contracts.Project.DTO
 
         public bool? IsProfit { get; set; }
 
-        public WorkingForm? WorkingForm { get; set; }
-
         public RelationWithProject RelationWithProject { get; set; }
     }
 }
